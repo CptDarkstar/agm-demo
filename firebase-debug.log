@@ -1,0 +1,46 @@
+[debug] [2024-01-25T14:29:29.936Z] ----------------------------------------------------------------------
+[debug] [2024-01-25T14:29:29.938Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\cptda\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2024-01-25T14:29:29.938Z] CLI Version:   13.0.3
+[debug] [2024-01-25T14:29:29.938Z] Platform:      win32
+[debug] [2024-01-25T14:29:29.938Z] Node Version:  v18.17.1
+[debug] [2024-01-25T14:29:29.939Z] Time:          Thu Jan 25 2024 16:29:29 GMT+0200 (South Africa Standard Time)
+[debug] [2024-01-25T14:29:29.939Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-01-25T14:29:30.017Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-01-25T14:29:30.017Z] > authorizing via signed-in user (cpt.darkstar1@gmail.com)
+[debug] [2024-01-25T14:29:30.017Z] [iam] checking project rns-agm-vote for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2024-01-25T14:29:30.019Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rns-agm-vote:testIamPermissions [none]
+[debug] [2024-01-25T14:29:30.019Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rns-agm-vote:testIamPermissions x-goog-quota-user=projects/rns-agm-vote
+[debug] [2024-01-25T14:29:30.019Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rns-agm-vote:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-01-25T14:29:31.867Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/rns-agm-vote:testIamPermissions 200
+[debug] [2024-01-25T14:29:31.867Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rns-agm-vote:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-01-25T14:29:31.868Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote [none]
+[debug] [2024-01-25T14:29:32.396Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote 200
+[debug] [2024-01-25T14:29:32.396Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote {"projectId":"rns-agm-vote","projectNumber":"619154242072","displayName":"RNS AGM Vote","name":"projects/rns-agm-vote","resources":{"hostingSite":"rns-agm-vote"},"state":"ACTIVE","etag":"1_f22206ce-1bbf-423a-a737-7aa1cca5a2a0"}
+[debug] [2024-01-25T14:29:35.361Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites pageToken=&pageSize=10
+[debug] [2024-01-25T14:29:37.687Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites 200
+[debug] [2024-01-25T14:29:37.687Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites {"sites":[{"name":"projects/rns-agm-vote/sites/rns-agm-vote","defaultUrl":"https://rns-agm-vote.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2024-01-25T14:29:37.687Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites 
+[debug] [2024-01-25T14:29:39.763Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites 200
+[debug] [2024-01-25T14:29:39.763Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/rns-agm-vote/sites {"sites":[{"name":"projects/rns-agm-vote/sites/rns-agm-vote","defaultUrl":"https://rns-agm-vote.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2024-01-25T14:29:39.763Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote/webApps/-/config [none]
+[debug] [2024-01-25T14:29:40.669Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote/webApps/-/config 200
+[debug] [2024-01-25T14:29:40.669Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/rns-agm-vote/webApps/-/config {"projectId":"rns-agm-vote","appId":"1:619154242072:web:e9c3ad885ad759f210616d","storageBucket":"rns-agm-vote.appspot.com","apiKey":"AIzaSyDO5PoainkCKKYQAqUvf-jM4hsd7Cn2cXU","authDomain":"rns-agm-vote.firebaseapp.com","messagingSenderId":"619154242072"}
+[info] 
+   Thank you for trying our experimental support for SvelteKit on Firebase Hosting.
+   While this integration is maintained by Googlers it is not a supported Firebase product.
+   Issues filed on GitHub will be addressed on a best-effort basis by maintainers and other community members.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/frameworks-overview
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2024-01-25T14:30:22.307Z] Error: Command failed: npm i --omit dev --no-audit
+    at checkExecSyncError (node:child_process:885:11)
+    at execSync (node:child_process:957:15)
+    at prepareFrameworks (C:\Users\cptda\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\index.js:372:42)
+    at async deploy (C:\Users\cptda\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:55:13)
+[error] 
+[error] Error: An unexpected error has occurred.
