@@ -35,7 +35,7 @@
 </script>
 
 <div class="authContainer">
-    <img src="rnslogo.png" alt="">
+    <img class="logo" src="rnslogo.png" alt="">
     <form>
         {#if error}
             <p class="error">The information you have enterd is not valid. Please contact RNS.</p>
@@ -98,8 +98,8 @@
 <style>
     .authContainer {
         display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
+        flex-direction: row;
+        flex-wrap: nowrap;
         align-content: flex-end;
         align-items: center;
         justify-content: center;
@@ -107,8 +107,13 @@
         /* padding: 20px; */
         padding-right: 100px;
     }
+    .logo{
+        align-self: flex-start;
+    }
     form {
         display: flex;
+        position: sticky;
+        left: 100%;
         flex-direction: column;
         gap: 15px;
         width: 400px;
@@ -176,5 +181,24 @@
         color: white;
         display: grid;
         place-items: center;
+    }
+    @media(max-width: 430px) {
+        .authContainer{
+            padding: 10px;
+            justify-content: flex-start;
+        }
+        .logo{
+            width: 150px;
+        }
+    }
+    @media(max-width: 720px) {
+        .authContainer{
+            padding: 10px;
+            padding-top: 0%;
+            align-content: center;
+        }
+        .logo{
+            width: 150px;
+        }
     }
 </style>
