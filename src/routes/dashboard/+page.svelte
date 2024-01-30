@@ -13,23 +13,6 @@ import { authHandlers } from "../../store/store";
       }
     }
   }
-
-  /* let active = false
-    
-  
-
-  function animate() {
-     if (active = true) {
-      icon.classList.add('fa-beat')
-    } else {
-      icon.classList.remove('fa-beat')
-    }
-  }
-  function freez(){
-    menu.classList.remove('fa-beat')
-  } */
-  
-  /* const icon = document.getElementsByID('icon'); */
 </script>
 
 
@@ -39,7 +22,7 @@ import { authHandlers } from "../../store/store";
       <img
         alt="logo"
         src="rnslogo.png"
-        class="agm-voting-image Logo"
+        class="agm-voting-image logo"
       />
       <div class="agm-voting-btn-group">
         
@@ -101,7 +84,7 @@ import { authHandlers } from "../../store/store";
   }
   .agm-voting-header {
     width: 100%;
-    height: 150px;
+    height: auto;
     display: flex;
     max-width: 1400px;
     min-width: 1400px;
@@ -122,12 +105,19 @@ import { authHandlers } from "../../store/store";
   .log_out {
     color: #ffffff;
     width: auto;
-    height: auto;
+    height: 100%;
     font-size: 30px;
+    text-align: center;
     border-width: 0px;
     margin-right: 32px;
     text-decoration: none;
     background-color: #6ba3ab;
+    font-family: 'Merriweather', sans-serif ;
+    padding-top: 8px;
+    padding-left: 16px;
+    border-radius: 4px;
+    padding-right: 16px;
+    padding-bottom: 8px;
   }
   .button {
     display: inline-block;
@@ -219,5 +209,42 @@ import { authHandlers } from "../../store/store";
     fill: #fff;
     color: #fff;
     background-color: #595959;
+  }
+  @media(max-width: 430px) {
+    .agm-voting-header{
+      max-width: 100%;
+      min-width: 100%;
+    }
+    .logo{
+      width: 100px;
+    }
+    .agm-voting-btn-group {
+    width: 65%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    }
+    .agm-voting-text, .agm-voting-text01, .agm-voting-text03 {
+    width: 100%;
+    font-size: 15px;
+    font-style: normal;
+    text-align: center;
+    font-weight: 500;
+    margin-right: 4px;
+    vertical-align: middle;
+    }
+    .log_out{
+      font-size: 15px;
+      margin-right: 0%;
+      padding-top: 8px;
+      padding-left: 16px;
+      border-radius: 4px;
+      padding-right: 16px;
+      padding-bottom: 8px;
+    }
   }
 </style>
