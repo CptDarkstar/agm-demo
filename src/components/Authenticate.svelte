@@ -182,15 +182,6 @@
         display: grid;
         place-items: center;
     }
-    @media(max-width: 430px) {
-        .authContainer{
-            padding: 10px;
-            justify-content: flex-start;
-        }
-        .logo{
-            width: 150px;
-        }
-    }
     @media(max-width: 720px) {
         .authContainer{
             padding: 10px;
@@ -199,6 +190,19 @@
         }
         .logo{
             width: 150px;
+        }
+    }
+    @media(max-width: 430px) {
+        .authContainer{
+            padding: 10px;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        .logo{
+            width: 110px;
+        }
+        form{
+            top: 5%;
         }
     }
 </style>
