@@ -154,7 +154,6 @@ import { authHandlers } from "../../store/store";
     list-style-type: none;
     background-color: #6ba3ab;
     list-style-position: inside;
-    
   }
   .agm-voting-dropdown01 {
     width: 100%;
@@ -236,6 +235,49 @@ import { authHandlers } from "../../store/store";
     font-weight: 500;
     margin-right: 4px;
     vertical-align: middle;
+    }
+    .log_out{
+      font-size: 15px;
+      margin-right: 0%;
+      padding-top: 8px;
+      padding-left: 16px;
+      border-radius: 4px;
+      padding-right: 16px;
+      padding-bottom: 8px;
+    }
+  }
+  @media(max-width: 720px) {
+    .agm-voting-header{
+      max-width: 100%;
+      min-width: 100%;
+    }
+    .logo{
+      width: 100px;
+    }
+    .agm-voting-text, .agm-voting-text01, .agm-voting-text03 {
+      width: 100%;
+      font-size: 15px;
+      font-style: normal;
+      text-align: center;
+      font-weight: 500;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .agm-voting-dropdown-list {
+      top: 65px;
+      right: 4.9%;
+      border-radius: 4px;
+      /* width: 234%; */
+      height: auto;
+      display: none;
+      z-index: 100;
+      position: absolute;
+      transition: 0.3s;
+      align-items: stretch;
+      flex-direction: column;
+      list-style-type: none;
+      background-color: #6ba3ab;
+      list-style-position: inside;
     }
     .log_out{
       font-size: 15px;
