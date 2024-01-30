@@ -194,12 +194,16 @@
     }
     @media(max-width: 430px) {
         .authContainer{
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
             padding: 10px;
             justify-content: flex-start;
             align-items: flex-start;
         }
         .logo{
-            width: 110px;
+            width: 165px;
+            align-self: center;
         }
         form{
             top: 5%;

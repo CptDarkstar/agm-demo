@@ -258,7 +258,7 @@ import { authHandlers } from "../../store/store";
       min-width: 100%;
     }
     .logo{
-      width: 100px;
+      width: 165px;
     }
     .agm-voting-btn-group {
     width: 65%;
