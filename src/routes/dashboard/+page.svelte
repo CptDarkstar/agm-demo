@@ -141,8 +141,8 @@ import { authHandlers } from "../../store/store";
     cursor: pointer;
   }
   .agm-voting-dropdown-list {
-    top: 102px;
-    right: 23.9%;
+    top: 125px;
+    right: auto;
     /* width: 234%; */
     height: auto;
     display: none;

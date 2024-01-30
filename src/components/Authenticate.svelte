@@ -177,6 +177,7 @@
         background: #6ba3ab;
         cursor: pointer;
         padding: 10px 0;
+        font-family: 'Merriweather', sans-serif ;
         font-size: large;
         color: white;
         display: grid;
