@@ -42,13 +42,6 @@
         }
       }
     }
-
-    // Check if the user is logged in
-    if (!user && sessionStorage.getItem('loggedIn') === 'true') {
-        sessionStorage.removeItem('loggedIn');
-        window.location.href = "/";
-        return;
-    }
  });
 });
 </script>
