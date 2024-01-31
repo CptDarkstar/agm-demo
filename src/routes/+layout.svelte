@@ -3,16 +3,17 @@
   import { auth, db } from "../lib/firebase/firebase";
   import { getDoc, doc, setDoc } from "firebase/firestore";
   import '@fortawesome/fontawesome-free/css/all.min.css';
+  import { loggedInStore } from '../store/store';
 
   const nonAuthRoutes = ["/"];
   
-  onMount(() => {
+onMount(() => {
  console.log("Mounting!");
  const unsubscribe = auth.onAuthStateChanged(async user => {
     const currentPath = window.location.pathname;
 
     if (user) {
-      sessionStorage.setItem('loggedIn', 'true'); // User is logged in
+      loggedInStore.set(true); // User is logged in
 
       if (currentPath === "/") {
         window.location.href = "/dashboard";
@@ -33,7 +34,7 @@
         const userData = docSnap.data()
       }
     } else {
-      sessionStorage.removeItem('loggedIn'); // User is not logged in
+      loggedInStore.set(false); // User is not logged in
 
       if (!nonAuthRoutes.includes(currentPath)) {
         if (window.location.pathname !== "/") {
@@ -41,6 +42,13 @@
           return;
         }
       }
+    }
+
+    // Check if the user is logged in
+    if (!user && $loggedInStore) {
+        loggedInStore.set(false);
+        window.location.href = "/";
+        return;
     }
  });
 });

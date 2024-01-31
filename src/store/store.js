@@ -6,7 +6,7 @@ export const authStore = writable({
     user: null,
     loading: true,
     data: {}
-})
+});
 
 export const authHandlers = {
     login: async(email, pass) => {
@@ -17,3 +17,32 @@ export const authHandlers = {
         await signOut(auth)
     }
 };
+
+function persistentStore(key, initialValue) {
+    const { subscribe, set, update } = writable(initialValue);
+   
+    const loadFromSessionStorage = () => {
+       const value = sessionStorage.getItem(key);
+       if (value) {
+         set(JSON.parse(value));
+       }
+    };
+   
+    const saveToSessionStorage = (value) => {
+       sessionStorage.setItem(key, JSON.stringify(value));
+    };
+   
+    return {
+       subscribe,
+       set: (value) => {
+         saveToSessionStorage(value);
+         return set(value);
+       },
+       update: (updater) => {
+         const newValue = updater($loggedInStore);
+         saveToSessionStorage(newValue);
+         return update(() => newValue);
+       },
+    };
+}
+   export const loggedInStore = persistentStore("loggedIn", false);
