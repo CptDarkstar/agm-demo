@@ -5,19 +5,9 @@
   import '@fortawesome/fontawesome-free/css/all.min.css';
 
   const nonAuthRoutes = ["/"];
-
+  
   onMount(() => {
     console.log("Mounting!");
-
-    window.addEventListener('beforeunload', function (e) {
-       // Perform user sign-out action here
-       auth.signOut().then(() => {
-           console.log('User signed out before closing the tab');
-       }).catch(error => {
-           // Handle any errors that occur during the sign-out process
-           console.error('Error occurred during user sign-out:', error);
-       });
-    });
     const unsubscribe = auth.onAuthStateChanged(async user => {
       const currentPath = window.location.pathname;
       
