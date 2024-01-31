@@ -11,12 +11,6 @@
  const unsubscribe = auth.onAuthStateChanged(async user => {
     const currentPath = window.location.pathname;
 
-    if (!user && sessionStorage.getItem('loggedIn') === 'true') {
-        sessionStorage.removeItem('loggedIn');
-        window.location.href = "/";
-        return;
-    }
-
     if (user) {
       sessionStorage.setItem('loggedIn', 'true'); // User is logged in
 
@@ -47,6 +41,13 @@
           return;
         }
       }
+    }
+
+    // Check if the user is logged in
+    if (!user && sessionStorage.getItem('loggedIn') === 'true') {
+        sessionStorage.removeItem('loggedIn');
+        window.location.href = "/";
+        return;
     }
  });
 });
