@@ -76,8 +76,7 @@
             />
         </div>
         <a
-        href="https://#"
-        target="_blank"
+        href="/forgot_password"
         rel="noreferrer noopener"
         class="log-in-text09"
         >

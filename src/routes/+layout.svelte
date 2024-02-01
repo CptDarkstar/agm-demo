@@ -4,7 +4,7 @@
   import { getDoc, doc, setDoc } from "firebase/firestore";
   import '@fortawesome/fontawesome-free/css/all.min.css';
 
-  const nonAuthRoutes = ["/"];
+  const nonAuthRoutes = ["/", "/forgot_password"];
   
   onMount(() => {
     console.log("Mounting!");

@@ -19,47 +19,25 @@ import { authHandlers } from "../../store/store";
 <div class="maincontainer">
     
     <header data-role="Header" class="agm-voting-header">
-      <img
-        alt="logo"
-        src="rnslogo.png"
-        class="agm-voting-image logo"
-      />
+      <img alt="logo" src="rnslogo.png" class="agm-voting-image logo"/>
       <div class="agm-voting-btn-group">
         
-        <div
-        data-thq="thq-dropdown"
-        class="drop_down_menu list-item agm-voting-dropdown"
-        >
-          <div
-            data-thq="thq-dropdown-toggle"
-            class="agm-voting-dropdown-toggle"
-          >
-                <span class="agm-voting-text">Menu</span>
+        <div data-thq="thq-dropdown" class="drop_down_menu list-item agm-voting-dropdown">
+          <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle">
+              <span class="agm-voting-text">Menu</span>
           </div>
           <ul data-thq="thq-dropdown-list" class="agm-voting-dropdown-list">
             <a on:mouseenter={anime} on:mouseleave={anime} href="Share Holders">
-              <li
-                data-thq="thq-dropdown"
-                class="agm-voting-dropdown01 list-item"
-              >
-                <div
-                  data-thq="thq-dropdown-toggle"
-                  class="agm-voting-dropdown-toggle01"
-                >
+              <li data-thq="thq-dropdown" class="agm-voting-dropdown01 list-item">
+                <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle01">
                   <i bind:this={content} id="icon" class="icon fa-regular fa-user" style="color: #ffffff;"></i>
                   <span class="agm-voting-text01">Share Holders</span>
                 </div>
               </li>
             </a>
             <a href="Voting">
-              <li
-                data-thq="thq-dropdown"
-                class="agm-voting-dropdown03 list-item"
-              >
-                <div
-                  data-thq="thq-dropdown-toggle"
-                  class="agm-voting-dropdown-toggle03"
-                >
+              <li data-thq="thq-dropdown" class="agm-voting-dropdown03 list-item">
+                <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle03">
                     <i class="icon fa-solid fa-square-poll-vertical" style="color: #ffffff;"></i>
                     <span class="agm-voting-text03">Voting</span>
                 </div>
@@ -70,6 +48,7 @@ import { authHandlers } from "../../store/store";
         <button on:click={authHandlers.logOut} class="log_out button">Log Out</button>
       </div>
     </header>
+
 </div>
 
 <style>
