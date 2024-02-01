@@ -33,10 +33,36 @@
         flex-direction: column;
         align-items: center;
         font-family: 'Merriweather', sans-serif;
+        font-size: large;
     }
     form{
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 5px;
+        background-color: rgba(255, 255, 255, 0.38);
+        backdrop-filter: blur(20px);
+        padding: 10px;
+        border-radius: 4px;
+    }
+    p{
+        font-family: 'Merriweather', sans-serif;
+        font-size: larger;
+    }
+    input{
+        font-family: 'Merriweather', sans-serif;
+        font-size: large;
+        text-align: center;
+    }
+    button{
+        background: #6ba3ab;
+        color: white;
+        border: none;
+        padding: 5px;
+        font-family: 'Merriweather', sans-serif;
+        font-size: large;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 4px;
     }
 </style>
