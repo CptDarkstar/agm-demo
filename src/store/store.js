@@ -18,7 +18,7 @@ export const authHandlers = {
     }
 };
 
-const auth = getAuth();
+/* const auth = getAuth(); */
 setPersistence(auth, browserSessionPersistence)
   .then(() => {
     return signInWithEmailAndPassword(auth, email, password);
