@@ -22,7 +22,7 @@
         try {
             if (!register) {
                 await authHandlers.login(email, password);
-                alert('Logged in!')
+                /* alert('Logged in!') */
             } else {
                 await authHandlers.singup(email, password);
             }

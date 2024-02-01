@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, setPersistence, signInWithEmailAndPassword, browserSessionPersistence, signOut } from "firebase/auth";
 import { writable } from "svelte/store";
 import { auth } from "../lib/firebase/firebase"
 
@@ -18,31 +18,13 @@ export const authHandlers = {
     }
 };
 
-function persistentStore(key, initialValue) {
-    const { subscribe, set, update } = writable(initialValue);
-   
-    const loadFromSessionStorage = () => {
-       const value = sessionStorage.getItem(key);
-       if (value) {
-         set(JSON.parse(value));
-       }
-    };
-   
-    const saveToSessionStorage = (value) => {
-       sessionStorage.setItem(key, JSON.stringify(value));
-    };
-   
-    return {
-       subscribe,
-       set: (value) => {
-         saveToSessionStorage(value);
-         return set(value);
-       },
-       update: (updater) => {
-         const newValue = updater($loggedInStore);
-         saveToSessionStorage(newValue);
-         return update(() => newValue);
-       },
-    };
-}
-   export const loggedInStore = persistentStore("loggedIn", false);
+const auth = getAuth();
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    return signInWithEmailAndPassword(auth, email, password);
+  })
+  .catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
