@@ -3,7 +3,6 @@
   import { auth, db } from "../lib/firebase/firebase";
   import { getDoc, doc, setDoc } from "firebase/firestore";
   import '@fortawesome/fontawesome-free/css/all.min.css';
-  import { loggedInStore } from '../store/store';
 
   const nonAuthRoutes = ["/"];
   
