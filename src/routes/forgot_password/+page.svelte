@@ -170,7 +170,6 @@
   }
   .div-7 {
     font: 40px Merriweather, sans-serif;
-    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
     text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
   }
   @media (max-width: 991px) {
