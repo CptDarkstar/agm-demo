@@ -79,6 +79,9 @@
     /* margin: 194px 107px 145px 0; */
     padding: 50px 60px;
   }
+  i {
+    text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
+  }
   @media (max-width: 991px) {
     .div-3 {
       /* margin: 40px 10px 40px 0; */
@@ -167,6 +170,8 @@
   }
   .div-7 {
     font: 40px Merriweather, sans-serif;
+    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
+    text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
   }
   @media (max-width: 991px) {
     .div-7 {
