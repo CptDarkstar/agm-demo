@@ -36,16 +36,16 @@
                       Forgot
                       <br />
                       Your
-                      <span style="color: rgba(107, 163, 171, 1)">Password?</span>
+                      <span style="color: #ad2227">Password?</span>
                     </div>
                     <form on:submit|preventDefault={forgotPassword}>
                       <div class="div-8">Provide us with your email for varication</div>
                       <input type="email" bind:value={email} placeholder="Enter your email" required class="div-9"/>
                       <button class="div-10">Reset</button>
                     </form>
-                    <div class="div-11" style="cursor: pointer;" onclick="history.back()">
+                    <div class="div-11" style="cursor: pointer;font-weight:bold;" onclick="history.back()">
                       Go back to
-                      <span style="text-decoration: underline; color: rgba(107, 163, 171, 1);">
+                      <span style="text-decoration: underline; color: #ad2227;">
                         Login
                       </span>
                     </div>
@@ -117,6 +117,7 @@
     display: flex;
     flex-direction: column;
     align-content: center;
+    justify-content: center;
     flex-wrap: wrap;
     line-height: normal;
     width: 30%;
@@ -159,7 +160,7 @@
     display: flex;
     flex-grow: 1;
     flex-direction: column;
-    color: #6ba3ab;
+    color: #ad2227;
     font-weight: 400;
   }
   @media (max-width: 991px) {
@@ -170,12 +171,14 @@
   }
   .div-7 {
     font: 40px Merriweather, sans-serif;
-    text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
+    font-weight: bold;
+    color: #ad2227;
+    /* text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
     text-shadow:
       -1px -1px 0 #000,  
       1px -1px 0 #000,
       -1px 1px 0 #000,
-      1px 1px 0 #000;
+      1px 1px 0 #000; */
   }
   @media (max-width: 991px) {
     .div-7 {
@@ -227,6 +230,7 @@
     }
   }
   .div-11 {
+    font-weight: bold;
     text-align: center;
     text-decoration-line: underline;
     align-self: center;
