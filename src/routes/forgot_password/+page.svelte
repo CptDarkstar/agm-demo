@@ -171,6 +171,11 @@
   .div-7 {
     font: 40px Merriweather, sans-serif;
     text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
+    text-shadow:
+      -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
   }
   @media (max-width: 991px) {
     .div-7 {
@@ -196,6 +201,7 @@
     background-color: #fff;
     margin-top: 12px;
     height: 44px;
+    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
   }
   @media (max-width: 991px) {
     .div-9 {
@@ -260,6 +266,7 @@
     background: #6ba3ab;
     color: white;
     border: none;
+    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
     padding: 5px;
     font-family: 'Merriweather', sans-serif;
     font-size: large;
