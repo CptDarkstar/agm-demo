@@ -71,7 +71,7 @@
     backdrop-filter: blur(6.5px);
     background-color: rgba(255, 255, 255, 0.53);
     display: flex;
-    width: 939px;
+    width: 870px;
     max-width: 100%;
     flex-direction: column;
     justify-content: center;
@@ -171,6 +171,7 @@
   @media (max-width: 991px) {
     .div-7 {
       max-width: 100%;
+      font-size: 27px;
     }
   }
   .div-8 {
@@ -247,7 +248,7 @@
   } */
   input{
     font-family: 'Merriweather', sans-serif;
-    font-size: large;
+    font-size: medium;
     text-align: center;
     width: 100%;
   }
