@@ -38,17 +38,14 @@
                       Your
                       <span style="color: rgba(107, 163, 171, 1)">Password?</span>
                     </div>
-                    <div class="div-8">Provide us with your email for varication</div>
-                    <div class="div-9"></div>
-                    <div class="div-10">Reset</div>
-                    <div class="div-11">
+                    <form on:submit|preventDefault={forgotPassword}>
+                      <div class="div-8">Provide us with your email for varication</div>
+                      <input type="email" bind:value={email} placeholder="Enter your email" required class="div-9"/>
+                      <button class="div-10">Reset</button>
+                    </form>
+                    <div class="div-11" style="cursor: pointer;" onclick="history.back()">
                       Go back to
-                      <span
-                        style="
-                          text-decoration: underline;
-                          color: rgba(107, 163, 171, 1);
-                        "
-                      >
+                      <span style="text-decoration: underline; color: rgba(107, 163, 171, 1);">
                         Login
                       </span>
                     </div>
@@ -88,6 +85,9 @@
       padding: 0 20px;
       max-width: 91%;
     }
+    i {
+      font-size: 3em;
+    }
   }
   .div-4 {
     width: 737px;
@@ -96,7 +96,7 @@
   }
   @media (max-width: 991px) {
     .div-4 {
-      margin: 40px 10px 40px 0;
+      margin: 25px 0px 25px 0;
      }
   }
   .div-5 {
@@ -124,20 +124,20 @@
       width: 100%;
     }
   }
-  .img-2 {
+  /* .img-2 {
     aspect-ratio: 0.91;
     object-fit: auto;
     object-position: center;
     width: 200px;
     fill: #000;
     filter: drop-shadow(6px 8px 9.4px rgba(0, 0, 0, 0.25));
-    /* margin-top: 13px; */
+    margin-top: 13px;
     max-width: 100%;
     flex-grow: 1;
-  }
+  } */
   @media (max-width: 991px) {
-    .img-2 {
-      /* margin-top: 40px; */
+    .logo {
+      max-width: 41%;
     }
   }
   .column-2 {
@@ -182,6 +182,7 @@
   @media (max-width: 991px) {
     .div-8 {
       max-width: 100%;
+      font-size: 13px;
     }
   }
   .div-9 {
@@ -244,12 +245,13 @@
     font-family: 'Merriweather', sans-serif;
     font-size: larger;
   } */
-  /* input{
+  input{
     font-family: 'Merriweather', sans-serif;
     font-size: large;
     text-align: center;
-  } */
-  /* button{
+    width: 100%;
+  }
+  button{
     background: #6ba3ab;
     color: white;
     border: none;
@@ -259,5 +261,6 @@
     font-weight: bold;
     cursor: pointer;
     border-radius: 4px;
-  } */
+    width: 100%;
+  }
 </style>
