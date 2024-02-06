@@ -2,6 +2,7 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { authHandlers } from "../../store/store";
 import { writable } from 'svelte/store';
+  import VotingTopic from '../../components/VotingTopic.svelte';
 </script>
 
 
@@ -24,7 +25,7 @@ import { writable } from 'svelte/store';
                 </div>
               </li>
             </a>
-            <a href="Voting">
+            <a href="/admin">
               <li data-thq="thq-dropdown" class="agm-voting-dropdown03 list-item">
                 <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle03">
                     <i class="icon fa-solid fa-square-poll-vertical" style="color: #ffffff;"></i>
@@ -37,6 +38,8 @@ import { writable } from 'svelte/store';
         <button on:click={authHandlers.logOut} class="log_out button">Log Out</button>
       </div>
   </header>
+
+  <VotingTopic/>
 
 </div>
 
