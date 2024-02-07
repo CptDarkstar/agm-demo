@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { authHandlers } from "../../store/store";
 import { writable } from 'svelte/store';
   import VotingTopic from '../../components/VotingTopic.svelte';
+  import App from '../../App.svelte';
 </script>
 
 
@@ -39,7 +40,7 @@ import { writable } from 'svelte/store';
       </div>
   </header>
 
-  <VotingTopic/>
+  <App/>
 
 </div>
 
@@ -198,8 +199,8 @@ import { writable } from 'svelte/store';
       vertical-align: middle;
     }
     .agm-voting-dropdown-list {
-      top: 65px;
-      right: 4.9%;
+      top: 97px;
+      right: 3.9%;
       border-radius: 4px;
       /* width: 234%; */
       height: auto;
