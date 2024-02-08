@@ -11,6 +11,7 @@
 
 <div>
   <h2>{topic.title}</h2>
+  <p>{topic.description}</p>
   <button on:click={() => castVote('yes')}>Yes</button>
   <button on:click={() => castVote('no')}>No</button>
   <button on:click={() => castVote('abstain')}>Abstain</button>

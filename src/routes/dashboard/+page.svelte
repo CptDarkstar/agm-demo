@@ -2,8 +2,16 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { authHandlers } from "../../store/store";
 import { writable } from 'svelte/store';
-  import VotingTopic from '../../components/VotingTopic.svelte';
-  import App from '../../App.svelte';
+import VotingTopic from '../../components/VotingTopic.svelte';
+import App from '../../App.svelte';
+import { authStore } from "../../store/store";
+import { onMount } from 'svelte';
+
+let userName = 'Loading...';
+
+$: if ($authStore.user) {
+    userName = $authStore.user.displayName || 'Not Found';
+  };
 </script>
 
 
@@ -39,7 +47,13 @@ import { writable } from 'svelte/store';
         <button on:click={authHandlers.logOut} class="log_out button">Log Out</button>
       </div>
   </header>
-
+  <h1>
+    {#if userName = 'Loading...'}
+      <i class="fa-solid fa-spinner fa-spin"></i>
+    {:else }
+    Hi {userName}.
+    {/if}
+  </h1>
   <App/>
 
 </div>

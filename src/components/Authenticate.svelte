@@ -31,7 +31,7 @@
             error=true;
             authenticating = false;
         }
-};
+    };
 </script>
 
 <div class="authContainer">

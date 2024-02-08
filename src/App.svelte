@@ -1,8 +1,8 @@
 <!-- App.svelte -->
 <script>
   import { onMount } from 'svelte';
-  import { db } from './lib/firebase/firebase'; // Your Firebase configuration file
-  import { collection, getDocs } from 'firebase/firestore';
+  import { db } from './lib/firebase/firebase'; //Firebase configuration file
+  import { collection, getDocs, addDoc } from 'firebase/firestore';
   import VotingTopic from './components/VotingTopic.svelte';
 
   let topics = [];
@@ -25,7 +25,7 @@
 
     // Write vote to Firebase
     try {
-      await db.collection('votes').add({ topicId, option });
+      await addDoc(collection(db, 'Votes'), { topicId, option });
     } catch (error) {
       console.error("Error writing vote to Firebase", error);
     }

@@ -2,15 +2,16 @@
   import { onMount } from "svelte";
   import { auth, db } from "../lib/firebase/firebase";
   import { getDoc, doc, setDoc } from "firebase/firestore";
-  import '@fortawesome/fontawesome-free/css/all.min.css';
+  import { authStore } from "../store/store";
+  import "@fortawesome/fontawesome-free/css/all.min.css";
 
   const nonAuthRoutes = ["/", "/forgot_password"];
-  
+
   onMount(() => {
     console.log("Mounting!");
-    const unsubscribe = auth.onAuthStateChanged(async user => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       const currentPath = window.location.pathname;
-      
+
       if (!user && !nonAuthRoutes.includes(currentPath)) {
         if (window.location.pathname !== "/") {
           window.location.href = "/";
@@ -26,21 +27,29 @@
       if (!user) {
         return;
       }
+      let dataToSetToStore;
+      const docRef = doc(db, "user", user.uid);
+      const docSnap = await getDoc(docRef);
 
-      const docRef = doc(db, 'users', user.uid)
-            const docSnap = await getDoc(docRef)
-            if (!docSnap.exists()) {
-                const userRef = doc(db, 'user', user.uid)
-                await setDoc(
-                    userRef,
-                    {
-                        email: user.email, 
-                    }
-                );
-            } else {
-                const userData = docSnap.data()
-
-            }
+      if (!docSnap.exists()) {
+        const userRef = doc(db, "user", user.uid);
+        dataToSetToStore = {
+          email: user.email,
+          /* displayname */
+        };
+        await setDoc(userRef, dataToSetToStore, { merge: true });
+      } else {
+        const userData = docSnap.data();
+        dataToSetToStore = userData;
+      }
+      authStore.update((curr) => {
+        return {
+          ...curr,
+          user,
+          data: dataToSetToStore,
+          loading: false,
+        };
+      });
     });
   });
 </script>
