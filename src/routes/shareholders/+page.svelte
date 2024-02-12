@@ -1,23 +1,18 @@
 <script>
-  import "@fortawesome/fontawesome-free/css/all.min.css";
   import { authHandlers } from "../../store/store";
-  import { writable } from "svelte/store";
-  import VotingTopic from "../../components/VotingTopic.svelte";
-  import App from "../../App.svelte";
-  import { authStore } from "../../store/store";
-  import { onMount } from "svelte";
-  import { collectionGroup, doc, getDoc } from "firebase/firestore";
-
-  let userName = "Loading...";
-  
-  /* $: if ($authStore.user) {
-    userName = $authStore.user.displayName || 'Not Found';
-  }; */
+  import Register from "../../components/Register.svelte";
 </script>
 
 <div class="maincontainer">
   <header data-role="Header" class="agm-voting-header">
-    <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
+    <a href="/dashboard">
+      <img
+        alt="logo"
+        src="rnslogo.png"
+        class="agm-voting-image logo"
+        href="/dashboard"
+      />
+    </a>
     <div class="agm-voting-btn-group">
       <div
         data-thq="thq-dropdown"
@@ -63,14 +58,7 @@
       >
     </div>
   </header>
-  <h1>
-    {#if (userName = "Loading...")}
-      <i class="fa-solid fa-spinner fa-spin"></i>
-    {:else}
-      Hi {userName}.
-    {/if}
-  </h1>
-  <App />
+  <Register />
 </div>
 
 <style>

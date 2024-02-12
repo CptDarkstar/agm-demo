@@ -35,12 +35,12 @@
         const userRef = doc(db, "user", user.uid);
         dataToSetToStore = {
           email: user.email,
-          /* displayname */
         };
         await setDoc(userRef, dataToSetToStore, { merge: true });
       } else {
         const userData = docSnap.data();
         dataToSetToStore = userData;
+        console.log(user);
       }
       authStore.update((curr) => {
         return {
