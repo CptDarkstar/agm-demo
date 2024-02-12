@@ -1,6 +1,25 @@
 <script>
   import { authHandlers } from "../../store/store";
   import Register from "../../components/Register.svelte";
+  import { collection, getDocs } from "firebase/firestore";
+  import { onMount } from "svelte";
+  import { auth, db } from "$lib/firebase/firebase";
+
+  let users = []; // Initialize users with an empty array
+
+  onMount(async () => {
+    const usersCollection = collection(db, "user");
+    try {
+      const querySnapshot = await getDocs(usersCollection);
+      const userData = [];
+      querySnapshot.forEach((doc) => {
+        userData.push(doc.data());
+      });
+      users = userData; // Update the users array
+    } catch (error) {
+      console.error("Error getting users collection: ", error);
+    }
+  });
 </script>
 
 <div class="maincontainer">
@@ -59,6 +78,16 @@
     </div>
   </header>
   <Register />
+  <h1>All Users</h1>
+  <ul>
+    {#each users as user}
+      <li>
+        <p>Name: {user.displayName}</p>
+        <p>Email: {user.email}</p>
+        <p>Shares: {user.shares}</p>
+      </li>
+    {/each}
+  </ul>
 </div>
 
 <style>
