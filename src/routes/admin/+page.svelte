@@ -1,50 +1,68 @@
 <script>
-    import App from "../../App.svelte";
-    import { authHandlers } from "../../store/store";
+  import App from "../../App.svelte";
+  import { authHandlers } from "../../store/store";
 </script>
 
 <div class="maincontainer">
-    <header data-role="Header" class="agm-voting-header">
-        <img alt="logo" src="rnslogo.png" class="agm-voting-image logo"/>
-        <div class="agm-voting-btn-group">
-          
-          <div data-thq="thq-dropdown" class="drop_down_menu list-item agm-voting-dropdown">
-            <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle">
-                <span class="agm-voting-text">Menu</span>
-            </div>
-            <ul data-thq="thq-dropdown-list" class="agm-voting-dropdown-list">
-              <a href="Share Holders">
-                <li data-thq="thq-dropdown" class="agm-voting-dropdown01 list-item">
-                  <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle01">
-                    <i id="icon" class="icon fa-regular fa-user" style="color: #ffffff;"></i>
-                    <span class="agm-voting-text01">Share Holders</span>
-                  </div>
-                </li>
-              </a>
-              <a href="/admin">
-                <li data-thq="thq-dropdown" class="agm-voting-dropdown03 list-item">
-                  <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle03">
-                      <i class="icon fa-solid fa-square-poll-vertical" style="color: #ffffff;"></i>
-                      <span class="agm-voting-text03">Voting</span>
-                  </div>
-                </li>
-              </a>
-            </ul>
-          </div>
-          <button on:click={authHandlers.logOut} class="log_out button">Log Out</button>
+  <header data-role="Header" class="agm-voting-header">
+    <a href="/dashboard">
+      <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
+    </a>
+    <div class="agm-voting-btn-group">
+      <div
+        data-thq="thq-dropdown"
+        class="drop_down_menu list-item agm-voting-dropdown"
+      >
+        <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle">
+          <span class="agm-voting-text">Menu</span>
         </div>
-    </header>
+        <ul data-thq="thq-dropdown-list" class="agm-voting-dropdown-list">
+          <a href="/shareholders">
+            <li data-thq="thq-dropdown" class="agm-voting-dropdown01 list-item">
+              <div
+                data-thq="thq-dropdown-toggle"
+                class="agm-voting-dropdown-toggle01"
+              >
+                <i
+                  id="icon"
+                  class="icon fa-regular fa-user"
+                  style="color: #ffffff;"
+                ></i>
+                <span class="agm-voting-text01">Share Holders</span>
+              </div>
+            </li>
+          </a>
+          <a href="/admin">
+            <li data-thq="thq-dropdown" class="agm-voting-dropdown03 list-item">
+              <div
+                data-thq="thq-dropdown-toggle"
+                class="agm-voting-dropdown-toggle03"
+              >
+                <i
+                  class="icon fa-solid fa-square-poll-vertical"
+                  style="color: #ffffff;"
+                ></i>
+                <span class="agm-voting-text03">Voting</span>
+              </div>
+            </li>
+          </a>
+        </ul>
+      </div>
+      <button on:click={authHandlers.logOut} class="log_out button"
+        >Log Out</button
+      >
+    </div>
+  </header>
 </div>
 
 <style>
-
-.maincontainer {
+  .maincontainer {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
   [data-thq="thq-dropdown"]:hover > [data-thq="thq-dropdown-list"] {
-            display: flex;
+    display: flex;
   }
   .agm-voting-header {
     width: 100%;
@@ -76,7 +94,7 @@
     margin-right: 32px;
     text-decoration: none;
     background-color: #6ba3ab;
-    font-family: 'Merriweather', sans-serif ;
+    font-family: "Merriweather", sans-serif;
     padding-top: 8px;
     padding-left: 16px;
     border-radius: 4px;
@@ -136,7 +154,8 @@
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
-  .agm-voting-dropdown-toggle01,.agm-voting-dropdown-toggle03 {
+  .agm-voting-dropdown-toggle01,
+  .agm-voting-dropdown-toggle03 {
     fill: #595959;
     color: #ffffff;
     width: 100%;
@@ -151,37 +170,41 @@
     gap: 10px;
   }
   .agm-voting-text {
-  width: 96px;
-  font-size: 30px;
-  font-style: normal;
-  text-align: center;
-  font-weight: 500;
-  margin-right: 4px;
-  vertical-align: middle;
+    width: 96px;
+    font-size: 30px;
+    font-style: normal;
+    text-align: center;
+    font-weight: 500;
+    margin-right: 4px;
+    vertical-align: middle;
   }
-  .agm-voting-text01, .agm-voting-text03 {
-      width: 100%;
-      cursor: pointer;
-      display: flex;
-      font-size: 30px;
-      font-style: normal;
-      font-weight: 500;
-      color: white;
+  .agm-voting-text01,
+  .agm-voting-text03 {
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 500;
+    color: white;
   }
-  .agm-voting-dropdown-toggle01:hover, .agm-voting-dropdown-toggle03:hover {
+  .agm-voting-dropdown-toggle01:hover,
+  .agm-voting-dropdown-toggle03:hover {
     fill: #fff;
     color: #fff;
     background-color: #595959;
   }
-  @media(max-width: 720px) {
-    .agm-voting-header{
+  @media (max-width: 720px) {
+    .agm-voting-header {
       max-width: 100%;
       min-width: 100%;
     }
-    .logo{
+    .logo {
       width: 100px;
     }
-    .agm-voting-text, .agm-voting-text01, .agm-voting-text03 {
+    .agm-voting-text,
+    .agm-voting-text01,
+    .agm-voting-text03 {
       width: 100%;
       font-size: 15px;
       font-style: normal;
@@ -206,7 +229,7 @@
       background-color: #6ba3ab;
       list-style-position: inside;
     }
-    .log_out{
+    .log_out {
       font-size: 15px;
       margin-right: 0%;
       padding-top: 8px;
@@ -216,34 +239,36 @@
       padding-bottom: 8px;
     }
   }
-  @media(max-width: 430px) {
-    .agm-voting-header{
+  @media (max-width: 430px) {
+    .agm-voting-header {
       max-width: 100%;
       min-width: 100%;
     }
-    .logo{
+    .logo {
       width: 165px;
     }
     .agm-voting-btn-group {
-    width: 65%;
-    height: auto;
-    display: flex;
-    align-items: center;
-    border-radius: 4px;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
+      width: 65%;
+      height: auto;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+      flex-direction: row;
+      justify-content: flex-end;
+      gap: 10px;
     }
-    .agm-voting-text, .agm-voting-text01, .agm-voting-text03 {
-    width: 100%;
-    font-size: 15px;
-    font-style: normal;
-    text-align: center;
-    font-weight: 500;
-    margin-right: 4px;
-    vertical-align: middle;
+    .agm-voting-text,
+    .agm-voting-text01,
+    .agm-voting-text03 {
+      width: 100%;
+      font-size: 15px;
+      font-style: normal;
+      text-align: center;
+      font-weight: 500;
+      margin-right: 4px;
+      vertical-align: middle;
     }
-    .log_out{
+    .log_out {
       font-size: 15px;
       margin-right: 0%;
       padding-top: 8px;

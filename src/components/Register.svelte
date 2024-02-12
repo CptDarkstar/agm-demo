@@ -4,7 +4,7 @@
   import { collection, doc, setDoc } from "firebase/firestore";
 
   let email = "";
-  let name = "";
+  let displayName = "";
   let password = ""; // Variable for password
   let shares = 0;
   let error = false;
@@ -22,7 +22,7 @@
       const userRef = doc(db, "user", userCredential.user.uid);
       await setDoc(userRef, {
         email,
-        name,
+        displayName,
         shares,
       });
 
@@ -52,7 +52,7 @@
   </label>
   <label>
     Name:
-    <input type="text" bind:value={name} required />
+    <input type="text" bind:value={displayName} required />
   </label>
   <label>
     Password:

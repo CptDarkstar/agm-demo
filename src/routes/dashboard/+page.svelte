@@ -1,18 +1,37 @@
 <script>
   import "@fortawesome/fontawesome-free/css/all.min.css";
   import { authHandlers } from "../../store/store";
-  import { writable } from "svelte/store";
+  import { onAuthStateChanged } from "firebase/auth";
   import VotingTopic from "../../components/VotingTopic.svelte";
   import App from "../../App.svelte";
   import { authStore } from "../../store/store";
   import { onMount } from "svelte";
-  import { collectionGroup, doc, getDoc } from "firebase/firestore";
+  import { collection, doc, getDoc } from "firebase/firestore";
+  import { auth, db } from "$lib/firebase/firebase";
 
-  let userName = "Loading...";
-  
-  /* $: if ($authStore.user) {
-    userName = $authStore.user.displayName || 'Not Found';
-  }; */
+  let userData = {}; // Initialize userData with an empty object
+
+onMount(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userDocRef = doc(collection(db, 'user'), user.uid);
+      try {
+        const userSnapshot = await getDoc(userDocRef);
+        if (userSnapshot.exists()) {
+          userData = userSnapshot.data(); // Store the entire user data in the userData object
+        } else {
+          console.log('No such document for the user!');
+        }
+      } catch (error) {
+        console.error("Error getting user document: ", error);
+      }
+    } else {
+      console.log('User is signed out!');
+    }
+  });
+
+  return () => unsubscribe(); // Clean up the subscription when the component is destroyed
+});
 </script>
 
 <div class="maincontainer">
@@ -63,13 +82,14 @@
       >
     </div>
   </header>
-  <h1>
-    {#if (userName = "Loading...")}
-      <i class="fa-solid fa-spinner fa-spin"></i>
-    {:else}
-      Hi {userName}.
-    {/if}
-  </h1>
+  <h1 class="userText">
+    {#if Object.keys(userData).length === 0}
+    <i class="fa-solid fa-spinner fa-spin"></i>
+  {:else}
+    <p>Hi {userData.displayName}.</p><br>
+    <p>You will be voting with {userData.shares} shares.</p>
+  {/if}
+  </h1><br>
   <App />
 </div>
 
@@ -211,6 +231,9 @@
     fill: #fff;
     color: #fff;
     background-color: #595959;
+  }
+  .userText{
+    text-align: center;
   }
   @media (max-width: 720px) {
     .agm-voting-header {
