@@ -1,11 +1,21 @@
 <script>
   import { authHandlers } from "../../store/store";
   import Register from "../../components/Register.svelte";
-  import { collection, getDocs } from "firebase/firestore";
-  import { onMount } from "svelte";
+  import { collection, getDocs, deleteDoc } from "firebase/firestore";
+  import { onMount, onDestroy } from "svelte";
   import { auth, db } from "$lib/firebase/firebase";
+  import {
+    editUserStore,
+    showEditModal,
+    hideEditModal,
+    updateUserInFirestore,
+  } from "../../store/editUserStore";
 
-  let users = []; // Initialize users with an empty array
+  let users = [];
+  let editStore = editUserStore;
+  let showModal;
+  let selectedUser;
+  /* let selectedUser = null; // Track the user being edited */
 
   onMount(async () => {
     const usersCollection = collection(db, "user");
@@ -13,13 +23,75 @@
       const querySnapshot = await getDocs(usersCollection);
       const userData = [];
       querySnapshot.forEach((doc) => {
-        userData.push(doc.data());
+        userData.push({ id: doc.id, ...doc.data() });
       });
       users = userData; // Update the users array
     } catch (error) {
       console.error("Error getting users collection: ", error);
     }
   });
+
+  // Edit user function
+  const editUser = (user) => {
+    console.log("Editing user:", user); // Verify if the function is called and user data is received
+    showEditModal(user); // Show the modal and set the selected user
+  };
+  // Function to handle editing user
+  const handleEditUser = (user) => {
+    showEditModal(user); // Show the edit modal with the selected user
+  };
+  // Function to handle closing the edit modal
+  const handleCloseEditModal = () => {
+    hideEditModal(); // Hide the edit modal
+  };
+  // Function to handle saving the changes
+  const handleSaveChanges = (displayName, email, shares) => {
+    editStore.update((store) => {
+      // Check if selectedUser exists and is an object
+      if (store.selectedUser && typeof store.selectedUser === "object") {
+        // Update the user's information in the editUserStore based on the changes
+        store.selectedUser = {
+          ...store.selectedUser, // Maintain existing properties
+          name: displayName, // Update the Name
+          email: email, // Update the Email
+          shares: shares, // Update the Shares
+        };
+      }
+      return store;
+    });
+
+    // Update the user data in Firestore using the updateUserInFirestore function
+    updateUserInFirestore(store.selectedUser.id, {
+      name: displayName,
+      email: email,
+      shares: shares,
+    });
+
+    hideEditModal(); // Hide the edit modal after saving changes
+  };
+
+  // Subscribe to the editUserStore to get the showModal and selectedUser values
+  const unsubscribe = editStore.subscribe((value) => {
+    showModal = value.showModal;
+    selectedUser = value.selectedUser;
+  });
+
+  // Unsubscribe from the store when the component is destroyed
+  onMount(() => {
+    return () => {
+      unsubscribe();
+    };
+  });
+
+  // Delete user function
+  const deleteUser = async (userId) => {
+    try {
+      await deleteDoc(doc(db, "user", userId)); // Delete user from Firestore
+      // For example: await deleteDoc(doc(db, 'user', userId));
+    } catch (error) {
+      console.error("Error deleting user: ", error);
+    }
+  };
 </script>
 
 <div class="maincontainer">
@@ -85,9 +157,37 @@
         <p>Name: {user.displayName}</p>
         <p>Email: {user.email}</p>
         <p>Shares: {user.shares}</p>
+        <button on:click={() => editUser(user.id)}>Edit</button>
+        <button on:click={() => deleteUser(user.id)}>Delete</button>
       </li>
     {/each}
   </ul>
+  {#if showModal}
+    <!-- Edit modal with the selected user's information -->
+    <div class="edit-modal">
+      <!-- Display the selected user's information for editing -->
+      <p>User: {selectedUser.name}</p>
+      <!-- Other input fields for editing user information -->
+      <ul>
+        <li>
+          <p>Name:</p>
+          <input type="text" />
+        </li>
+        <li>
+          <p>Email:</p>
+          <input type="text" />
+        </li>
+        <li>
+          <p>Shares:</p>
+          <input type="number" />
+        </li>
+      </ul>
+      <!-- Button to save the changes -->
+      <button on:click={handleSaveChanges}>Save Changes</button>
+      <!-- Button to close the edit modal -->
+      <button on:click={handleCloseEditModal}>Close</button>
+    </div>
+  {/if}
 </div>
 
 <style>
