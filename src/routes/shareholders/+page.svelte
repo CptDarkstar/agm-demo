@@ -1,9 +1,16 @@
 <script>
   import { authHandlers } from "../../store/store";
   import Register from "../../components/Register.svelte";
-  import { collection, getDocs, deleteDoc } from "firebase/firestore";
   import { onMount, onDestroy } from "svelte";
   import { auth, db } from "$lib/firebase/firebase";
+  /* import { updateUserDataInFirestore } from './firebaseUtils'; */
+  import {
+    collection,
+    getDocs,
+    deleteDoc,
+    doc,
+    updateDoc,
+  } from "firebase/firestore";
   import {
     editUserStore,
     showEditModal,
@@ -15,6 +22,10 @@
   let editStore = editUserStore;
   let showModal;
   let selectedUser;
+  let editedName = ""; // Define and initialize editedName
+  let editedEmail = ""; // Define and initialize editedEmail
+  let editedShares = 0; // Define and initialize editedShares as a number
+
   /* let selectedUser = null; // Track the user being edited */
 
   onMount(async () => {
@@ -44,30 +55,92 @@
   const handleCloseEditModal = () => {
     hideEditModal(); // Hide the edit modal
   };
-  // Function to handle saving the changes
-  const handleSaveChanges = (displayName, email, shares) => {
-    editStore.update((store) => {
-      // Check if selectedUser exists and is an object
+
+  // Merged handleSaveChanges function with the additional functionality
+  const handleSaveChanges = async (displayName, email, shares) => {
+    console.log("Received input:", displayName, email, shares); // Add this line for debugging
+
+    // Debug statement to check the type and value of displayName
+    console.log("Type of displayName:", typeof displayName);
+    console.log("Value of displayName:", displayName);
+
+    if (
+      !displayName ||
+      typeof displayName !== "string" ||
+      displayName.trim() === ""
+    ) {
+      console.error("Error: Invalid display name");
+      return;
+    }
+
+    console.log("Email:", email); // Add this line for debugging
+
+    if (!email || typeof email !== "string") {
+      console.error("Error: Invalid email");
+      return;
+    }
+
+    console.log("Shares:", shares); // Add this line for debugging
+
+    const sharesNumber = parseInt(shares, 10);
+    if (isNaN(sharesNumber)) {
+      console.error("Error: Invalid shares value");
+      return;
+    }
+
+    editUserStore.update((store) => {
       if (store.selectedUser && typeof store.selectedUser === "object") {
-        // Update the user's information in the editUserStore based on the changes
         store.selectedUser = {
-          ...store.selectedUser, // Maintain existing properties
-          name: displayName, // Update the Name
-          email: email, // Update the Email
-          shares: shares, // Update the Shares
+          ...store.selectedUser,
+          name: displayName,
+          email: email,
+          shares: sharesNumber,
         };
       }
       return store;
     });
 
-    // Update the user data in Firestore using the updateUserInFirestore function
-    updateUserInFirestore(store.selectedUser.id, {
-      name: displayName,
-      email: email,
-      shares: shares,
-    });
+    const updatedUser = $editUserStore.selectedUser; // Access the value directly from the store
 
-    hideEditModal(); // Hide the edit modal after saving changes
+    console.log("Updated User ID:", updatedUser); // Add this line for debugging
+
+    if (updatedUser) {
+      const userDocRef = doc(collection(db, "user"), updatedUser); // Use collection function if 'users' is the collection name
+
+      console.log("User Doc Ref:", userDocRef); // Add this line for debugging
+
+      const userData = {
+        displayName: displayName,
+        email: email,
+        shares: sharesNumber,
+      };
+
+      console.log("User Data:", userData); // Add this line for debugging
+
+      try {
+        await updateDoc(userDocRef, userData);
+        console.log("User data updated in Firestore successfully");
+      } catch (error) {
+        console.error("Error updating user data in Firestore:", error);
+      }
+    } else {
+      console.error("Error: No user selected for update");
+    }
+
+    // Obtain the updated user information from the edited fields
+    const updatedName = editedName;
+    const updatedEmail = editedEmail;
+    const updatedShares = editedShares;
+
+    // Pass the updated user information to the Firestore update function
+    /* updateUserDataInFirestore(
+      selectedUser.id,
+      updatedName,
+      updatedEmail,
+      updatedShares
+    ); */
+
+    hideEditModal();
   };
 
   // Subscribe to the editUserStore to get the showModal and selectedUser values
@@ -163,28 +236,28 @@
     {/each}
   </ul>
   {#if showModal}
-    <!-- Edit modal with the selected user's information -->
     <div class="edit-modal">
-      <!-- Display the selected user's information for editing -->
       <p>User: {selectedUser.name}</p>
-      <!-- Other input fields for editing user information -->
       <ul>
         <li>
           <p>Name:</p>
-          <input type="text" />
+          <input type="text" bind:value={editedName} />
         </li>
+        <!-- Other input fields for editing user information -->
         <li>
           <p>Email:</p>
-          <input type="text" />
+          <input type="text" bind:value={editedEmail} />
         </li>
         <li>
           <p>Shares:</p>
-          <input type="number" />
+          <input type="number" bind:value={editedShares} />
         </li>
       </ul>
-      <!-- Button to save the changes -->
-      <button on:click={handleSaveChanges}>Save Changes</button>
-      <!-- Button to close the edit modal -->
+      <button
+        on:click={() =>
+          handleSaveChanges(editedName, editedEmail, editedShares)}
+        >Save Changes</button
+      >
       <button on:click={handleCloseEditModal}>Close</button>
     </div>
   {/if}
