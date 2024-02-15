@@ -44,7 +44,6 @@
 
   // Edit user function
   const editUser = (user) => {
-    console.log("Editing user:", user); // Verify if the function is called and user data is received
     showEditModal(user); // Show the modal and set the selected user
   };
   // Function to handle editing user
@@ -58,11 +57,6 @@
 
   // Merged handleSaveChanges function with the additional functionality
   const handleSaveChanges = async (displayName, email, shares) => {
-    console.log("Received input:", displayName, email, shares); // Add this line for debugging
-
-    // Debug statement to check the type and value of displayName
-    console.log("Type of displayName:", typeof displayName);
-    console.log("Value of displayName:", displayName);
 
     if (
       !displayName ||
@@ -73,14 +67,10 @@
       return;
     }
 
-    console.log("Email:", email); // Add this line for debugging
-
     if (!email || typeof email !== "string") {
       console.error("Error: Invalid email");
       return;
     }
-
-    console.log("Shares:", shares); // Add this line for debugging
 
     const sharesNumber = parseInt(shares, 10);
     if (isNaN(sharesNumber)) {
@@ -102,20 +92,14 @@
 
     const updatedUser = $editUserStore.selectedUser; // Access the value directly from the store
 
-    console.log("Updated User ID:", updatedUser); // Add this line for debugging
-
     if (updatedUser) {
       const userDocRef = doc(collection(db, "user"), updatedUser); // Use collection function if 'users' is the collection name
-
-      console.log("User Doc Ref:", userDocRef); // Add this line for debugging
 
       const userData = {
         displayName: displayName,
         email: email,
         shares: sharesNumber,
       };
-
-      console.log("User Data:", userData); // Add this line for debugging
 
       try {
         await updateDoc(userDocRef, userData);
