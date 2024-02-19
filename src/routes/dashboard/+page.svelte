@@ -8,88 +8,81 @@
   import { onMount } from "svelte";
   import { collection, doc, getDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase";
+  import { goto } from "$app/navigation";
+  import Button, { Label } from "@smui/button";
+  import Menu from "@smui/menu";
+  import List, { Item, Separator, Text } from "@smui/list";
 
+  let menu = Menu;
+  let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
 
-onMount(() => {
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userDocRef = doc(collection(db, 'user'), user.uid);
-      try {
-        const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-          userData = userSnapshot.data(); // Store the entire user data in the userData object
-        } else {
-          console.log('No such document for the user!');
-        }
-      } catch (error) {
-        console.error("Error getting user document: ", error);
-      }
-    } else {
-      console.log('User is signed out!');
-    }
-  });
+  const handleShareHoldersAction = () => {
+    clicked = "Share Holders";
+    goto("/shareholders");
+  };
 
-  return () => unsubscribe(); // Clean up the subscription when the component is destroyed
-});
+  const handleVotingAction = () => {
+    clicked = "Voting";
+    goto("/admin");
+  };
+
+  onMount(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(collection(db, "user"), user.uid);
+        try {
+          const userSnapshot = await getDoc(userDocRef);
+          if (userSnapshot.exists()) {
+            userData = userSnapshot.data(); // Store the entire user data in the userData object
+          } else {
+            console.log("No such document for the user!");
+          }
+        } catch (error) {
+          console.error("Error getting user document: ", error);
+        }
+      } else {
+        console.log("User is signed out!");
+      }
+    });
+
+    return () => unsubscribe(); // Clean up the subscription when the component is destroyed
+  });
 </script>
 
 <div class="maincontainer">
   <header data-role="Header" class="agm-voting-header">
     <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     <div class="agm-voting-btn-group">
-      <div
-        data-thq="thq-dropdown"
-        class="drop_down_menu list-item agm-voting-dropdown"
-      >
-        <div data-thq="thq-dropdown-toggle" class="agm-voting-dropdown-toggle">
-          <span class="agm-voting-text">Menu</span>
-        </div>
-        <ul data-thq="thq-dropdown-list" class="agm-voting-dropdown-list">
-          <a href="/shareholders">
-            <li data-thq="thq-dropdown" class="agm-voting-dropdown01 list-item">
-              <div
-                data-thq="thq-dropdown-toggle"
-                class="agm-voting-dropdown-toggle01"
-              >
-                <i
-                  id="icon"
-                  class="icon fa-regular fa-user"
-                  style="color: #ffffff;"
-                ></i>
-                <span class="agm-voting-text01">Share Holders</span>
-              </div>
-            </li>
-          </a>
-          <a href="/admin">
-            <li data-thq="thq-dropdown" class="agm-voting-dropdown03 list-item">
-              <div
-                data-thq="thq-dropdown-toggle"
-                class="agm-voting-dropdown-toggle03"
-              >
-                <i
-                  class="icon fa-solid fa-square-poll-vertical"
-                  style="color: #ffffff;"
-                ></i>
-                <span class="agm-voting-text03">Voting</span>
-              </div>
-            </li>
-          </a>
-        </ul>
-      </div>
-      <button on:click={authHandlers.logOut} class="log_out button"
-        >Log Out</button
-      >
+      <Button on:click={() => menu.setOpen(true)}>
+        <Label>Menu</Label>
+      </Button>
+      <Menu bind:this={menu}>
+        <List>
+          <Item on:SMUI:action={handleShareHoldersAction}>
+            <Text>Share Holders</Text>
+          </Item>
+          <Separator />
+          <Item on:SMUI:action={handleVotingAction}>
+            <Text>Voting</Text>
+          </Item>
+        </List>
+      </Menu>
+      <Button on:click={authHandlers.logOut} variant="raised">
+        <Label>Log Out</Label>
+      </Button>
     </div>
   </header>
   <h1 class="userText">
     {#if Object.keys(userData).length === 0}
-    <i class="fa-solid fa-spinner fa-spin"></i>
-  {:else}
-    <p>Hi {userData.displayName}.</p><br>
-    <p>You will be voting with {userData.shares} shares.</p>
-  {/if}
-  </h1><br>
+      <i class="fa-solid fa-spinner fa-spin"></i>
+    {:else}
+      <p>Hi {userData.displayName}.</p>
+      <br />
+      <p>You will be voting with {userData.shares} shares.</p>
+    {/if}
+  </h1>
+  <br />
   <App />
 </div>
 
@@ -98,9 +91,6 @@ onMount(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-  [data-thq="thq-dropdown"]:hover > [data-thq="thq-dropdown-list"] {
-    display: flex;
   }
   .agm-voting-header {
     width: 100%;
@@ -122,117 +112,37 @@ onMount(() => {
     justify-content: space-between;
     gap: 30px;
   }
-  .log_out {
-    color: #ffffff;
-    width: auto;
-    height: 100%;
-    font-size: 30px;
-    text-align: center;
-    border-width: 0px;
-    margin-right: 32px;
-    text-decoration: none;
-    background-color: #6ba3ab;
+  * :global(.mdc-button) {
+    background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
-    padding-top: 8px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 8px;
-  }
-  .button {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-color: var(--dl-color-gray-black);
-    border-radius: 4px;
-  }
-  .agm-voting-dropdown-toggle {
-    fill: #595959;
-    color: #ffffff;
-    width: 100%;
-    display: inline-flex;
-    align-items: center;
-    padding-top: 8px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 8px;
-    justify-content: flex-start;
-    background-color: #6ba3ab;
-    cursor: pointer;
-  }
-  .agm-voting-dropdown-list {
-    top: 125px;
-    right: auto;
-    /* width: 234%; */
-    height: auto;
-    display: none;
-    z-index: 100;
-    position: absolute;
-    transition: 0.3s;
-    align-items: stretch;
-    flex-direction: column;
-    list-style-type: none;
-    background-color: #6ba3ab;
-    list-style-position: inside;
-  }
-  .agm-voting-dropdown01 {
-    width: 100%;
-    cursor: pointer;
-    height: 100%;
-    display: inline-block;
-    position: relative;
-    border-color: var(--dl-color-gray-black);
-    border-width: 1px;
-    border-radius: var(--dl-radius-radius-radius4);
-    text-decoration: none;
-    background-color: #6ba3ab;
-    border-bottom-width: 0px;
-    border-top-left-radius: var(--dl-radius-radius-radius4);
-    border-top-right-radius: var(--dl-radius-radius-radius4);
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  .agm-voting-dropdown-toggle01,
-  .agm-voting-dropdown-toggle03 {
-    fill: #595959;
-    color: #ffffff;
-    width: 100%;
-    display: inline-flex;
-    transition: 0.3s;
-    align-items: center;
-    padding-top: 8px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 8px;
-    gap: 10px;
-  }
-  .agm-voting-text {
-    width: 96px;
     font-size: 30px;
-    font-style: normal;
-    text-align: center;
-    font-weight: 500;
-    margin-right: 4px;
-    vertical-align: middle;
-  }
-  .agm-voting-text01,
-  .agm-voting-text03 {
-    width: 100%;
-    cursor: pointer;
-    display: flex;
-    font-size: 30px;
-    font-style: normal;
-    font-weight: 500;
     color: white;
+    padding-top: 30px;
+    padding-left: 16px;
+    border-radius: 4px;
+    padding-right: 16px;
+    padding-bottom: 30px;
   }
-  .agm-voting-dropdown-toggle01:hover,
-  .agm-voting-dropdown-toggle03:hover {
-    fill: #fff;
-    color: #fff;
-    background-color: #595959;
+  * :global(.mdc-button):hover {
+    background: #595959;
   }
-  .userText{
+  * :global(.mdc-menu) {
+    background: #6ba3ab;
+    font-family: "Merriweather", sans-serif;
+  }
+  * :global(.mdc-deprecated-list-item):hover {
+    background: #595959;
+  }
+  * :global(.mdc-deprecated-list-item__text) {
+    font-size: 30px;
+    color: white;
+    padding-top: 8px;
+    padding-left: 16px;
+    border-radius: 4px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+  }
+  .userText {
     text-align: center;
   }
   @media (max-width: 720px) {
@@ -243,42 +153,6 @@ onMount(() => {
     .logo {
       width: 100px;
     }
-    .agm-voting-text,
-    .agm-voting-text01,
-    .agm-voting-text03 {
-      width: 100%;
-      font-size: 15px;
-      font-style: normal;
-      text-align: center;
-      font-weight: 500;
-      margin-right: 4px;
-      vertical-align: middle;
-    }
-    .agm-voting-dropdown-list {
-      top: 97px;
-      right: 3.9%;
-      border-radius: 4px;
-      /* width: 234%; */
-      height: auto;
-      display: none;
-      z-index: 100;
-      position: absolute;
-      transition: 0.3s;
-      align-items: stretch;
-      flex-direction: column;
-      list-style-type: none;
-      background-color: #6ba3ab;
-      list-style-position: inside;
-    }
-    .log_out {
-      font-size: 15px;
-      margin-right: 0%;
-      padding-top: 8px;
-      padding-left: 16px;
-      border-radius: 4px;
-      padding-right: 16px;
-      padding-bottom: 8px;
-    }
   }
   @media (max-width: 430px) {
     .agm-voting-header {
@@ -286,7 +160,7 @@ onMount(() => {
       min-width: 100%;
     }
     .logo {
-      width: 165px;
+      width: 130px;
     }
     .agm-voting-btn-group {
       width: 65%;
@@ -298,25 +172,20 @@ onMount(() => {
       justify-content: flex-end;
       gap: 10px;
     }
-    .agm-voting-text,
-    .agm-voting-text01,
-    .agm-voting-text03 {
-      width: 100%;
-      font-size: 15px;
-      font-style: normal;
-      text-align: center;
-      font-weight: 500;
-      margin-right: 4px;
-      vertical-align: middle;
+    * :global(.mdc-button) {
+      font-size: 10px;
+      padding-top: 2px;
+      padding-left: 2px;
+      padding-right: 2px;
+      padding-bottom: 2px;
     }
-    .log_out {
+    * :global(.mdc-deprecated-list-item__text) {
       font-size: 15px;
-      margin-right: 0%;
-      padding-top: 8px;
-      padding-left: 16px;
-      border-radius: 4px;
-      padding-right: 16px;
-      padding-bottom: 8px;
+      padding-top: 0px;
+      padding-left: 0px;
+      border-radius: 0px;
+      padding-right: 0px;
+      padding-bottom: 0px;
     }
   }
 </style>
