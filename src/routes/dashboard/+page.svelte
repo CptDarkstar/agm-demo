@@ -12,6 +12,7 @@
   import Button, { Label } from "@smui/button";
   import Menu from "@smui/menu";
   import List, { Item, Separator, Text } from "@smui/list";
+  
 
   let menu = Menu;
   let clicked = "nothing yet";
@@ -68,9 +69,14 @@
           </Item>
         </List>
       </Menu>
-      <Button on:click={authHandlers.logOut} variant="raised">
+<!--       <Button on:click={authHandlers.logOut} variant="raised">
         <Label>Log Out</Label>
-      </Button>
+      </Button> -->
+      <button class="mdc-button mdc-button--raised" on:click={authHandlers.logOut}>
+        <span class="mdc-button__ripple"></span>
+        <span class="mdc-button__focus-ring"></span>
+        <span class="mdc-button__label">Log out</span>
+      </button>
     </div>
   </header>
   <h1 class="userText">
@@ -112,7 +118,7 @@
     justify-content: space-between;
     gap: 30px;
   }
-  * :global(.mdc-button) {
+  .mdc-button {
     background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
     font-size: 30px;

@@ -65,3 +65,11 @@
   </label>
   <button type="submit">Register</button>
 </form>
+
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+</style>
