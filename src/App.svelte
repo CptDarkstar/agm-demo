@@ -4,8 +4,11 @@
   import { db } from './lib/firebase/firebase'; //Firebase configuration file
   import { collection, getDocs, addDoc } from 'firebase/firestore';
   import VotingTopic from './components/VotingTopic.svelte';
+  import Accordion, { Panel, Header, Content } from '@smui-extra/accordion';
+  import IconButton, { Icon } from '@smui/icon-button';
 
   let topics = [];
+  let panelOpen = false;
 
   // Fetch initial topics from the database
   onMount(async () => {
@@ -32,6 +35,23 @@
   }
 </script>
 
-{#each topics as topic (topic.id)}
+<!-- {#each topics as topic (topic.id)}
   <VotingTopic {topic} on:vote={handleVote} />
-{/each}
+{/each} -->
+
+<div class="accordion-container">
+  <Accordion multiple>
+    {#each topics as topic (topic.id)}
+      <Panel>
+        <Header>
+          {topic.title}
+          <IconButton slot="icon" toggle pressed={panelOpen}>
+            <Icon class="material-icons" on>expand_less</Icon>
+            <Icon class="material-icons">expand_more</Icon>
+          </IconButton>
+        </Header>
+        <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
+      </Panel>
+    {/each}
+  </Accordion>
+</div>
