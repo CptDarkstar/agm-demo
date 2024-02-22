@@ -14,36 +14,32 @@
 <div>
   <h2>{topic.title}</h2>
   <p>{topic.description}</p>
-  <div class="voting_button">
+  <div class="voting_buttons">
     <button class="mdc-button" on:click={() => castVote('yes')}>Yes</button>
-    <Button on:click={() => castVote('yes')} variant="raised">
+    <!-- <Button on:click={() => castVote('yes')} variant="raised">
       <Label>Yes</Label>
-    </Button>
-    <button on:click={() => castVote('no')}>No</button>
-    <button on:click={() => castVote('abstain')}>Abstain</button>
+    </Button> -->
+    <button class="mdc-button" on:click={() => castVote('no')}>No</button>
+    <button class="mdc-button" on:click={() => castVote('abstain')}>Abstain</button>
   </div>
 </div>
 
 
 <style>
 
-  .voting_button {
+  .voting_buttons {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: 30%;
+    gap: 1px;
   }
 
   .mdc-button {
     background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
-    font-size: 20px;
     color: white;
-    padding-top: 30px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 30px;
+    width: 100%;
   }
 
 </style>

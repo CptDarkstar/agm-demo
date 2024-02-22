@@ -12,9 +12,10 @@
   import Button, { Label } from "@smui/button";
   import Menu from "@smui/menu";
   import List, { Item, Separator, Text } from "@smui/list";
-  
+  import { MDCMenu } from "@material/menu";
 
-  let menu = Menu;
+  /* let menu = Menu; */
+  let menu = false;
   let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
 
@@ -27,6 +28,16 @@
     clicked = "Voting";
     goto("/admin");
   };
+
+  function openMDCMenu(selector) {
+    const menuElement = document.querySelector(selector);
+    const menu = new MDCMenu(menuElement);
+
+    const button = document.getElementById("menu-button");
+    button.addEventListener("click", () => {
+      menu.open = !menu.open;
+    });
+  }
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -55,10 +66,10 @@
   <header data-role="Header" class="agm-voting-header">
     <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     <div class="agm-voting-btn-group">
-      <Button on:click={() => menu.setOpen(true)}>
+      <!-- <Button on:click={() => menu.setOpen(true)}>
         <Label>Menu</Label>
-      </Button>
-      <Menu bind:this={menu}>
+      </Button> -->
+      <!-- <Menu bind:this={menu}>
         <List>
           <Item on:SMUI:action={handleShareHoldersAction}>
             <Text>Share Holders</Text>
@@ -68,11 +79,50 @@
             <Text>Voting</Text>
           </Item>
         </List>
-      </Menu>
-<!--       <Button on:click={authHandlers.logOut} variant="raised">
+      </Menu> -->
+      <div id="demo-menu" class="mdc-menu-surface--anchor">
+        <button
+          id="menu-button"
+          class="mdc-button mdc-button--raised"
+          on:action={openMDCMenu(".mdc-menu")}>Open Menu</button
+        >
+        <div class="mdc-menu mdc-menu-surface">
+          <ul
+            class="mdc-deprecated-list"
+            role="menu"
+            aria-hidden="true"
+            aria-orientation="vertical"
+            tabindex="-1"
+            bind:this={menu}
+          >
+            <li
+              class="mdc-deprecated-list-item"
+              role="menuitem"
+              on:action={handleShareHoldersAction}
+            >
+              <span class="mdc-deprecated-list-item__ripple"></span>
+              <span class="mdc-deprecated-list-item__text">A Menu Item</span>
+            </li>
+            <li
+              class="mdc-deprecated-list-item"
+              role="menuitem"
+              on:action={handleVotingAction}
+            >
+              <span class="mdc-deprecated-list-item__ripple"></span>
+              <span class="mdc-deprecated-list-item__text"
+                >Another Menu Item</span
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!--       <Button on:click={authHandlers.logOut} variant="raised">
         <Label>Log Out</Label>
       </Button> -->
-      <button class="mdc-button mdc-button--raised" on:click={authHandlers.logOut}>
+      <button
+        class="mdc-button mdc-button--raised"
+        on:click={authHandlers.logOut}
+      >
         <span class="mdc-button__ripple"></span>
         <span class="mdc-button__focus-ring"></span>
         <span class="mdc-button__label">Log out</span>
@@ -132,14 +182,15 @@
   * :global(.mdc-button):hover {
     background: #595959;
   }
-  * :global(.mdc-menu) {
+  .mdc-menu-surface {
     background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
+    top: 63px;
   }
-  * :global(.mdc-deprecated-list-item):hover {
+  .mdc-deprecated-list-item:hover {
     background: #595959;
   }
-  * :global(.mdc-deprecated-list-item__text) {
+  .mdc-deprecated-list-item__text {
     font-size: 30px;
     color: white;
     padding-top: 8px;
