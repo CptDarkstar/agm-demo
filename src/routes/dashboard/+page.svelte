@@ -198,6 +198,9 @@
     padding-right: 16px;
     padding-bottom: 8px;
   }
+  a {
+    text-decoration: none;
+  }
   .userText {
     text-align: center;
   }

@@ -3,10 +3,10 @@
   import { authHandlers } from "../../store/store";
   import { goto } from "$app/navigation";
   import Button, { Label } from "@smui/button";
-  import Menu from "@smui/menu";
+  import { MDCMenu } from "@material/menu";
   import List, { Item, Separator, Text } from "@smui/list";
 
-  let menu = Menu;
+  let menu = false;
   let clicked = "nothing yet";
 
   //Menu
@@ -20,6 +20,15 @@
     goto("/admin");
   };
 
+  function openMDCMenu(selector) {
+    const menuElement = document.querySelector(selector);
+    const menu = new MDCMenu(menuElement);
+
+    const button = document.getElementById("menu-button");
+    button.addEventListener("click", () => {
+      menu.open = !menu.open;
+    });
+  }
 </script>
 
 <div class="maincontainer">
@@ -28,23 +37,49 @@
       <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     </a>
     <div class="agm-voting-btn-group">
-      <Button on:click={() => menu.setOpen(true)}>
-        <Label>Menu</Label>
-      </Button>
-      <Menu bind:this={menu}>
-        <List>
-          <Item on:SMUI:action={handleShareHoldersAction}>
-            <Text>Share Holders</Text>
-          </Item>
-          <Separator />
-          <Item on:SMUI:action={handleVotingAction}>
-            <Text>Voting</Text>
-          </Item>
-        </List>
-      </Menu>
-      <Button on:click={authHandlers.logOut} variant="raised">
-        <Label>Log Out</Label>
-      </Button>
+      <div id="demo-menu" class="mdc-menu-surface--anchor">
+        <button
+          id="menu-button"
+          class="mdc-button mdc-button--raised"
+          on:action={openMDCMenu(".mdc-menu")}>Menu</button
+        >
+        <div class="mdc-menu mdc-menu-surface">
+          <ul
+            class="mdc-deprecated-list"
+            role="menu"
+            aria-hidden="true"
+            aria-orientation="vertical"
+            tabindex="-1"
+            bind:this={menu}
+          >
+            <a href="/shareholders">
+              <li
+                class="mdc-deprecated-list-item"
+                role="menuitem"
+                on:SMUI:action={handleShareHoldersAction}
+              >
+                <span class="mdc-deprecated-list-item__ripple"></span>
+                <span class="mdc-deprecated-list-item__text">Share Holders</span
+                >
+              </li>
+            </a>
+            <a href="/admin">
+              <li class="mdc-deprecated-list-item" role="menuitem">
+                <span class="mdc-deprecated-list-item__ripple"></span>
+                <span class="mdc-deprecated-list-item__text">Voting</span>
+              </li>
+            </a>
+          </ul>
+        </div>
+      </div>
+      <button
+        class="mdc-button mdc-button--raised"
+        on:click={authHandlers.logOut}
+      >
+        <span class="mdc-button__ripple"></span>
+        <span class="mdc-button__focus-ring"></span>
+        <span class="mdc-button__label">Log out</span>
+      </button>
     </div>
   </header>
 </div>
@@ -55,7 +90,7 @@
     flex-direction: column;
     align-items: center;
   }
-  * :global(.mdc-button) {
+  .mdc-button {
     background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
     font-size: 30px;
@@ -69,14 +104,15 @@
   * :global(.mdc-button):hover {
     background: #595959;
   }
-  * :global(.mdc-menu) {
+  .mdc-menu-surface {
     background: #6ba3ab;
     font-family: "Merriweather", sans-serif;
+    top: 63px;
   }
-  * :global(.mdc-deprecated-list-item):hover {
+  .mdc-deprecated-list-item:hover {
     background: #595959;
   }
-  * :global(.mdc-deprecated-list-item__text) {
+  .mdc-deprecated-list-item__text {
     font-size: 30px;
     color: white;
     padding-top: 8px;
@@ -84,6 +120,9 @@
     border-radius: 4px;
     padding-right: 16px;
     padding-bottom: 8px;
+  }
+  a {
+    text-decoration: none;
   }
   .agm-voting-header {
     width: 100%;
