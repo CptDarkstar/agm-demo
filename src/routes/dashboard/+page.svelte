@@ -84,7 +84,7 @@
         <button
           id="menu-button"
           class="mdc-button mdc-button--raised"
-          on:action={openMDCMenu(".mdc-menu")}>Open Menu</button
+          on:action={openMDCMenu(".mdc-menu")}>Menu</button
         >
         <div class="mdc-menu mdc-menu-surface">
           <ul
@@ -95,24 +95,23 @@
             tabindex="-1"
             bind:this={menu}
           >
-            <li
-              class="mdc-deprecated-list-item"
-              role="menuitem"
-              on:action={handleShareHoldersAction}
-            >
-              <span class="mdc-deprecated-list-item__ripple"></span>
-              <span class="mdc-deprecated-list-item__text">A Menu Item</span>
-            </li>
-            <li
-              class="mdc-deprecated-list-item"
-              role="menuitem"
-              on:action={handleVotingAction}
-            >
-              <span class="mdc-deprecated-list-item__ripple"></span>
-              <span class="mdc-deprecated-list-item__text"
-                >Another Menu Item</span
+            <a href="/shareholders">
+              <li
+                class="mdc-deprecated-list-item"
+                role="menuitem"
+                on:SMUI:action={handleShareHoldersAction}
               >
-            </li>
+                <span class="mdc-deprecated-list-item__ripple"></span>
+                <span class="mdc-deprecated-list-item__text">Share Holders</span
+                >
+              </li>
+            </a>
+            <a href="/admin">
+              <li class="mdc-deprecated-list-item" role="menuitem">
+                <span class="mdc-deprecated-list-item__ripple"></span>
+                <span class="mdc-deprecated-list-item__text">Voting</span>
+              </li>
+            </a>
           </ul>
         </div>
       </div>
