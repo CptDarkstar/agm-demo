@@ -2,7 +2,12 @@
   import { createUserWithEmailAndPassword } from "firebase/auth";
   import { auth, db } from "../lib/firebase/firebase"; // Assuming you have a db export in your firebase.js
   import { collection, doc, setDoc } from "firebase/firestore";
-
+  import MenuSurface from '@smui/menu-surface';
+  import Textfield from '@smui/textfield';
+  import Button from '@smui/button';
+ 
+  let surface= MenuSurface;
+  let name = '';
   let email = "";
   let displayName = "";
   let password = ""; // Variable for password
@@ -45,7 +50,7 @@
   </p>
 {/if}
 
-<form on:submit|preventDefault={register}>
+<!-- <form on:submit|preventDefault={register}>
   <label>
     Email:
     <input type="email" bind:value={email} required />
@@ -57,14 +62,48 @@
   <label>
     Password:
     <input type="password" bind:value={password} required />
-    <!-- Add password input -->
   </label>
   <label>
     Shares:
     <input type="number" bind:value={shares} required />
   </label>
   <button type="submit">Register</button>
-</form>
+</form> -->
+
+<div style="min-width: 100px;">
+  <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
+  <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
+    <form on:submit|preventDefault={register}>
+      <div style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;">
+        <!-- <label>
+          Email:
+          <input type="email" bind:value={email} required />
+        </label> -->
+        <Textfield bind:value={displayName} label="Name" required />
+        <!-- <label>
+          Name:
+          <input type="text" bind:value={displayName} required />
+        </label> -->
+        <Textfield bind:value={email} label="Email" required />
+        <!-- <label>
+          Password:
+          <input type="password" bind:value={password} required />
+        </label> -->
+        <Textfield type="password" bind:value={password} label="Password" required/>
+        <!-- <label>
+          Shares:
+          <input type="number" bind:value={shares} required />
+        </label> -->
+        <Textfield type="number" bind:value={shares} label="Shares" />
+        <!-- <button type="submit">Register</button> -->
+        <Button style="margin-top: 1em;" type="submit">Register</Button>
+        <Button style="margin-top: 1em;" on:click={() => surface.setOpen(false)}>
+          Close
+        </Button>
+      </div>
+    </form>
+  </MenuSurface>
+</div>
 
 <style>
   form {

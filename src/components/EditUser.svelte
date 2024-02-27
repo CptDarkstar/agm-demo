@@ -3,7 +3,9 @@
   import { auth, db } from "$lib/firebase/firebase";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import LinearProgress from "@smui/linear-progress";
-  import Button from "@smui/button";
+  import Button, { Label } from "@smui/button";
+  import Dialog, { Title, Content, Actions } from "@smui/dialog";
+  import Textfield from "@smui/textfield";
   import {
     collection,
     getDocs,
@@ -25,6 +27,8 @@
   let editedName = ""; // Define and initialize editedName
   let editedEmail = ""; // Define and initialize editedEmail
   let editedShares = 0; // Define and initialize editedShares as a number
+  let open = false;
+  let clicked = "Nothing yet.";
 
   onMount(async () => {
     const usersCollection = collection(db, "user");
@@ -75,22 +79,10 @@
       return;
     }
 
-    editUserStore.update((store) => {
-      if (store.selectedUser && typeof store.selectedUser === "object") {
-        store.selectedUser = {
-          ...store.selectedUser,
-          name: displayName,
-          email: email,
-          shares: sharesNumber,
-        };
-      }
-      return store;
-    });
-
-    const updatedUser = $editUserStore.selectedUser; // Access the value directly from the store
-
+    const updatedUser = $editUserStore.selectedUser;
     if (updatedUser) {
-      const userDocRef = doc(collection(db, "user"), updatedUser); // Use collection function if 'users' is the collection name
+      console.log("Updated user ID:", updatedUser.id);
+      const userDocRef = doc(collection(db, "user"), updatedUser.id);
 
       const userData = {
         displayName: displayName,
@@ -109,19 +101,17 @@
     }
 
     // Obtain the updated user information from the edited fields
-    const updatedName = editedName;
-    const updatedEmail = editedEmail;
-    const updatedShares = editedShares;
+    const updatedName = displayName; // Replace with the actual updated value
+    const updatedEmail = email; // Replace with the actual updated value
+    const updatedShares = sharesNumber; // Replace with the actual updated value
 
     // Pass the updated user information to the Firestore update function
-    /* updateUserDataInFirestore(
+    updateUserDataInFirestore(
       selectedUser.id,
       updatedName,
       updatedEmail,
       updatedShares
-    ); */
-
-    hideEditModal();
+    );
   };
 
   // Subscribe to the editUserStore to get the showModal and selectedUser values
@@ -185,6 +175,35 @@
   </div>
 {/if}
 
+<Dialog
+  bind:open
+  aria-labelledby="simple-title"
+  aria-describedby="simple-content"
+>
+  <!-- Title cannot contain leading whitespace due to mdc-typography-baseline-top() -->
+  <Title id="simple-title">Edit User:</Title>
+  <Content id="simple-content">
+    <Textfield bind:value={editedName} label="Name" required />
+    <Textfield type="email" bind:value={editedEmail} label="Email" required />
+    <Textfield
+      type="number"
+      bind:value={editedShares}
+      label="Shares"
+      required
+    />
+  </Content>
+  <Actions>
+    <Button
+      on:click={() => handleSaveChanges(editedName, editedEmail, editedShares)}
+    >
+      <Label>Save Changes</Label>
+    </Button>
+    <Button on:click={() => (clicked = "Cancel")}>
+      <Label>Cancel</Label>
+    </Button>
+  </Actions>
+</Dialog>
+
 <DataTable table$aria-label="User list" style="width: auto;">
   <Head>
     <Row>
@@ -201,9 +220,23 @@
         <Cell>{user.email}</Cell>
         <Cell numeric>{user.shares}</Cell>
         <Cell>
-          <button on:click={() => editUser(user.id)}>Edit</button>
-          <button on:click={() => deleteUser(user.id)}>Delete</button></Cell
-        >
+          <button
+            class="mdc-button mdc-button--raised"
+            on:click={() => (open = true)}
+          >
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__focus-ring"></span>
+            <span class="mdc-button__label">Edit</span>
+          </button>
+          <button
+            class="mdc-button mdc-button--raised"
+            on:click={() => deleteUser(user.id)}
+          >
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__focus-ring"></span>
+            <span class="mdc-button__label">Delete</span>
+          </button>
+        </Cell>
       </Row>
     {/each}
   </Body>

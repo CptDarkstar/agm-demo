@@ -110,9 +110,9 @@
       </button>
     </div>
   </header>
-  <Register />
   <h1>All Users</h1>
   <EditUser />
+  <Register />
 </div>
 
 <style>
