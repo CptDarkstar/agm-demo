@@ -2,12 +2,12 @@
   import { createUserWithEmailAndPassword } from "firebase/auth";
   import { auth, db } from "../lib/firebase/firebase"; // Assuming you have a db export in your firebase.js
   import { collection, doc, setDoc } from "firebase/firestore";
-  import MenuSurface from '@smui/menu-surface';
-  import Textfield from '@smui/textfield';
-  import Button from '@smui/button';
- 
-  let surface= MenuSurface;
-  let name = '';
+  import MenuSurface from "@smui/menu-surface";
+  import Textfield from "@smui/textfield";
+  import Button from "@smui/button";
+
+  let surface = MenuSurface;
+  let name = "";
   let email = "";
   let displayName = "";
   let password = ""; // Variable for password
@@ -42,6 +42,28 @@
       // Handle error, e.g., display a message to the user
     }
   }
+
+  import axios from "axios";
+
+  async function createUser(userData) {
+    try {
+      const response = await axios.post(
+        "http://localhost:8383/createUser",
+        userData
+      );
+      console.log(response.data); // Log the response from the backend
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  }
+
+  // Call createUser function with user data
+  createUser({
+    email: "user@example.com",
+    displayName: "John Doe",
+    password: "password123",
+    shares: 100,
+  });
 </script>
 
 {#if error}
@@ -50,31 +72,13 @@
   </p>
 {/if}
 
-<!-- <form on:submit|preventDefault={register}>
-  <label>
-    Email:
-    <input type="email" bind:value={email} required />
-  </label>
-  <label>
-    Name:
-    <input type="text" bind:value={displayName} required />
-  </label>
-  <label>
-    Password:
-    <input type="password" bind:value={password} required />
-  </label>
-  <label>
-    Shares:
-    <input type="number" bind:value={shares} required />
-  </label>
-  <button type="submit">Register</button>
-</form> -->
-
 <div style="min-width: 100px;">
   <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
   <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
     <form on:submit|preventDefault={register}>
-      <div style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;">
+      <div
+        style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;"
+      >
         <!-- <label>
           Email:
           <input type="email" bind:value={email} required />
@@ -89,7 +93,12 @@
           Password:
           <input type="password" bind:value={password} required />
         </label> -->
-        <Textfield type="password" bind:value={password} label="Password" required/>
+        <Textfield
+          type="password"
+          bind:value={password}
+          label="Password"
+          required
+        />
         <!-- <label>
           Shares:
           <input type="number" bind:value={shares} required />
@@ -97,7 +106,10 @@
         <Textfield type="number" bind:value={shares} label="Shares" />
         <!-- <button type="submit">Register</button> -->
         <Button style="margin-top: 1em;" type="submit">Register</Button>
-        <Button style="margin-top: 1em;" on:click={() => surface.setOpen(false)}>
+        <Button
+          style="margin-top: 1em;"
+          on:click={() => surface.setOpen(false)}
+        >
           Close
         </Button>
       </div>
