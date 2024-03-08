@@ -5,6 +5,7 @@
   import MenuSurface from "@smui/menu-surface";
   import Textfield from "@smui/textfield";
   import Button from "@smui/button";
+  import axios from "axios";
 
   let surface = MenuSurface;
   let name = "";
@@ -43,9 +44,8 @@
     }
   }
 
-  import axios from "axios";
-
   async function createUser(userData) {
+    console.log(userData);
     try {
       const response = await axios.post(
         "https://agm-node-cptdarkstar.onrender.com/createUser",
