@@ -17,11 +17,11 @@
   async function register() {
     try {
       // Create the user without signing them in
-      const userCredential = await createUserWithEmailAndPassword(
+      /* const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
-      );
+      ); */
 
       // Save user details including shares to Firestore
       const userRef = doc(db, "user", userCredential.user.uid);
@@ -48,7 +48,7 @@
   async function createUser(userData) {
     try {
       const response = await axios.post(
-        "http://localhost:8383/createUser",
+        "https://agm-node-cptdarkstar.onrender.com/createUser",
         userData
       );
       console.log(response.data); // Log the response from the backend
@@ -59,10 +59,10 @@
 
   // Call createUser function with user data
   createUser({
-    email: "user@example.com",
-    displayName: "John Doe",
-    password: "password123",
-    shares: 100,
+    email,
+    displayName,
+    password,
+    shares,
   });
 </script>
 
@@ -75,7 +75,7 @@
 <div style="min-width: 100px;">
   <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
   <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
-    <form on:submit|preventDefault={register}>
+    <form on:submit|preventDefault={createUser}>
       <div
         style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;"
       >
