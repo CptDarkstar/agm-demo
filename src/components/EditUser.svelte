@@ -103,31 +103,6 @@
   };
 </script>
 
-<!-- {#if showModal}
-  <div class="edit-modal">
-    <p>User: {selectedUser.name}</p>
-    <ul>
-      <li>
-        <p>Name:</p>
-        <input type="text" bind:value={editedName} />
-      </li>
-      <li>
-        <p>Email:</p>
-        <input type="text" bind:value={editedEmail} />
-      </li>
-      <li>
-        <p>Shares:</p>
-        <input type="number" bind:value={editedShares} />
-      </li>
-    </ul>
-    <button
-      on:click={() => handleSaveChanges(editedName, editedEmail, editedShares)}
-      >Save Changes</button
-    >
-    <button on:click={handleCloseEditModal}>Close</button>
-  </div>
-{/if} -->
-
 <Dialog
   bind:open
   aria-labelledby="simple-title"

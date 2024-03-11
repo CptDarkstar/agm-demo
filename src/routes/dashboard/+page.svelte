@@ -66,24 +66,11 @@
   <header data-role="Header" class="agm-voting-header">
     <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     <div class="agm-voting-btn-group">
-      <!-- <Button on:click={() => menu.setOpen(true)}>
-        <Label>Menu</Label>
-      </Button> -->
-      <!-- <Menu bind:this={menu}>
-        <List>
-          <Item on:SMUI:action={handleShareHoldersAction}>
-            <Text>Share Holders</Text>
-          </Item>
-          <Separator />
-          <Item on:SMUI:action={handleVotingAction}>
-            <Text>Voting</Text>
-          </Item>
-        </List>
-      </Menu> -->
       <div id="demo-menu" class="mdc-menu-surface--anchor">
         <button
           id="menu-button"
-          class="mdc-button mdc-button--raised"
+          class="mdc-button mdc-button--raised admin"
+          style="display: none;"
           on:action={openMDCMenu(".mdc-menu")}>Menu</button
         >
         <div class="mdc-menu mdc-menu-surface">
@@ -115,9 +102,7 @@
           </ul>
         </div>
       </div>
-      <!--       <Button on:click={authHandlers.logOut} variant="raised">
-        <Label>Log Out</Label>
-      </Button> -->
+
       <button
         class="mdc-button mdc-button--raised"
         on:click={authHandlers.logOut}

@@ -67,15 +67,6 @@
         bind:value={email}
         label="Email"
       ></Textfield>
-      <!--<input
-        type="email"
-        required=""
-        placeholder="Email"
-        class="shaped-outlined"
-        variant="outlined"
-        id="Email"
-        bind:value={email}
-      /> -->
     </div>
     <div class="log-in-group03">
       <span class="log-in-text07">
@@ -89,32 +80,11 @@
         bind:value={password}
         label="Password"
       ></Textfield>
-      <!-- <input
-        type="password"
-        required=""
-        placeholder="Password"
-        class="log-in-textinput1 input"
-        id="Password"
-        bind:value={password}
-      /> -->
     </div>
     <a href="/forgot_password" rel="noreferrer noopener" class="log-in-text09">
       <span>Forgot Password</span>
     </a>
     <div class="log-in-group04">
-      <!-- <button
-        on:click={handleAuthenticate}
-        type="button"
-        variant="raised"
-        class="log-in-button button"
-        id="btnLogin"
-      >
-        {#if authenticating}
-          <i class="fa-solid fa-spinner fa-spin" style="color: #ffffff;"></i>
-        {:else}
-          Log In
-        {/if}
-      </button> -->
       <Button on:click={handleAuthenticate} variant="raised">
         <Label
           >{#if authenticating}

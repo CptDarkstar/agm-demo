@@ -11,6 +11,9 @@ export const authStore = writable({
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // User is signed in, update the store
+    user.getIdTokenResult().then(idTokenResult => {
+      console.log(idTokenResult.claims.admin);
+    })
     authStore.set({
       user: {
         uid: user.uid,
