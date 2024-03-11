@@ -42,7 +42,7 @@
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDocRef = doc(collection(db, "user"), user.uid);
+        const userDocRef = doc(collection(db, "users"), user.uid);
         try {
           const userSnapshot = await getDoc(userDocRef);
           if (userSnapshot.exists()) {

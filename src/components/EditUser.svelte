@@ -6,6 +6,7 @@
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
   import Textfield from "@smui/textfield";
+  import axios from "axios";
   import {
     collection,
     getDocs,
@@ -24,6 +25,7 @@
   let editStore = editUserStore;
   let showModal;
   let selectedUser;
+  let id = "";
   let editedName = ""; // Define and initialize editedName
   let editedEmail = ""; // Define and initialize editedEmail
   let editedShares = 0; // Define and initialize editedShares as a number
@@ -31,7 +33,7 @@
   let clicked = "Nothing yet.";
 
   onMount(async () => {
-    const usersCollection = collection(db, "user");
+    const usersCollection = collection(db, "users");
     try {
       const querySnapshot = await getDocs(usersCollection);
       const userData = [];
@@ -46,6 +48,7 @@
 
   // Edit user function
   const editUser = (user) => {
+    console.log("Edit user:", user);
     showEditModal(user); // Show the modal and set the selected user
   };
   // Function to handle editing user
@@ -57,62 +60,23 @@
     hideEditModal(); // Hide the edit modal
   };
 
-  // Merged handleSaveChanges function with the additional functionality
-  const handleSaveChanges = async (displayName, email, shares) => {
-    if (
-      !displayName ||
-      typeof displayName !== "string" ||
-      displayName.trim() === ""
-    ) {
-      console.error("Error: Invalid display name");
-      return;
+  //Server side to Update User
+  async function handleSaveChanges(userId, displayName, email, shares) {
+    try {
+      const userData = { displayName: editedName, email: editedEmail, shares: editedShares }; // Correct assignment of values to keys
+      console.log("userId:", userId);
+      console.log("userData:", userData);
+      const response = await axios.put(
+        `http://localhost:8383/updateUser/${userId}`,
+        userData
+      );
+      console.log("User data updated successfully:", response.data);
+      // Optionally, you can handle success feedback or navigation here
+    } catch (error) {
+      console.error("Error updating user data:", error);
+      // Optionally, you can handle error feedback here
     }
-
-    if (!email || typeof email !== "string") {
-      console.error("Error: Invalid email");
-      return;
-    }
-
-    const sharesNumber = parseInt(shares, 10);
-    if (isNaN(sharesNumber)) {
-      console.error("Error: Invalid shares value");
-      return;
-    }
-
-    const updatedUser = $editUserStore.selectedUser;
-    if (updatedUser) {
-      console.log("Updated user ID:", updatedUser.id);
-      const userDocRef = doc(collection(db, "user"), updatedUser.id);
-
-      const userData = {
-        displayName: displayName,
-        email: email,
-        shares: sharesNumber,
-      };
-
-      try {
-        await updateDoc(userDocRef, userData);
-        console.log("User data updated in Firestore successfully");
-      } catch (error) {
-        console.error("Error updating user data in Firestore:", error);
-      }
-    } else {
-      console.error("Error: No user selected for update");
-    }
-
-    // Obtain the updated user information from the edited fields
-    const updatedName = displayName; // Replace with the actual updated value
-    const updatedEmail = email; // Replace with the actual updated value
-    const updatedShares = sharesNumber; // Replace with the actual updated value
-
-    // Pass the updated user information to the Firestore update function
-    updateUserDataInFirestore(
-      selectedUser.id,
-      updatedName,
-      updatedEmail,
-      updatedShares
-    );
-  };
+  }
 
   // Subscribe to the editUserStore to get the showModal and selectedUser values
   const unsubscribe = editStore.subscribe((value) => {
@@ -130,26 +94,16 @@
   // Delete user function
   const deleteUser = async (userId) => {
     try {
-      await deleteDoc(doc(db, "user", userId)); // Delete user from Firestore
-      // For example: await deleteDoc(doc(db, 'user', userId));
+      await axios.delete(`http://localhost:8383/deleteUser/${userId}`);
+      // Once the delete request is successful, you can update the UI or perform any other actions as needed
+      console.log("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user: ", error);
     }
   };
 </script>
 
-<!-- <ul>
-  {#each users as user}
-    <li>
-      <p>Name: {user.displayName}</p>
-      <p>Email: {user.email}</p>
-      <p>Shares: {user.shares}</p>
-      <button on:click={() => editUser(user.id)}>Edit</button>
-      <button on:click={() => deleteUser(user.id)}>Delete</button>
-    </li>
-  {/each}
-</ul> -->
-{#if showModal}
+<!-- {#if showModal}
   <div class="edit-modal">
     <p>User: {selectedUser.name}</p>
     <ul>
@@ -157,7 +111,6 @@
         <p>Name:</p>
         <input type="text" bind:value={editedName} />
       </li>
-      <!-- Other input fields for editing user information -->
       <li>
         <p>Email:</p>
         <input type="text" bind:value={editedEmail} />
@@ -173,28 +126,22 @@
     >
     <button on:click={handleCloseEditModal}>Close</button>
   </div>
-{/if}
+{/if} -->
 
 <Dialog
   bind:open
   aria-labelledby="simple-title"
   aria-describedby="simple-content"
 >
-  <!-- Title cannot contain leading whitespace due to mdc-typography-baseline-top() -->
   <Title id="simple-title">Edit User:</Title>
   <Content id="simple-content">
-    <Textfield bind:value={editedName} label="Name" required />
-    <Textfield type="email" bind:value={editedEmail} label="Email" required />
-    <Textfield
-      type="number"
-      bind:value={editedShares}
-      label="Shares"
-      required
-    />
+    <Textfield bind:value={editedName} label="Name" />
+    <Textfield type="email" bind:value={editedEmail} label="Email" />
+    <Textfield type="number" bind:value={editedShares} label="Shares" />
   </Content>
   <Actions>
     <Button
-      on:click={() => handleSaveChanges(editedName, editedEmail, editedShares)}
+      on:click={() => handleSaveChanges(selectedUser.id, editedName, editedEmail, editedShares)}
     >
       <Label>Save Changes</Label>
     </Button>

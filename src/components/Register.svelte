@@ -48,7 +48,8 @@
     console.log(userData);
     try {
       const response = await axios.post(
-        "https://agm-node-cptdarkstar.onrender.com/createUser",
+        //"https://agm-node-cptdarkstar.onrender.com/createUser",
+        "http://localhost:8383/createUser",
         userData
       );
       console.log(response.data); // Log the response from the backend
@@ -58,12 +59,12 @@
   }
 
   // Call createUser function with user data
-  createUser({
-    email,
-    displayName,
-    password,
-    shares,
-  });
+  // createUser({
+  //   email,
+  //   displayName,
+  //   password,
+  //   shares,
+  // });
 </script>
 
 {#if error}
@@ -75,7 +76,7 @@
 <div style="min-width: 100px;">
   <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
   <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
-    <form on:submit|preventDefault={createUser}>
+    <form on:submit|preventDefault={() => createUser({ email, displayName, password, shares })}>
       <div
         style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;"
       >

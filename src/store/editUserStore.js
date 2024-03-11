@@ -6,6 +6,7 @@ import { db } from "$lib/firebase/firebase"; // Assuming db is the Firestore dat
 const initialState = {
   showModal: false,
   selectedUser: {
+    id: "", // User ID
     name: "", // Default name value
     email: "", // Default email value
     shares: 0, // Default shares value
@@ -19,7 +20,12 @@ const editUserStore = writable(initialState);
 const showEditModal = (user) => {
   editUserStore.update((store) => {
     store.showModal = true;
-    store.selectedUser = user;
+    store.selectedUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      shares: user.shares,
+    };
     return store;
   });
 };
@@ -33,10 +39,11 @@ const hideEditModal = () => {
 };
 
 // Function to update user data in Firestore
-const updateUserInFirestore = async (userId, updatedUserData) => {
+const updateUserInFirestore = async (updatedUserData) => {
   try {
-    const userDocRef = doc(db, "user", userId);
-    await updateDoc(userDocRef, updatedUserData);
+    const { id, ...userData } = updatedUserData;
+    const userDocRef = doc(db, "user", id);
+    await updateDoc(userDocRef, userData);
     console.log("User data updated in Firestore");
   } catch (error) {
     console.error("Error updating user data in Firestore:", error);
