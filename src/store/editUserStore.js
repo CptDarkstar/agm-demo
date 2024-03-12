@@ -18,7 +18,7 @@ const editUserStore = writable(initialState);
 
 // Methods to update the store
 const showEditModal = (user) => {
-  editUserStore.update((store) => {
+  return editUserStore.update((store) => {
     store.showModal = true;
     store.selectedUser = {
       id: user.id,

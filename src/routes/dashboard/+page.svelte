@@ -70,7 +70,7 @@
         <button
           id="menu-button"
           class="mdc-button mdc-button--raised admin"
-          style="display: none;"
+          
           on:action={openMDCMenu(".mdc-menu")}>Menu</button
         >
         <div class="mdc-menu mdc-menu-surface">

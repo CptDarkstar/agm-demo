@@ -61,13 +61,12 @@
   };
 
   //Server side to Update User
-  async function handleSaveChanges(userId, displayName, email, shares) {
+  async function handleSaveChanges(user) {
     try {
       const userData = { displayName: editedName, email: editedEmail, shares: editedShares }; // Correct assignment of values to keys
-      console.log("userId:", userId);
       console.log("userData:", userData);
       const response = await axios.put(
-        `http://localhost:8383/updateUser/${userId}`,
+        `https://agm-node-cptdarkstar.onrender.com/updateUser/${user.id}`,
         userData
       );
       console.log("User data updated successfully:", response.data);
@@ -94,7 +93,7 @@
   // Delete user function
   const deleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:8383/deleteUser/${userId}`);
+      await axios.delete(`https://agm-node-cptdarkstar.onrender.com/deleteUser/${userId}`);
       // Once the delete request is successful, you can update the UI or perform any other actions as needed
       console.log("User deleted successfully");
     } catch (error) {
@@ -116,7 +115,9 @@
   </Content>
   <Actions>
     <Button
-      on:click={() => handleSaveChanges(selectedUser.id, editedName, editedEmail, editedShares)}
+      on:click={() => {
+        handleSaveChanges(selectedUser)
+      }}
     >
       <Label>Save Changes</Label>
     </Button>
@@ -144,7 +145,10 @@
         <Cell>
           <button
             class="mdc-button mdc-button--raised"
-            on:click={() => (open = true)}
+            on:click={() => {
+              selectedUser = user;
+              (open = true)
+            }}
           >
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__focus-ring"></span>
