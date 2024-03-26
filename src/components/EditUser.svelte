@@ -6,6 +6,7 @@
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
   import Textfield from "@smui/textfield";
+  import { createEventDispatcher } from "svelte";
   import axios from "axios";
   import {
     collection,
@@ -63,7 +64,11 @@
   //Server side to Update User
   async function handleSaveChanges(user) {
     try {
-      const userData = { displayName: editedName, email: editedEmail, shares: editedShares }; // Correct assignment of values to keys
+      const userData = {
+        displayName: editedName,
+        email: editedEmail,
+        shares: editedShares,
+      }; // Correct assignment of values to keys
       console.log("userData:", userData);
       const response = await axios.put(
         `https://agm-node-cptdarkstar.onrender.com/updateUser/${user.id}`,
@@ -91,15 +96,27 @@
   });
 
   // Delete user function
+
+  // Create event dispatcher to dispatch custom events
+  const dispatch = createEventDispatcher();
+
   const deleteUser = async (userId) => {
     try {
-      await axios.delete(`https://agm-node-cptdarkstar.onrender.com/deleteUser/${userId}`);
+      await axios.delete(
+        `https://agm-node-cptdarkstar.onrender.com/deleteUser/${userId}`
+      );
       // Once the delete request is successful, you can update the UI or perform any other actions as needed
       console.log("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user: ", error);
     }
   };
+
+  function handleDeleteConfirmation(userId) {
+    if (confirm("Are you sure you want to delete this user?")) {
+      deleteUser(userId);
+    }
+  }
 </script>
 
 <Dialog
@@ -116,7 +133,7 @@
   <Actions>
     <Button
       on:click={() => {
-        handleSaveChanges(selectedUser)
+        handleSaveChanges(selectedUser);
       }}
     >
       <Label>Save Changes</Label>
@@ -147,7 +164,7 @@
             class="mdc-button mdc-button--raised"
             on:click={() => {
               selectedUser = user;
-              (open = true)
+              open = true;
             }}
           >
             <span class="mdc-button__ripple"></span>
@@ -156,7 +173,7 @@
           </button>
           <button
             class="mdc-button mdc-button--raised"
-            on:click={() => deleteUser(user.id)}
+            on:click={() => handleDeleteConfirmation(user.id)}
           >
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__focus-ring"></span>

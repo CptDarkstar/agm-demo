@@ -5,6 +5,7 @@
   import Button, { Label } from "@smui/button";
   import { MDCMenu } from "@material/menu";
   import List, { Item, Separator, Text } from "@smui/list";
+  import AdminDropdown from "../../components/AdminDropdown.svelte";
 
   let menu = false;
   let clicked = "nothing yet";
@@ -82,6 +83,7 @@
       </button>
     </div>
   </header>
+  <AdminDropdown />
 </div>
 
 <style>
