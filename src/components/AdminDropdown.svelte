@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { db } from "$lib/firebase/firebase";
+  import axios from "axios";
   import Select, { Option } from "@smui/select";
   import Button, { Label } from "@smui/button";
   import {
@@ -27,9 +28,12 @@
     }
   });
 
-  function handleSubmit(e) { 
+  async function handleSubmit(e) { 
     e.preventDefault();
     received = e.currentTarget["user"].value;
+    await axios.post(
+        `https://agm-node-cptdarkstar.onrender.com/setCustomClaims/${value}`
+      );
   }
 </script>
 
