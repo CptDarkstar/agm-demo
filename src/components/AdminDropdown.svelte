@@ -1,27 +1,49 @@
 <script>
+  import { onMount } from "svelte";
+  import { db } from "$lib/firebase/firebase";
   import Select, { Option } from "@smui/select";
   import Button, { Label } from "@smui/button";
+  import {
+    collection,
+    getDocs,
+    doc,
+  } from "firebase/firestore";
 
-  var fruits = ["Apple", "Orange", "Banana", "Mango"];
+  var users = [];
   var value = "";
   var received = undefined;
+
+  onMount(async () => {
+    const usersCollection = collection(db, "users");
+    try {
+      const querySnapshot = await getDocs(usersCollection);
+      const userData = [];
+      querySnapshot.forEach((doc) => {
+        userData.push({ id: doc.id, ...doc.data() });
+      });
+      users = userData; // Update the users array
+    } catch (error) {
+      console.error("Error getting users collection: ", error);
+    }
+  });
+
   function handleSubmit(e) { 
     e.preventDefault();
-    received = e.currentTarget["fruit"].value;
+    received = e.currentTarget["user"].value;
   }
 </script>
 
 <div class="margins">
   <form on:submit={handleSubmit}>
-    <Select bind:value label="Fruit" hiddenInput input$name="fruit">
+    <Select bind:value label="Make User Admin" hiddenInput input$name="user">
       <Option value="" />
-      {#each fruits as fruit}
-        <Option value={fruit}>{fruit}</Option>
+      {#each users as user}
+        <Option value={user.id}>{user.displayName}</Option>
       {/each}
     </Select>
 
     <Button type="submit">
-      <Label>Submit</Label>
+      <Label>Make Admin</Label>
     </Button>
   </form>
 
