@@ -1,17 +1,13 @@
-<script lang="ts">
-  import Select, { Option } from '@smui/select';
-  import Button, { Label } from '@smui/button';
+<script>
+  import Select, { Option } from "@smui/select";
+  import Button, { Label } from "@smui/button";
 
-  let fruits = ['Apple', 'Orange', 'Banana', 'Mango'];
-
-  let value = '';
-
-  let received: string | undefined;
-
-  function handleSubmit(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
+  var fruits = ["Apple", "Orange", "Banana", "Mango"];
+  var value = "";
+  var received = undefined;
+  function handleSubmit(e) { 
     e.preventDefault();
-
-    received = (e.currentTarget['fruit'] as HTMLInputElement).value;
+    received = e.currentTarget["fruit"].value;
   }
 </script>
 
@@ -32,8 +28,6 @@
   <div style="margin-top: 1em;">
     <pre class="status">Received: {received != null
         ? received
-        : 'Not submitted yet.'}</pre>
+        : "Not submitted yet."}</pre>
   </div>
 </div>
-
-
