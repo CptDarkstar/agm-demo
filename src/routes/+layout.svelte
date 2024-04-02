@@ -5,12 +5,20 @@
   import { authStore } from "../store/store";
   import "@fortawesome/fontawesome-free/css/all.min.css";
 
+  let isAdmin = false;
   const nonAuthRoutes = ["/", "/forgot_password"];
 
   onMount(() => {
-    console.log("Mounting!");
+    /* console.log("Mounting!"); */
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       const currentPath = window.location.pathname;
+
+      /* if (user) {
+        user.getIdTokenResult().then((idTokenResult) => {
+          isAdmin = idTokenResult.claims.admin;
+          console.log(isAdmin);
+        });
+      } */
 
       if (!user && !nonAuthRoutes.includes(currentPath)) {
         if (window.location.pathname !== "/") {

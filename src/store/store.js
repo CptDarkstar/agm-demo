@@ -1,34 +1,41 @@
-import { getAuth, setPersistence, signInWithEmailAndPassword, browserSessionPersistence, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  signInWithEmailAndPassword,
+  browserSessionPersistence,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { writable } from "svelte/store";
-import { auth } from "../lib/firebase/firebase"
+import { auth } from "../lib/firebase/firebase";
 
 export const authStore = writable({
-    user: null,
-    loading: true,
-    data: {}
+  user: null,
+  loading: true,
+  data: {},
+  admin: null,
 });
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    
     // User is signed in, update the store
-    user.getIdTokenResult().then(idTokenResult => {
-      console.log(idTokenResult.claims.admin);
-    })
     authStore.set({
       user: {
         uid: user.uid,
         displayName: user.displayName,
+        admin: user.admin,
         // ...other properties you want to store
       },
       loading: false,
-      data: {} // any additional data you want to store
+      data: {}, // any additional data you want to store
     });
   } else {
     // User is signed out, reset the store
     authStore.set({
       user: null,
       loading: false,
-      data: {}
+      data: {},
     });
   }
 });
@@ -42,7 +49,7 @@ export const authHandlers = {
   logOut: async () => {
     await signOut(auth);
     // The authStore will be updated by the onAuthStateChanged listener
-  }
+  },
 };
 
 /* Session */

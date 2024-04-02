@@ -1,7 +1,7 @@
 <script>
   import "@fortawesome/fontawesome-free/css/all.min.css";
   import { authHandlers } from "../../store/store";
-  import { onAuthStateChanged } from "firebase/auth";
+  import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
   import VotingTopic from "../../components/VotingTopic.svelte";
   import App from "../../App.svelte";
   import { authStore } from "../../store/store";
@@ -18,6 +18,7 @@
   let menu = false;
   let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
+  let isAdmin = false;
 
   const handleShareHoldersAction = () => {
     clicked = "Share Holders";
@@ -42,6 +43,10 @@
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        user.getIdTokenResult().then((idTokenResult) => {
+          isAdmin = idTokenResult.claims.admin;
+          console.log(isAdmin);
+        });
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
           const userSnapshot = await getDoc(userDocRef);
@@ -66,14 +71,15 @@
   <header data-role="Header" class="agm-voting-header">
     <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     <div class="agm-voting-btn-group">
-      <div id="demo-menu" class="mdc-menu-surface--anchor">
-        <button
-          id="menu-button"
-          class="mdc-button mdc-button--raised admin"
-          
-          on:action={openMDCMenu(".mdc-menu")}>Menu</button
-        >
-        <div class="mdc-menu mdc-menu-surface">
+      {#if isAdmin}
+        <div
+          id="demo-menu"
+          class="admin mdc-menu-surface--anchor">
+          <button
+            id="menu-button"
+            class="mdc-button mdc-button--raised admin"
+            on:action={openMDCMenu(".mdc-menu")}>Menu</button>
+          <div class="mdc-menu mdc-menu-surface">
           <ul
             class="mdc-deprecated-list"
             role="menu"
@@ -100,9 +106,9 @@
               </li>
             </a>
           </ul>
+          </div>
         </div>
-      </div>
-
+      {/if}
       <button
         class="mdc-button mdc-button--raised"
         on:click={authHandlers.logOut}

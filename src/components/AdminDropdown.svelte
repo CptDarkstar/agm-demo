@@ -51,9 +51,4 @@
     </Button>
   </form>
 
-  <div style="margin-top: 1em;">
-    <pre class="status">Received: {received != null
-        ? received
-        : "Not submitted yet."}</pre>
-  </div>
 </div>
