@@ -5,20 +5,12 @@
   import { authStore } from "../store/store";
   import "@fortawesome/fontawesome-free/css/all.min.css";
 
-  let isAdmin = false;
   const nonAuthRoutes = ["/", "/forgot_password"];
 
   onMount(() => {
     /* console.log("Mounting!"); */
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       const currentPath = window.location.pathname;
-
-      /* if (user) {
-        user.getIdTokenResult().then((idTokenResult) => {
-          isAdmin = idTokenResult.claims.admin;
-          console.log(isAdmin);
-        });
-      } */
 
       if (!user && !nonAuthRoutes.includes(currentPath)) {
         if (window.location.pathname !== "/") {
@@ -35,6 +27,18 @@
       if (!user) {
         return;
       }
+
+      // Check if user has admin claim
+      const idTokenResult = await user.getIdTokenResult();
+      if (
+        !idTokenResult.claims.admin &&
+        (currentPath === "/admin" || currentPath === "/shareholders")
+      ) {
+        // Redirect non-admin users from admin and shareholders pages
+        window.location.href = "/dashboard";
+        return;
+      }
+
       let dataToSetToStore;
       const docRef = doc(db, "user", user.uid);
       const docSnap = await getDoc(docRef);
@@ -48,7 +52,6 @@
       } else {
         const userData = docSnap.data();
         dataToSetToStore = userData;
-        /* console.log(docSnap); */
       }
       authStore.update((curr) => {
         return {

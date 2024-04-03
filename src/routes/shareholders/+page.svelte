@@ -2,8 +2,9 @@
   import { authHandlers } from "../../store/store";
   import Register from "../../components/Register.svelte";
   import EditUser from "../../components/EditUser.svelte";
-  /*   import { onMount, onDestroy } from "svelte";
-  import { auth, db } from "$lib/firebase/firebase"; */
+  import { onMount, onDestroy } from "svelte";
+  import { auth, db } from "$lib/firebase/firebase";
+  import { onAuthStateChanged } from "firebase/auth";
   /* import { updateUserDataInFirestore } from './firebaseUtils'; */
   import { goto } from "$app/navigation";
   import Button, { Label } from "@smui/button";
@@ -32,6 +33,18 @@
   let editedShares = 0; // Define and initialize editedShares as a number
   let menu = false;
   let clicked = "nothing yet";
+  let isAdmin;
+
+  onMount(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        user.getIdTokenResult().then((idTokenResult) => {
+          isAdmin = idTokenResult.claims.admin;
+          console.log("Shareholder Page");
+        });
+      }
+    });
+  });
 
   //Menu
   const handleShareHoldersAction = () => {
@@ -54,66 +67,69 @@
   }
 </script>
 
-<div class="maincontainer">
-  <header data-role="Header" class="agm-voting-header">
-    <a href="/dashboard">
-      <img
-        alt="logo"
-        src="rnslogo.png"
-        class="agm-voting-image logo"
-        href="/dashboard"
-      />
-    </a>
-    <div class="agm-voting-btn-group">
-      <div id="demo-menu" class="mdc-menu-surface--anchor">
-        <button
-          id="menu-button"
-          class="mdc-button mdc-button--raised"
-          on:action={openMDCMenu(".mdc-menu")}>Menu</button
-        >
-        <div class="mdc-menu mdc-menu-surface">
-          <ul
-            class="mdc-deprecated-list"
-            role="menu"
-            aria-hidden="true"
-            aria-orientation="vertical"
-            tabindex="-1"
-            bind:this={menu}
+{#if isAdmin}
+  <div class="maincontainer">
+    <header data-role="Header" class="agm-voting-header">
+      <a href="/dashboard">
+        <img
+          alt="logo"
+          src="rnslogo.png"
+          class="agm-voting-image logo"
+          href="/dashboard"
+        />
+      </a>
+      <div class="agm-voting-btn-group">
+        <div id="demo-menu" class="mdc-menu-surface--anchor">
+          <button
+            id="menu-button"
+            class="mdc-button mdc-button--raised"
+            on:action={openMDCMenu(".mdc-menu")}>Menu</button
           >
-            <a href="/shareholders">
-              <li
-                class="mdc-deprecated-list-item"
-                role="menuitem"
-                on:SMUI:action={handleShareHoldersAction}
-              >
-                <span class="mdc-deprecated-list-item__ripple"></span>
-                <span class="mdc-deprecated-list-item__text">Share Holders</span
+          <div class="mdc-menu mdc-menu-surface">
+            <ul
+              class="mdc-deprecated-list"
+              role="menu"
+              aria-hidden="true"
+              aria-orientation="vertical"
+              tabindex="-1"
+              bind:this={menu}
+            >
+              <a href="/shareholders">
+                <li
+                  class="mdc-deprecated-list-item"
+                  role="menuitem"
+                  on:SMUI:action={handleShareHoldersAction}
                 >
-              </li>
-            </a>
-            <a href="/admin">
-              <li class="mdc-deprecated-list-item" role="menuitem">
-                <span class="mdc-deprecated-list-item__ripple"></span>
-                <span class="mdc-deprecated-list-item__text">Voting</span>
-              </li>
-            </a>
-          </ul>
+                  <span class="mdc-deprecated-list-item__ripple"></span>
+                  <span class="mdc-deprecated-list-item__text"
+                    >Share Holders</span
+                  >
+                </li>
+              </a>
+              <a href="/admin">
+                <li class="mdc-deprecated-list-item" role="menuitem">
+                  <span class="mdc-deprecated-list-item__ripple"></span>
+                  <span class="mdc-deprecated-list-item__text">Voting</span>
+                </li>
+              </a>
+            </ul>
+          </div>
         </div>
+        <button
+          class="mdc-button mdc-button--raised"
+          on:click={authHandlers.logOut}
+        >
+          <span class="mdc-button__ripple"></span>
+          <span class="mdc-button__focus-ring"></span>
+          <span class="mdc-button__label">Log out</span>
+        </button>
       </div>
-      <button
-        class="mdc-button mdc-button--raised"
-        on:click={authHandlers.logOut}
-      >
-        <span class="mdc-button__ripple"></span>
-        <span class="mdc-button__focus-ring"></span>
-        <span class="mdc-button__label">Log out</span>
-      </button>
-    </div>
-  </header>
-  <h1>All Users</h1>
-  <EditUser />
-  <Register />
-</div>
+    </header>
+    <h1>All Users</h1>
+    <EditUser />
+    <Register />
+  </div>
+{/if}
 
 <style>
   .maincontainer {
