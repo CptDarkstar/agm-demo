@@ -42,7 +42,7 @@
 <div class="accordion-container">
   <Accordion multiple>
     {#each topics as topic (topic.id)}
-      <Panel>
+      <Panel disabled>
         <Header>
           {topic.title}
           <IconButton slot="icon" toggle pressed={panelOpen}>
