@@ -11,22 +11,25 @@
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
   import { collection, getDocs, addDoc } from "firebase/firestore";
-  import VotingTopic from "../../components/VotingTopic.svelte";
+  import VotingTopic from "../../components/AdminVotingTopic.svelte";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
+  import Switch from "@smui/switch";
+  import FormField from "@smui/form-field";
 
   let menu = false;
   let clicked = "nothing yet";
   let isAdmin;
   let topics = [];
   let panelOpen = false;
+  let checked1 = false;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
-          console.log("Admin Page");
+          /* console.log("Admin Page"); */
         });
       }
     });
@@ -134,12 +137,12 @@
   <div class="accordion-container">
     <Accordion multiple>
       {#each topics as topic (topic.id)}
-        <Panel disabled>
+        <Panel>
           <Header>
             {topic.title}
             <IconButton slot="icon" toggle pressed={panelOpen}>
-              <button class="mdc-button">Active</button>
-              <button class="mdc-button">In Active</button>
+              <Icon class="material-icons" on>expand_less</Icon>
+              <Icon class="material-icons">expand_more</Icon>
             </IconButton>
           </Header>
           <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
