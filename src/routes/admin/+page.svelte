@@ -11,7 +11,7 @@
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
   import { collection, getDocs, addDoc } from "firebase/firestore";
-  import VotingTopic from "../../components/AdminVotingTopic.svelte";
+  import TopicDisplay from "../../components/TopicDisplay.svelte";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
   import Switch from "@smui/switch";
@@ -133,22 +133,12 @@
       </button>
     </div>
   </header>
-  <AdminDropdown />
-  <div class="accordion-container">
-    <Accordion multiple>
-      {#each topics as topic (topic.id)}
-        <Panel>
-          <Header>
-            {topic.title}
-            <IconButton slot="icon" toggle pressed={panelOpen}>
-              <Icon class="material-icons" on>expand_less</Icon>
-              <Icon class="material-icons">expand_more</Icon>
-            </IconButton>
-          </Header>
-          <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
-        </Panel>
-      {/each}
-    </Accordion>
+  <div class="AdminDropdown">
+    <AdminDropdown />
+  </div>
+  <div class="Topics">
+    <button class="mdc-button add_new" on:click={() => "no"}>Add New</button>
+    <TopicDisplay />
   </div>
 </div>
 
@@ -157,6 +147,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 5px;
   }
   .mdc-button {
     background: #6ba3ab;
@@ -211,6 +202,29 @@
     flex-direction: row;
     justify-content: space-between;
     gap: 30px;
+  }
+  .Topics {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+    border: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+  }
+  .add_new {
+    background: #6ba3ab;
+    font-family: "Merriweather", sans-serif;
+    font-size: 20px;
+    color: white;
+    padding-top: 30px;
+    padding-left: 16px;
+    border-radius: 4px;
+    padding-right: 16px;
+    padding-bottom: 30px;
   }
   @media (max-width: 720px) {
     .agm-voting-header {

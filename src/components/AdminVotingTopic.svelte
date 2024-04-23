@@ -26,9 +26,6 @@
         >
       </FormField>
     </div>
-    <!-- <Button on:click={() => castVote('yes')} variant="raised">
-        <Label>Yes</Label>
-      </Button> -->
     <button class="mdc-button" on:click={() => "no"}>Edit</button>
     <button class="mdc-button" on:click={() => "abstain"}>Delete</button>
   </div>

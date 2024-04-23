@@ -3,7 +3,7 @@
   import { authHandlers } from "../../store/store";
   import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
   import VotingTopic from "../../components/VotingTopic.svelte";
-  import App from "../../App.svelte";
+  import TopicDisplay from "../../components/TopicDisplay.svelte";
   import { authStore } from "../../store/store";
   import { onMount } from "svelte";
   import { collection, doc, getDoc } from "firebase/firestore";
@@ -45,7 +45,7 @@
       if (user) {
         user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
-          console.log(isAdmin);
+          /* console.log(isAdmin); */
         });
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
@@ -129,7 +129,7 @@
     {/if}
   </h1>
   <br />
-  <App />
+  <TopicDisplay />
 </div>
 
 <style>
