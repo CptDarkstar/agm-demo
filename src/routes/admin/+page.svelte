@@ -1,21 +1,14 @@
 <script>
-  import App from "../../App.svelte";
   import { auth } from "../../lib/firebase/firebase";
   import { authHandlers } from "../../store/store";
   import { goto } from "$app/navigation";
-  import Button, { Label } from "@smui/button";
   import { MDCMenu } from "@material/menu";
-  import List, { Item, Separator, Text } from "@smui/list";
   import AdminDropdown from "../../components/AdminDropdown.svelte";
   import { onMount } from "svelte";
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
   import { collection, getDocs, addDoc } from "firebase/firestore";
   import TopicDisplay from "../../components/TopicDisplay.svelte";
-  import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
-  import IconButton, { Icon } from "@smui/icon-button";
-  import Switch from "@smui/switch";
-  import FormField from "@smui/form-field";
 
   let menu = false;
   let clicked = "nothing yet";

@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
   import { createEventDispatcher } from "svelte";
   import Button, { Label } from "@smui/button";
   import Switch from "@smui/switch";
@@ -47,3 +47,4 @@
     width: 100%;
   }
 </style>
+ -->

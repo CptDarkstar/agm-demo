@@ -9,9 +9,6 @@
   import { collection, doc, getDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase";
   import { goto } from "$app/navigation";
-  import Button, { Label } from "@smui/button";
-  import Menu from "@smui/menu";
-  import List, { Item, Separator, Text } from "@smui/list";
   import { MDCMenu } from "@material/menu";
 
   /* let menu = Menu; */

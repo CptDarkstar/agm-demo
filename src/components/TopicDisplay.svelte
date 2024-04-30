@@ -1,4 +1,3 @@
-<!-- App.svelte -->
 <script>
   import { onMount } from "svelte";
   import { auth, db } from "$lib/firebase/firebase"; //Firebase configuration file
@@ -69,7 +68,7 @@
           <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
         </Panel>
       {:else}
-        <Panel enable>
+        <Panel disabled>
           <Header>
             {topic.title}
             <IconButton slot="icon" toggle pressed={panelOpen}>

@@ -1,9 +1,9 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
+  import Button, { Label } from '@smui/button';
   import { onMount } from "svelte";
-  import { createEventDispatcher } from "svelte";
   import { onAuthStateChanged } from "firebase/auth";
   import { auth, db } from "$lib/firebase/firebase"; //Firebase configuration file
-  import Button, { Label } from "@smui/button";
   import Switch from "@smui/switch";
   import FormField from "@smui/form-field";
 
@@ -26,6 +26,7 @@
   });
 
   function castVote(option) {
+    dispatch('vote', { topicId: topic.id, option });
     dispatch("vote", { topicId: topic.id, option });
   }
 </script>
@@ -34,6 +35,12 @@
   <h2>{topic.title}</h2>
   <p>{topic.description}</p>
   <div class="voting_buttons">
+    <button class="mdc-button" on:click={() => castVote('yes')}>Yes</button>
+    <!-- <Button on:click={() => castVote('yes')} variant="raised">
+      <Label>Yes</Label>
+    </Button> -->
+    <button class="mdc-button" on:click={() => castVote('no')}>No</button>
+    <button class="mdc-button" on:click={() => castVote('abstain')}>Abstain</button>
     {#if isAdmin}
       <div>
         <FormField>
@@ -57,7 +64,9 @@
   </div>
 </div>
 
+
 <style>
+
   .voting_buttons {
     display: flex;
     flex-direction: column;
