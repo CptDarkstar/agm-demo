@@ -4,6 +4,7 @@
   import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
   import VotingTopic from "../../components/VotingTopic.svelte";
   import TopicDisplay from "../../components/TopicDisplay.svelte";
+  import AdminVotingTopic from "../../components/AdminVotingTopic.svelte";
   import { authStore } from "../../store/store";
   import { onMount } from "svelte";
   import { collection, doc, getDoc } from "firebase/firestore";
@@ -126,7 +127,8 @@
     {/if}
   </h1>
   <br />
-  <TopicDisplay />
+  <!-- <TopicDisplay /> -->
+  <AdminVotingTopic />
 </div>
 
 <style>

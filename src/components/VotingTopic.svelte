@@ -10,9 +10,13 @@
   const dispatch = createEventDispatcher();
 
   let isAdmin = false;
-  let checked1 = false;
-
+  let votingOpen = false;
+  
   export let topic;
+
+  function activateVoting(votingOpen) {
+    dispatch('activeVote', votingOpen)
+  }
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -35,18 +39,12 @@
   <h2>{topic.title}</h2>
   <p>{topic.description}</p>
   <div class="voting_buttons">
-    <button class="mdc-button" on:click={() => castVote('yes')}>Yes</button>
-    <!-- <Button on:click={() => castVote('yes')} variant="raised">
-      <Label>Yes</Label>
-    </Button> -->
-    <button class="mdc-button" on:click={() => castVote('no')}>No</button>
-    <button class="mdc-button" on:click={() => castVote('abstain')}>Abstain</button>
     {#if isAdmin}
       <div>
         <FormField>
-          <Switch bind:checked={checked1} />
+          <Switch bind:checked={votingOpen} />
           <span slot="label"
-            >{#if checked1}
+            >{#if votingOpen}
               Active
             {:else}
               Inactive
@@ -64,9 +62,7 @@
   </div>
 </div>
 
-
 <style>
-
   .voting_buttons {
     display: flex;
     flex-direction: column;

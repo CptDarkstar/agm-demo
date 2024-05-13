@@ -13,7 +13,7 @@
   let topics = [];
   let panelOpen = false;
   let isAdmin = false;
-  let checked1 = false;
+  let activateVoting = false;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -67,8 +67,19 @@
           </Header>
           <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
         </Panel>
-      {:else}
+      {:else if activateVoting=true}
         <Panel disabled>
+          <Header>
+            {topic.title}
+            <IconButton slot="icon" toggle pressed={panelOpen}>
+              <Icon class="material-icons" on>expand_less</Icon>
+              <Icon class="material-icons">expand_more</Icon>
+            </IconButton>
+          </Header>
+          <Content><VotingTopic {topic} on:vote={handleVote} /></Content>
+        </Panel>
+      {:else if activateVoting=false}
+        <Panel >
           <Header>
             {topic.title}
             <IconButton slot="icon" toggle pressed={panelOpen}>
