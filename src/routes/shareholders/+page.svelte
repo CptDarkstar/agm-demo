@@ -40,7 +40,6 @@
       if (user) {
         user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
-          console.log("Shareholder Page");
         });
       }
     });

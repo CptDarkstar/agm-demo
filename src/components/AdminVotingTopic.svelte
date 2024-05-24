@@ -19,18 +19,9 @@
 
   let isAdmin = false;
   let panelOpen = false;
-  let topics = [];
   let accordionItems = {};
   let topicStates = {};
   let userButtonStatus = writable(true);
-  let topic1 = false;
-  let topic2 = false;
-  let topic3 = false;
-  let topic4 = false;
-  let topic5 = false;
-  let topic6 = false;
-  let topic7 = false;
-  let topic8 = false;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -103,9 +94,9 @@
               </span>
             </FormField>
           </div>
-          <button class="mdc-button" on:click={() => "yes"}>Yes</button>
-          <button class="mdc-button" on:click={() => "no"}>No</button>
-          <button class="mdc-button" on:click={() => "abstain"}>Abstain</button>
+          <button class="mdc-button" on:click={() => "yes"}>Edit</button>
+          <button class="mdc-button" on:click={() => "no"}>Export</button>
+          <button class="mdc-button" on:click={() => "abstain"}>Clear</button>
         </div>
       </Content>
     </Panel>

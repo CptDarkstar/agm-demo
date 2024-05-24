@@ -8,7 +8,7 @@
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
   import { collection, getDocs, addDoc } from "firebase/firestore";
-  import TopicDisplay from "../../components/TopicDisplay.svelte";
+  import AdminVotingTopic from "../../components/AdminVotingTopic.svelte";
 
   let menu = false;
   let clicked = "nothing yet";
@@ -131,7 +131,7 @@
   </div>
   <div class="Topics">
     <button class="mdc-button add_new" on:click={() => "no"}>Add New</button>
-    <TopicDisplay />
+    <AdminVotingTopic />
   </div>
 </div>
 

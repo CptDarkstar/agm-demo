@@ -11,6 +11,7 @@
   let name = "";
   let email = "";
   let displayName = "";
+  let agency = "";
   let password = ""; // Variable for password
   let shares = 0;
   let error = false;
@@ -28,6 +29,7 @@
       const userRef = doc(db, "user", userCredential.user.uid);
       await setDoc(userRef, {
         email,
+        agency,
         displayName,
         shares,
       });
@@ -76,36 +78,23 @@
 <div style="min-width: 100px;">
   <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
   <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
-    <form on:submit|preventDefault={() => createUser({ email, displayName, password, shares })}>
+    <form
+      on:submit|preventDefault={() =>
+        createUser({ email, agency, displayName, password, shares })}
+    >
       <div
         style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;"
       >
-        <!-- <label>
-          Email:
-          <input type="email" bind:value={email} required />
-        </label> -->
         <Textfield bind:value={displayName} label="Name" required />
-        <!-- <label>
-          Name:
-          <input type="text" bind:value={displayName} required />
-        </label> -->
+        <Textfield bind:value={agency} label="Agency" />
         <Textfield bind:value={email} label="Email" required />
-        <!-- <label>
-          Password:
-          <input type="password" bind:value={password} required />
-        </label> -->
         <Textfield
           type="password"
           bind:value={password}
           label="Password"
           required
         />
-        <!-- <label>
-          Shares:
-          <input type="number" bind:value={shares} required />
-        </label> -->
         <Textfield type="number" bind:value={shares} label="Shares" />
-        <!-- <button type="submit">Register</button> -->
         <Button style="margin-top: 1em;" type="submit">Register</Button>
         <Button
           style="margin-top: 1em;"

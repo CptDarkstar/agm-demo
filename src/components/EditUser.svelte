@@ -2,7 +2,6 @@
   import { onMount, onDestroy } from "svelte";
   import { auth, db } from "$lib/firebase/firebase";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
-  import LinearProgress from "@smui/linear-progress";
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
   import Textfield from "@smui/textfield";
@@ -26,12 +25,13 @@
   let editStore = editUserStore;
   let showModal;
   let selectedUser;
-  let id = "";
-  let editedName = ""; // Define and initialize editedName
-  let editedEmail = ""; // Define and initialize editedEmail
-  let editedShares = 0; // Define and initialize editedShares as a number
+  let editedName = "";
+  let editAgency = "";
+  let editedEmail = "";
+  let editedShares = 0;
   let open = false;
-  let clicked = "Nothing yet.";
+  let sortColumn = "";
+  let sortDirection = "asc";
 
   onMount(async () => {
     const usersCollection = collection(db, "users");
@@ -41,63 +41,53 @@
       querySnapshot.forEach((doc) => {
         userData.push({ id: doc.id, ...doc.data() });
       });
-      users = userData; // Update the users array
+      users = userData;
     } catch (error) {
       console.error("Error getting users collection: ", error);
     }
   });
 
-  // Edit user function
   const editUser = (user) => {
-    console.log("Edit user:", user);
-    showEditModal(user); // Show the modal and set the selected user
-  };
-  // Function to handle editing user
-  const handleEditUser = (user) => {
-    showEditModal(user); // Show the edit modal with the selected user
-  };
-  // Function to handle closing the edit modal
-  const handleCloseEditModal = () => {
-    hideEditModal(); // Hide the edit modal
+    showEditModal(user);
   };
 
-  //Server side to Update User
+  const handleEditUser = (user) => {
+    showEditModal(user);
+  };
+
+  const handleCloseEditModal = () => {
+    hideEditModal();
+  };
+
   async function handleSaveChanges(user) {
     try {
       const userData = {
         displayName: editedName,
         email: editedEmail,
+        agency: editAgency,
         shares: editedShares,
-      }; // Correct assignment of values to keys
-      console.log("userData:", userData);
+      };
       const response = await axios.put(
         `https://agm-node-cptdarkstar.onrender.com/updateUser/${user.id}`,
         userData
       );
       console.log("User data updated successfully:", response.data);
-      // Optionally, you can handle success feedback or navigation here
     } catch (error) {
       console.error("Error updating user data:", error);
-      // Optionally, you can handle error feedback here
     }
   }
 
-  // Subscribe to the editUserStore to get the showModal and selectedUser values
   const unsubscribe = editStore.subscribe((value) => {
     showModal = value.showModal;
     selectedUser = value.selectedUser;
   });
 
-  // Unsubscribe from the store when the component is destroyed
   onMount(() => {
     return () => {
       unsubscribe();
     };
   });
 
-  // Delete user function
-
-  // Create event dispatcher to dispatch custom events
   const dispatch = createEventDispatcher();
 
   const deleteUser = async (userId) => {
@@ -105,7 +95,7 @@
       await axios.delete(
         `https://agm-node-cptdarkstar.onrender.com/deleteUser/${userId}`
       );
-      // Once the delete request is successful, you can update the UI or perform any other actions as needed
+      users = users.filter((user) => user.id !== userId);
       console.log("User deleted successfully");
     } catch (error) {
       console.error("Error deleting user: ", error);
@@ -117,6 +107,21 @@
       deleteUser(userId);
     }
   }
+
+  function sortUsers(column) {
+    if (sortColumn === column) {
+      sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    } else {
+      sortColumn = column;
+      sortDirection = "asc";
+    }
+
+    users = [...users].sort((a, b) => {
+      if (a[column] < b[column]) return sortDirection === "asc" ? -1 : 1;
+      if (a[column] > b[column]) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
 </script>
 
 <Dialog
@@ -127,6 +132,7 @@
   <Title id="simple-title">Edit User:</Title>
   <Content id="simple-content">
     <Textfield bind:value={editedName} label="Name" />
+    <Textfield bind:value={editAgency} label="Agency" />
     <Textfield type="email" bind:value={editedEmail} label="Email" />
     <Textfield type="number" bind:value={editedShares} label="Shares" />
   </Content>
@@ -138,7 +144,7 @@
     >
       <Label>Save Changes</Label>
     </Button>
-    <Button on:click={() => (clicked = "Cancel")}>
+    <Button on:click={handleCloseEditModal}>
       <Label>Cancel</Label>
     </Button>
   </Actions>
@@ -147,15 +153,29 @@
 <DataTable table$aria-label="User list" style="width: auto;">
   <Head>
     <Row>
-      <Cell style="width: 100%;">Name</Cell>
-      <Cell>Email</Cell>
-      <Cell numeric>Shares</Cell>
+      <Cell
+        style="width: 100%; cursor: pointer;"
+        on:click={() => sortUsers("agency")}>Agency</Cell
+      >
+      <Cell
+        style="width: 100%; cursor: pointer;"
+        on:click={() => sortUsers("displayName")}>Name</Cell
+      >
+      <Cell style="cursor: pointer;" on:click={() => sortUsers("email")}
+        >Email</Cell
+      >
+      <Cell
+        style="cursor: pointer;"
+        numeric
+        on:click={() => sortUsers("shares")}>Shares</Cell
+      >
       <Cell>Edit User</Cell>
     </Row>
   </Head>
   <Body>
     {#each users as user}
       <Row>
+        <Cell>{user.agency}</Cell>
         <Cell>{user.displayName}</Cell>
         <Cell>{user.email}</Cell>
         <Cell numeric>{user.shares}</Cell>
