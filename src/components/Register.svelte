@@ -26,7 +26,7 @@
       ); */
 
       // Save user details including shares to Firestore
-      const userRef = doc(db, "user", userCredential.user.uid);
+      const userRef = doc(db, "users", userCredential.user.uid);
       await setDoc(userRef, {
         email,
         agency,

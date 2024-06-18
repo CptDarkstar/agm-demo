@@ -42,7 +42,7 @@ const hideEditModal = () => {
 const updateUserInFirestore = async (updatedUserData) => {
   try {
     const { id, ...userData } = updatedUserData;
-    const userDocRef = doc(db, "user", id);
+    const userDocRef = doc(db, "users", id);
     await updateDoc(userDocRef, userData);
     console.log("User data updated in Firestore");
   } catch (error) {

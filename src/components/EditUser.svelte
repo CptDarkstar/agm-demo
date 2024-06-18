@@ -1,6 +1,8 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import Select, { Option } from "@smui/select";
   import { auth, db } from "$lib/firebase/firebase";
+  import AddProxy from "./AddProxy.svelte";
   import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
@@ -30,8 +32,11 @@
   let editedEmail = "";
   let editedShares = 0;
   let open = false;
+  let openProxy = false;
+  let openAddProxy = false;
   let sortColumn = "";
   let sortDirection = "asc";
+  let loading = true;
 
   onMount(async () => {
     const usersCollection = collection(db, "users");
@@ -42,8 +47,10 @@
         userData.push({ id: doc.id, ...doc.data() });
       });
       users = userData;
+      loading = false;
     } catch (error) {
       console.error("Error getting users collection: ", error);
+      loading = false;
     }
   });
 
@@ -150,57 +157,134 @@
   </Actions>
 </Dialog>
 
-<DataTable table$aria-label="User list" style="width: auto;">
-  <Head>
-    <Row>
-      <Cell
-        style="width: 100%; cursor: pointer;"
-        on:click={() => sortUsers("agency")}>Agency</Cell
-      >
-      <Cell
-        style="width: 100%; cursor: pointer;"
-        on:click={() => sortUsers("displayName")}>Name</Cell
-      >
-      <Cell style="cursor: pointer;" on:click={() => sortUsers("email")}
-        >Email</Cell
-      >
-      <Cell
-        style="cursor: pointer;"
-        numeric
-        on:click={() => sortUsers("shares")}>Shares</Cell
-      >
-      <Cell>Edit User</Cell>
-    </Row>
-  </Head>
-  <Body>
-    {#each users as user}
+<Dialog
+  class="proxy"
+  bind:open={openProxy}
+  fullscreen
+  aria-labelledby="fullscreen-title"
+  aria-describedby="fullscreen-content"
+>
+  <Title id="fullscreen-title">Add Proxy:</Title>
+  <Content id="fullscreen-content">
+    {#if loading}
+      <p>Loading...</p>
+    {:else}
+      <h1>List Proxies</h1>
+      <!-- Your form fields here -->
+    {/if}
+  </Content>
+  <Actions>
+    <Button
+      on:click={() => {
+        openAddProxy = true;
+      }}
+    >
+      <Label>Add</Label>
+    </Button>
+    <Button
+      on:click={() => {
+        openProxy = false;
+      }}
+    >
+      <Label>Cancel</Label>
+    </Button>
+  </Actions>
+</Dialog>
+
+<Dialog
+  class="addProxy"
+  bind:open={openAddProxy}
+  fullscreen
+  aria-labelledby="fullscreen-title"
+  aria-describedby="fullscreen-content"
+>
+  <Title id="fullscreen-title">Add Proxy:</Title>
+  <Content id="fullscreen-content">
+    <AddProxy />
+  </Content>
+  <Actions>
+    <Button
+      on:click={() => {
+        openAddProxy = false;
+        openProxy = true;
+      }}
+    >
+      <Label>Cancel</Label>
+    </Button>
+  </Actions>
+</Dialog>
+
+{#if Object.keys(users).length === 0}
+  <i class="fa-solid fa-spinner fa-spin"></i>
+{:else}
+  <DataTable table$aria-label="User list" style="width: auto;">
+    <Head>
       <Row>
-        <Cell>{user.agency}</Cell>
-        <Cell>{user.displayName}</Cell>
-        <Cell>{user.email}</Cell>
-        <Cell numeric>{user.shares}</Cell>
-        <Cell>
-          <button
-            class="mdc-button mdc-button--raised"
-            on:click={() => {
-              selectedUser = user;
-              open = true;
-            }}
-          >
-            <span class="mdc-button__ripple"></span>
-            <span class="mdc-button__focus-ring"></span>
-            <span class="mdc-button__label">Edit</span>
-          </button>
-          <button
-            class="mdc-button mdc-button--raised"
-            on:click={() => handleDeleteConfirmation(user.id)}
-          >
-            <span class="mdc-button__ripple"></span>
-            <span class="mdc-button__focus-ring"></span>
-            <span class="mdc-button__label">Delete</span>
-          </button>
-        </Cell>
+        <Cell
+          style="width: 100%; cursor: pointer;"
+          on:click={() => sortUsers("agency")}>Agency</Cell
+        >
+        <Cell
+          style="width: 100%; cursor: pointer;"
+          on:click={() => sortUsers("displayName")}>Name</Cell
+        >
+        <Cell style="cursor: pointer;" on:click={() => sortUsers("email")}
+          >Email</Cell
+        >
+        <Cell
+          style="cursor: pointer;"
+          numeric
+          on:click={() => sortUsers("shares")}>Shares</Cell
+        >
+        <Cell>Edit User</Cell>
       </Row>
-    {/each}
-  </Body>
-</DataTable>
+    </Head>
+    <Body>
+      {#each users as user}
+        <Row>
+          <Cell>{user.agency}</Cell>
+          <Cell>{user.displayName}</Cell>
+          <Cell>{user.email}</Cell>
+          <Cell numeric>{user.shares}</Cell>
+          <Cell>
+            <button
+              class="mdc-button mdc-button--raised"
+              on:click={() => {
+                selectedUser = user.id;
+                open = true;
+              }}
+            >
+              <span class="mdc-button__ripple"></span>
+              <span class="mdc-button__focus-ring"></span>
+              <span class="mdc-button__label">Edit</span>
+            </button>
+
+            <button
+              class="mdc-button mdc-button--raised"
+              on:click={() => {
+                selectedUser = user.id;
+                openProxy = true;
+              }}
+            >
+              <span class="mdc-button__ripple"></span>
+              <span class="mdc-button__focus-ring"></span>
+              <span class="mdc-button__label">Add Proxy</span>
+            </button>
+
+            <button
+              class="mdc-button mdc-button--raised"
+              on:click={() => handleDeleteConfirmation(user.id)}
+            >
+              <span class="mdc-button__ripple"></span>
+              <span class="mdc-button__focus-ring"></span>
+              <span class="mdc-button__label">Delete</span>
+            </button>
+          </Cell>
+        </Row>
+      {/each}
+    </Body>
+  </DataTable>
+{/if}
+
+<style>
+</style>
