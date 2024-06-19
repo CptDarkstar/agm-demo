@@ -26,7 +26,7 @@
   let users = [];
   let editStore = editUserStore;
   let showModal;
-  let selectedUser;
+  export let selectedUser;
   let editedName = "";
   let editAgency = "";
   let editedEmail = "";
@@ -198,9 +198,9 @@
   aria-labelledby="fullscreen-title"
   aria-describedby="fullscreen-content"
 >
-  <Title id="fullscreen-title">Add Proxy:</Title>
+  <Title id="fullscreen-title">Add Proxy: </Title>
   <Content id="fullscreen-content">
-    <AddProxy />
+    <AddProxy bind:principalId={selectedUser} />
   </Content>
   <Actions>
     <Button
