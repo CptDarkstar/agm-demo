@@ -36,14 +36,30 @@
 
   async function fetchData() {
     accordionItems = {};
-    for (let i = 1; i <= 8; i++) {
-      const docRef = doc(db, "Topics", `Topic ${i}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        accordionItems[`Topic ${i}`] = docSnap.data();
-        topicStates[i - 1] = docSnap.data().enabled;
-      }
+    const arrDocs = [];
+    for (let i = 0; i < 9; i++) {
+      const docRef = doc(db, "Topics", `Topic ${i + 1}`);
+      arrDocs.push(getDoc(docRef));
     }
+    Promise.all(arrDocs)
+      .then((values) => {
+        //loop through values
+        for (let i = 0; i < values.length; i++) {
+          const value = values[i];
+          if (value.exists()) {
+            const data = value.data();
+            accordionItems[`Topic ${i + 1}`] = data;
+            topicStates[i] = data.enabled;
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    // if (docSnap.exists()) {
+    //     accordionItems[`Topic ${i}`] = docSnap.data();
+    //     topicStates[i - 1] = docSnap.data().enabled;
+    //   }
     userButtonStatus.set(!isAdmin);
   }
 
@@ -65,42 +81,46 @@
 <div>
   <Accordion>
     {#if isAdmin}
-    {#each [1, 2, 3, 4, 5, 6, 7, 8] as topicIndex}
-    <Panel>
-      <Header>
-        {accordionItems[`Topic ${topicIndex}`] && accordionItems[`Topic ${topicIndex}`].title}
-        <IconButton slot="icon" toggle pressed={panelOpen}>
-          <Icon class="material-icons" on>expand_less</Icon>
-          <Icon class="material-icons">expand_more</Icon>
-        </IconButton>
-      </Header>
-      <Content>
-        <p>
-          {accordionItems[`Topic ${topicIndex}`] && accordionItems[`Topic ${topicIndex}`].description}
-        </p>
-        <div class="voting_buttons">
-          <div>
-            <FormField>
-              <Switch
-                bind:checked={topicStates[topicIndex]}
-                on:click={() => toggleUserButton(topicIndex - 1)}
-              />
-              <span slot="label">
-                {#if topicStates[topicIndex - 1]}
-                  Active
-                {:else}
-                  Inactive
-                {/if}
-              </span>
-            </FormField>
-          </div>
-          <button class="mdc-button" on:click={() => "yes"}>Edit</button>
-          <button class="mdc-button" on:click={() => "no"}>Export</button>
-          <button class="mdc-button" on:click={() => "abstain"}>Clear</button>
-        </div>
-      </Content>
-    </Panel>
-  {/each}
+      {#each [1, 2, 3, 4, 5, 6, 7, 8] as topicIndex}
+        <Panel>
+          <Header>
+            {accordionItems[`Topic ${topicIndex}`] &&
+              accordionItems[`Topic ${topicIndex}`].title}
+            <IconButton slot="icon" toggle pressed={panelOpen}>
+              <Icon class="material-icons" on>expand_less</Icon>
+              <Icon class="material-icons">expand_more</Icon>
+            </IconButton>
+          </Header>
+          <Content>
+            <p>
+              {accordionItems[`Topic ${topicIndex}`] &&
+                accordionItems[`Topic ${topicIndex}`].description}
+            </p>
+            <div class="voting_buttons">
+              <div>
+                <FormField>
+                  <Switch
+                    bind:checked={topicStates[topicIndex]}
+                    on:click={() => toggleUserButton(topicIndex - 1)}
+                  />
+                  <span slot="label">
+                    {#if topicStates[topicIndex - 1]}
+                      Active
+                    {:else}
+                      Inactive
+                    {/if}
+                  </span>
+                </FormField>
+              </div>
+              <button class="mdc-button" on:click={() => "yes"}>Edit</button>
+              <button class="mdc-button" on:click={() => "no"}>Export</button>
+              <button class="mdc-button" on:click={() => "abstain"}
+                >Clear</button
+              >
+            </div>
+          </Content>
+        </Panel>
+      {/each}
     {:else}
       {#each [1, 2, 3, 4, 5, 6, 7, 8] as topicIndex}
         <Panel disabled={!topicStates[topicIndex - 1]}>

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import Select, { Option } from "@smui/select";
   import { db } from "$lib/firebase/firebase";
-  import { collection, getDocs, doc } from "firebase/firestore";
+  import { collection, getDocs, doc, setDoc } from "firebase/firestore";
   import selectedUser from "./EditUser.svelte";
 
   export let principalId;
@@ -52,7 +52,7 @@
       "voteInstruction =",
       voteInstruction
     );
-    await collection("proxies").add({
+    await db.collection("proxies").add({
       principalId,
       proxyUserId,
       topicId,

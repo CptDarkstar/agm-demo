@@ -75,6 +75,8 @@
     background-image: url(../public/background.png);
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: top center;
+    background-attachment: fixed;
     color: black;
     position: relative;
     display: flex;
