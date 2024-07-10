@@ -15,6 +15,8 @@
     deleteDoc,
     doc,
     updateDoc,
+    query,
+    where,
   } from "firebase/firestore";
   import {
     editUserStore,
@@ -24,9 +26,11 @@
   } from "../store/editUserStore";
 
   let users = [];
+  let proxies = [];
   let editStore = editUserStore;
   let showModal;
-  export let selectedUser;
+  let selectedUser;
+  let selectedUserName;
   let editedName = "";
   let editAgency = "";
   let editedEmail = "";
@@ -52,14 +56,25 @@
       console.error("Error getting users collection: ", error);
       loading = false;
     }
+    await initProxies();
   });
 
-  const editUser = (user) => {
-    showEditModal(user);
-  };
 
-  const handleEditUser = (user) => {
-    showEditModal(user);
+  const initProxies = async() => {
+    const proxyRef = collection(db, "proxies");
+
+    const proxyCollection = query(proxyRef, where("principalId", "==", selectedUser));
+    try {
+      const querySnapshot = await getDocs(proxyCollection);
+      const proxyData = [];
+      querySnapshot.forEach((doc) => {
+        proxyData.push({ id: doc.id, ...doc.data() });
+      });
+      proxies = proxyData;
+      loading = false;
+    } catch (error) {
+      console.error("Error getting proxies collection: ", error);
+    }
   };
 
   const handleCloseEditModal = () => {
@@ -95,8 +110,6 @@
     };
   });
 
-  const dispatch = createEventDispatcher();
-
   const deleteUser = async (userId) => {
     try {
       await axios.delete(
@@ -115,22 +128,20 @@
     }
   }
 
-  function sortUsers(column) {
-    if (sortColumn === column) {
-      sortDirection = sortDirection === "asc" ? "desc" : "asc";
-    } else {
-      sortColumn = column;
-      sortDirection = "asc";
+  // Filter proxies based on selectedUser
+  function filteredProxies() {
+    if (!selectedUser) {
+      return [];
     }
-
-    users = [...users].sort((a, b) => {
-      if (a[column] < b[column]) return sortDirection === "asc" ? -1 : 1;
-      if (a[column] > b[column]) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
+    const filtered = proxies.filter(
+      (proxy) => proxy.principleId === selectedUser
+    );
+    console.log("Filtered Proxies:", filtered); // Debugging log
+    return filtered;
   }
 </script>
 
+<!-- Edit User Dialog -->
 <Dialog
   bind:open
   aria-labelledby="simple-title"
@@ -157,6 +168,7 @@
   </Actions>
 </Dialog>
 
+<!-- Add Proxy Dialog -->
 <Dialog
   class="proxy"
   bind:open={openProxy}
@@ -169,8 +181,32 @@
     {#if loading}
       <p>Loading...</p>
     {:else}
-      <h1>List Proxies</h1>
-      <!-- Your form fields here -->
+      <DataTable table$aria-label="Proxies list" style="width: auto;">
+        <Head>
+          <Row>
+            <Cell style="width: 100%; cursor: pointer;">Proxy</Cell>
+            <Cell style="width: 100%; cursor: pointer;">Topic</Cell>
+            <Cell style="cursor: pointer;">Vote</Cell>
+            <Cell></Cell>
+          </Row>
+        </Head>
+        <Body>
+          {#each proxies as proxy}
+            <Row>
+              <Cell>{proxy.proxyUserName}</Cell>
+              <Cell>{proxy.topicId}</Cell>
+              <Cell>{proxy.voteInstruction}</Cell>
+              <Cell>
+                <button class="mdc-button mdc-button--raised">
+                  <span class="mdc-button__ripple"></span>
+                  <span class="mdc-button__focus-ring"></span>
+                  <span class="mdc-button__label">Delete</span>
+                </button>
+              </Cell>
+            </Row>
+          {/each}
+        </Body>
+      </DataTable>
     {/if}
   </Content>
   <Actions>
@@ -191,6 +227,7 @@
   </Actions>
 </Dialog>
 
+<!-- Add Proxy Form Dialog -->
 <Dialog
   class="addProxy"
   bind:open={openAddProxy}
@@ -198,9 +235,12 @@
   aria-labelledby="fullscreen-title"
   aria-describedby="fullscreen-content"
 >
-  <Title id="fullscreen-title">Add Proxy: </Title>
+  <Title id="fullscreen-title">Add Proxy:</Title>
   <Content id="fullscreen-content">
-    <AddProxy bind:principalId={selectedUser} />
+    <AddProxy
+      bind:principalId={selectedUser}
+      bind:principalName={selectedUserName}
+    />
   </Content>
   <Actions>
     <Button
@@ -214,28 +254,17 @@
   </Actions>
 </Dialog>
 
+<!-- Users Data Table -->
 {#if Object.keys(users).length === 0}
   <i class="fa-solid fa-spinner fa-spin"></i>
 {:else}
   <DataTable table$aria-label="User list" style="width: auto;">
     <Head>
       <Row>
-        <Cell
-          style="width: 100%; cursor: pointer;"
-          on:click={() => sortUsers("agency")}>Agency</Cell
-        >
-        <Cell
-          style="width: 100%; cursor: pointer;"
-          on:click={() => sortUsers("displayName")}>Name</Cell
-        >
-        <Cell style="cursor: pointer;" on:click={() => sortUsers("email")}
-          >Email</Cell
-        >
-        <Cell
-          style="cursor: pointer;"
-          numeric
-          on:click={() => sortUsers("shares")}>Shares</Cell
-        >
+        <Cell style="width: 100%; cursor: pointer;">Agency</Cell>
+        <Cell style="width: 100%; cursor: pointer;">Name</Cell>
+        <Cell style="cursor: pointer;">Email</Cell>
+        <Cell style="cursor: pointer;" numeric>Shares</Cell>
         <Cell>Edit User</Cell>
       </Row>
     </Head>
@@ -261,8 +290,10 @@
 
             <button
               class="mdc-button mdc-button--raised"
-              on:click={() => {
+              on:click={async() => {
                 selectedUser = user.id;
+                selectedUserName = user.displayName;
+                await initProxies();
                 openProxy = true;
               }}
             >
