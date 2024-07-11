@@ -12,6 +12,7 @@
   import {
     collection,
     getDocs,
+    onSnapshot,
     deleteDoc,
     doc,
     updateDoc,
@@ -43,35 +44,45 @@
   let loading = true;
 
   onMount(async () => {
-    const usersCollection = collection(db, "users");
+    await usersCollection();
+    await initProxies();
+  });
+
+  // Get User colcetion
+  const usersCollection = async () => {
+    const usersRef = collection(db, "users");
     try {
-      const querySnapshot = await getDocs(usersCollection);
-      const userData = [];
-      querySnapshot.forEach((doc) => {
-        userData.push({ id: doc.id, ...doc.data() });
+      onSnapshot(usersRef, (snapshot) => {
+        const userData = [];
+        snapshot.forEach((doc) => {
+          userData.push({ id: doc.id, ...doc.data() });
+        });
+        users = userData;
+        loading = false;
       });
-      users = userData;
-      loading = false;
     } catch (error) {
       console.error("Error getting users collection: ", error);
       loading = false;
     }
-    await initProxies();
-  });
+  };
 
-
-  const initProxies = async() => {
+  // Get proxy colcetion
+  const initProxies = async () => {
     const proxyRef = collection(db, "proxies");
 
-    const proxyCollection = query(proxyRef, where("principalId", "==", selectedUser));
+    const proxyCollection = query(
+      proxyRef,
+      where("principalId", "==", selectedUser)
+    );
     try {
-      const querySnapshot = await getDocs(proxyCollection);
-      const proxyData = [];
-      querySnapshot.forEach((doc) => {
-        proxyData.push({ id: doc.id, ...doc.data() });
+      onSnapshot(proxyCollection, (snapshot) => {
+        const proxyData = [];
+        snapshot.forEach((doc) => {
+          proxyData.push({ id: doc.id, ...doc.data() });
+        });
+        proxies = proxyData;
+        loading = false;
       });
-      proxies = proxyData;
-      loading = false;
     } catch (error) {
       console.error("Error getting proxies collection: ", error);
     }
@@ -127,18 +138,22 @@
       deleteUser(userId);
     }
   }
-
-  // Filter proxies based on selectedUser
-  function filteredProxies() {
-    if (!selectedUser) {
-      return [];
+  // Delete Proxy
+  const deleteProxy = async (proxyId) => {
+    try {
+      await deleteDoc(doc(db, "proxies", proxyId));
+      console.log("Proxy deleted successfully");
+    } catch (error) {
+      console.error("Error deleting proxy: ", error);
     }
-    const filtered = proxies.filter(
-      (proxy) => proxy.principleId === selectedUser
-    );
-    console.log("Filtered Proxies:", filtered); // Debugging log
-    return filtered;
+  };
+
+  function handleDeleteProxyConfirmation(proxyId) {
+    if (confirm("Are you sure you want to delete this proxy?")) {
+      deleteProxy(proxyId);
+    }
   }
+  //
 </script>
 
 <!-- Edit User Dialog -->
@@ -197,7 +212,10 @@
               <Cell>{proxy.topicId}</Cell>
               <Cell>{proxy.voteInstruction}</Cell>
               <Cell>
-                <button class="mdc-button mdc-button--raised">
+                <button
+                  class="mdc-button mdc-button--raised"
+                  on:click={() => handleDeleteProxyConfirmation(proxy.id)}
+                >
                   <span class="mdc-button__ripple"></span>
                   <span class="mdc-button__focus-ring"></span>
                   <span class="mdc-button__label">Delete</span>
@@ -290,7 +308,7 @@
 
             <button
               class="mdc-button mdc-button--raised"
-              on:click={async() => {
+              on:click={async () => {
                 selectedUser = user.id;
                 selectedUserName = user.displayName;
                 await initProxies();

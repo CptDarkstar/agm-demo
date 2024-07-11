@@ -2,16 +2,8 @@
   import { onAuthStateChanged } from "firebase/auth";
   import { writable } from "svelte/store";
   import { onMount } from "svelte";
-  import { auth, db } from "$lib/firebase/firebase"; //Firebase configuration file
-  import {
-    collection,
-    getDocs,
-    addDoc,
-    doc,
-    getDoc,
-    updateDoc,
-    setDoc,
-  } from "firebase/firestore";
+  import { auth, db } from "$lib/firebase/firebase";
+  import { collection, doc, updateDoc, setDoc, getDoc, onSnapshot } from "firebase/firestore";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
   import FormField from "@smui/form-field";
@@ -26,41 +18,30 @@
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdTokenResult().then((idTokenResult) => {
-          isAdmin = idTokenResult.claims.admin;
-          fetchData();
-        });
+        const idTokenResult = await user.getIdTokenResult();
+        isAdmin = idTokenResult.claims.admin;
+        setupRealtimeListener();
       }
     });
+
+    return () => {
+      unsubscribe();
+    };
   });
 
-  async function fetchData() {
-    accordionItems = {};
-    const arrDocs = [];
-    for (let i = 0; i < 9; i++) {
-      const docRef = doc(db, "Topics", `Topic ${i + 1}`);
-      arrDocs.push(getDoc(docRef));
-    }
-    Promise.all(arrDocs)
-      .then((values) => {
-        //loop through values
-        for (let i = 0; i < values.length; i++) {
-          const value = values[i];
-          if (value.exists()) {
-            const data = value.data();
-            accordionItems[`Topic ${i + 1}`] = data;
-            topicStates[i] = data.enabled;
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error);
+  function setupRealtimeListener() {
+    const topicsCollectionRef = collection(db, "Topics");
+    onSnapshot(topicsCollectionRef, (snapshot) => {
+      accordionItems = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const topicId = doc.id;
+        accordionItems[topicId] = data;
+        const topicIndex = parseInt(topicId.split(' ')[1]) - 1;
+        topicStates[topicIndex] = data.enabled;
       });
-    // if (docSnap.exists()) {
-    //     accordionItems[`Topic ${i}`] = docSnap.data();
-    //     topicStates[i - 1] = docSnap.data().enabled;
-    //   }
-    userButtonStatus.set(!isAdmin);
+      userButtonStatus.set(!isAdmin);
+    });
   }
 
   async function toggleUserButton(topicIndex) {
@@ -72,7 +53,6 @@
     if (docSnap.exists()) {
       await updateDoc(docRef, { enabled: !currentValue });
     } else {
-      // Create a new document if it doesn't exist
       await setDoc(docRef, { enabled: !currentValue });
     }
   }
@@ -81,11 +61,10 @@
 <div>
   <Accordion>
     {#if isAdmin}
-      {#each [1, 2, 3, 4, 5, 6, 7, 8] as topicIndex}
+      {#each Object.keys(accordionItems) as topicId, i}
         <Panel>
           <Header>
-            {accordionItems[`Topic ${topicIndex}`] &&
-              accordionItems[`Topic ${topicIndex}`].title}
+            {accordionItems[topicId] && accordionItems[topicId].title}
             <IconButton slot="icon" toggle pressed={panelOpen}>
               <Icon class="material-icons" on>expand_less</Icon>
               <Icon class="material-icons">expand_more</Icon>
@@ -93,18 +72,17 @@
           </Header>
           <Content>
             <p>
-              {accordionItems[`Topic ${topicIndex}`] &&
-                accordionItems[`Topic ${topicIndex}`].description}
+              {accordionItems[topicId] && accordionItems[topicId].description}
             </p>
             <div class="voting_buttons">
               <div>
                 <FormField>
                   <Switch
-                    bind:checked={topicStates[topicIndex]}
-                    on:click={() => toggleUserButton(topicIndex - 1)}
+                    bind:checked={topicStates[i]}
+                    on:click={() => toggleUserButton(i)}
                   />
                   <span slot="label">
-                    {#if topicStates[topicIndex - 1]}
+                    {#if topicStates[i]}
                       Active
                     {:else}
                       Inactive
@@ -114,19 +92,16 @@
               </div>
               <button class="mdc-button" on:click={() => "yes"}>Edit</button>
               <button class="mdc-button" on:click={() => "no"}>Export</button>
-              <button class="mdc-button" on:click={() => "abstain"}
-                >Clear</button
-              >
+              <button class="mdc-button" on:click={() => "abstain"}>Clear</button>
             </div>
           </Content>
         </Panel>
       {/each}
     {:else}
-      {#each [1, 2, 3, 4, 5, 6, 7, 8] as topicIndex}
-        <Panel disabled={!topicStates[topicIndex - 1]}>
+      {#each Object.keys(accordionItems) as topicId, i}
+        <Panel disabled={!topicStates[i]}>
           <Header>
-            {accordionItems[`Topic ${topicIndex}`] &&
-              accordionItems[`Topic ${topicIndex}`].title}
+            {accordionItems[topicId] && accordionItems[topicId].title}
             <IconButton slot="icon" toggle pressed={panelOpen}>
               <Icon class="material-icons" on>expand_less</Icon>
               <Icon class="material-icons">expand_more</Icon>
@@ -134,20 +109,16 @@
           </Header>
           <Content>
             <p>
-              {accordionItems[`Topic ${topicIndex}`] &&
-                accordionItems[`Topic ${topicIndex}`].description}
+              {accordionItems[topicId] && accordionItems[topicId].description}
             </p>
             <div class="voting_buttons">
               <button class="mdc-button" on:click={() => "yes"}>Yes</button>
               <button class="mdc-button" on:click={() => "no"}>No</button>
-              <button class="mdc-button" on:click={() => "abstain"}
-                >Abstain</button
-              >
+              <button class="mdc-button" on:click={() => "abstain"}>Abstain</button>
             </div>
           </Content>
         </Panel>
       {/each}
-      <!-- Repeat the above panel structure for each topic -->
     {/if}
   </Accordion>
 </div>
