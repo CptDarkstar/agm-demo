@@ -188,11 +188,11 @@
   class="proxy"
   bind:open={openProxy}
   fullscreen
-  aria-labelledby="fullscreen-title"
-  aria-describedby="fullscreen-content"
+  aria-labelledby="over-fullscreen-title"
+  aria-describedby="over-fullscreen-title"
 >
-  <Title id="fullscreen-title">Add Proxy:</Title>
-  <Content id="fullscreen-content">
+  <Title id="over-fullscreen-title">Add Proxy:</Title>
+  <Content id="over-fullscreen-content">
     {#if loading}
       <p>Loading...</p>
     {:else}
@@ -250,11 +250,11 @@
   class="addProxy"
   bind:open={openAddProxy}
   fullscreen
-  aria-labelledby="fullscreen-title"
-  aria-describedby="fullscreen-content"
+  aria-labelledby="over-fullscreen-title"
+  aria-describedby="over-fullscreen-content"
 >
-  <Title id="fullscreen-title">Add Proxy:</Title>
-  <Content id="fullscreen-content">
+  <Title id="over-fullscreen-title">Add Proxy:</Title>
+  <Content id="over-fullscreen-content">
     <AddProxy
       bind:principalId={selectedUser}
       bind:principalName={selectedUserName}
