@@ -9,7 +9,6 @@
   import { auth, db } from "$lib/firebase/firebase";
   import { goto } from "$app/navigation";
   import { MDCMenu } from "@material/menu";
-  import Test from "../../components/Test.svelte";
 
   /* let menu = Menu; */
   let menu = false;
