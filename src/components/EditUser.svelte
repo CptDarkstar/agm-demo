@@ -192,7 +192,7 @@
   aria-describedby="over-fullscreen-title"
 >
   <Title id="over-fullscreen-title">Add Proxy:</Title>
-  <Content id="over-fullscreen-content">
+  <Content id="fullscreen-content">
     {#if loading}
       <p>Loading...</p>
     {:else}
@@ -200,6 +200,7 @@
         <Head>
           <Row>
             <Cell style="width: 100%; cursor: pointer;">Proxy</Cell>
+            <Cell style="width: 100%; cursor: pointer;">Shares</Cell>
             <Cell style="width: 100%; cursor: pointer;">Topic</Cell>
             <Cell style="cursor: pointer;">Vote</Cell>
             <Cell></Cell>
@@ -209,6 +210,7 @@
           {#each proxies as proxy}
             <Row>
               <Cell>{proxy.proxyUserName}</Cell>
+              <Cell>{proxy.proxyUserShares}</Cell>
               <Cell>{proxy.topicId}</Cell>
               <Cell>{proxy.voteInstruction}</Cell>
               <Cell>
@@ -250,11 +252,11 @@
   class="addProxy"
   bind:open={openAddProxy}
   fullscreen
-  aria-labelledby="over-fullscreen-title"
-  aria-describedby="over-fullscreen-content"
+  aria-labelledby="fullscreen-title"
+  aria-describedby="fullscreen-content"
 >
-  <Title id="over-fullscreen-title">Add Proxy:</Title>
-  <Content id="over-fullscreen-content">
+  <Title id="fullscreen-title">Add Proxy:</Title>
+  <Content id="fullscreen-content">
     <AddProxy
       bind:principalId={selectedUser}
       bind:principalName={selectedUserName}
