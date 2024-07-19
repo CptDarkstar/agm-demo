@@ -8581,12 +8581,12 @@ a.mdc-list-item {
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
+  align-items: center;
   box-sizing: border-box;
   max-width: 100%;
   max-height: 100%;
   pointer-events: auto;
   overflow-y: auto;
-  align-items: center;
 }
 .mdc-dialog__surface .mdc-elevation-overlay {
   width: 100%;
