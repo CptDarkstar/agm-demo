@@ -3,7 +3,7 @@
   import { writable } from "svelte/store";
   import { onMount } from "svelte";
   import { auth, db } from "$lib/firebase/firebase";
-  import { collection, doc, updateDoc, setDoc, getDoc, onSnapshot } from "firebase/firestore";
+  import { collection, doc, updateDoc, setDoc, getDoc, onSnapshot, query, where, getDocs, addDoc } from "firebase/firestore";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
   import FormField from "@smui/form-field";
@@ -14,13 +14,17 @@
   let accordionItems = {};
   let topicStates = {};
   let userButtonStatus = writable(true);
+  let user = null;
+  let proxies = [];
 
   onMount(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const idTokenResult = await user.getIdTokenResult();
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        user = u;
+        const idTokenResult = await u.getIdTokenResult();
         isAdmin = idTokenResult.claims.admin;
         setupRealtimeListener();
+        await fetchProxies();
       }
     });
 
@@ -44,6 +48,57 @@
     });
   }
 
+  async function fetchProxies() {
+    if (!user) return;
+    const proxiesQuery = query(collection(db, "Proxies"), where("principalId", "==", user.uid));
+    const proxySnapshot = await getDocs(proxiesQuery);
+    proxies = proxySnapshot.docs.map(doc => doc.data());
+  }
+
+  async function castVote(topicId, vote) {
+    if (!user) return;
+
+    // Cast user's own vote
+    await addDoc(collection(db, "Votes"), {
+      userId: user.uid,
+      userDisplayName: user.displayName,
+      shares: user.shares,
+      topicId,
+      vote
+    })
+
+    // Cast votes for any proxies
+    /* for (const proxy of proxies) {
+      if (proxy.topicId === topicId) {
+        await addDoc(collection(db, "Votes"), {
+          userId: proxy.proxyUserId,
+          topicId,
+          vote: '',//proxy.voteInstruction || vote // Use instruction if provided, else user's vote
+        });
+      }
+    } */
+  }
+
+
+  function countVotes(topicId) {
+    const usersCollection = collection(db, "users");
+    let calculateResult = 0;
+    return getDocs(usersCollection).then((usersSnapshot) => {
+      usersSnapshot.forEach((userDoc) => {
+        const userVotes = userDoc.data().votes;
+        if (userVotes) {
+          userVotes.forEach((vote) => {
+            if (vote.topicId === topicId) {
+              console.log("counting votes for topic", topicId);
+              calculateResult += vote.shares;
+            }
+          })
+        }
+      });
+      return calculateResult;
+    })
+  }
+
   async function toggleUserButton(topicIndex) {
     const currentValue = topicStates[topicIndex];
     topicStates[topicIndex] = !currentValue;
@@ -56,6 +111,8 @@
       await setDoc(docRef, { enabled: !currentValue });
     }
   }
+
+
 </script>
 
 <div>
@@ -90,9 +147,9 @@
                   </span>
                 </FormField>
               </div>
-              <button class="mdc-button" on:click={() => "yes"}>Edit</button>
-              <button class="mdc-button" on:click={() => "no"}>Export</button>
-              <button class="mdc-button" on:click={() => "abstain"}>Clear</button>
+              <button class="mdc-button" on:click={() => console.log("Not working")}>Edit</button>
+              <button class="mdc-button" on:click={() => console.log("Not working")}>Export</button>
+              <button class="mdc-button" on:click={() => console.log("Not working")}>Clear</button>
             </div>
           </Content>
         </Panel>
@@ -112,10 +169,17 @@
               {accordionItems[topicId] && accordionItems[topicId].description}
             </p>
             <div class="voting_buttons">
-              <button class="mdc-button" on:click={() => "yes"}>Yes</button>
-              <button class="mdc-button" on:click={() => "no"}>No</button>
-              <button class="mdc-button" on:click={() => "abstain"}>Abstain</button>
+              <button class="mdc-button" on:click={() => castVote(topicId, "yes")}>Yes</button>
+              <button class="mdc-button" on:click={() => castVote(topicId, "no")}>No</button>
+              <button class="mdc-button" on:click={() => castVote(topicId, "abstain")}>Abstain</button>
             </div>
+            {#await countVotes(topicId)}
+	          <p>...calculating</p>
+            {:then calculatedValue}
+	          <p>Result: {calculatedValue}</p>
+{:catch error}
+	<p style="color: red">{error.message}</p>
+{/await}
           </Content>
         </Panel>
       {/each}

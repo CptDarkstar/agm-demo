@@ -25,6 +25,7 @@
     hideEditModal,
     updateUserInFirestore,
   } from "../store/editUserStore";
+  
 
   let users = [];
   let proxies = [];
@@ -92,7 +93,7 @@
     hideEditModal();
   };
 
-  async function handleSaveChanges(user) {
+  async function handleSaveChanges(selectedUser) {
     try {
       const userData = {
         displayName: editedName,
@@ -101,7 +102,7 @@
         shares: editedShares,
       };
       const response = await axios.put(
-        `https://agm-node-cptdarkstar.onrender.com/updateUser/${user.id}`,
+        `https://agm-node-cptdarkstar.onrender.com/updateUser/${selectedUser}`,
         userData
       );
       console.log("User data updated successfully:", response.data);
@@ -164,7 +165,11 @@
 >
   <Title id="simple-title">Edit User:</Title>
   <Content id="simple-content">
-    <Textfield bind:value={editedName} label="Name" />
+    <Textfield
+      bind:value={editedName}
+      label="Name"
+      placeholder={selectedUserName}
+    />
     <Textfield bind:value={editAgency} label="Agency" />
     <Textfield type="email" bind:value={editedEmail} label="Email" />
     <Textfield type="number" bind:value={editedShares} label="Shares" />
@@ -300,6 +305,10 @@
               class="mdc-button mdc-button--raised"
               on:click={() => {
                 selectedUser = user.id;
+                editedName = user.displayName;
+                editAgency = user.agency;
+                editedEmail = user.email;
+                editedShares =user.shares;
                 open = true;
               }}
             >

@@ -125,7 +125,7 @@
     {/if}
   </h1>
   <br />
-  <AdminVotingTopic />
+  <AdminVotingTopic /> 
 </div>
 
 <style>
