@@ -1,9 +1,22 @@
 <script>
   import { onAuthStateChanged } from "firebase/auth";
-  import { writable } from "svelte/store";
-  import { onMount } from "svelte";
+  import { authStore } from "../store/store";
+  import { writable, get } from "svelte/store";
+  import { onMount, onDestroy } from "svelte";
   import { auth, db } from "$lib/firebase/firebase";
-  import { collection, doc, updateDoc, setDoc, getDoc, onSnapshot, query, where, getDocs, addDoc } from "firebase/firestore";
+  import {
+    collection,
+    doc,
+    updateDoc,
+    setDoc,
+    getDoc,
+    onSnapshot,
+    query,
+    where,
+    getDocs,
+    arrayUnion,
+    addDoc,
+  } from "firebase/firestore";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
   import FormField from "@smui/form-field";
@@ -41,7 +54,7 @@
         const data = doc.data();
         const topicId = doc.id;
         accordionItems[topicId] = data;
-        const topicIndex = parseInt(topicId.split(' ')[1]) - 1;
+        const topicIndex = parseInt(topicId.split(" ")[1]) - 1;
         topicStates[topicIndex] = data.enabled;
       });
       userButtonStatus.set(!isAdmin);
@@ -50,12 +63,68 @@
 
   async function fetchProxies() {
     if (!user) return;
-    const proxiesQuery = query(collection(db, "Proxies"), where("principalId", "==", user.uid));
+    const proxiesQuery = query(
+      collection(db, "Proxies"),
+      where("principalId", "==", user.uid)
+    );
     const proxySnapshot = await getDocs(proxiesQuery);
-    proxies = proxySnapshot.docs.map(doc => doc.data());
+    proxies = proxySnapshot.docs.map((doc) => doc.data());
   }
 
-  async function castVote(topicId, vote) {
+  async function castVote(userId, topicId, vote) {
+    if (!userId || !topicId || !vote) {
+      console.error(
+        "Invalid data: Ensure all required fields are provided.",
+        "userId=",
+        userId,
+        "topicId=",
+        topicId,
+        "vote=",
+        vote
+      );
+      return;
+    }
+
+    try {
+      // Fetch the user document from Firestore to get the shares
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        console.error("User document does not exist");
+        return;
+      }
+
+      const userData = userDoc.data();
+      const shares = userData?.shares || 0;
+
+      console.log("Casting vote with data:", {
+        userId,
+        topicId,
+        vote,
+        shares,
+      });
+
+      const newVote = {
+        date: new Date().toISOString(),
+        meetingId: "test",
+        shares: shares,
+        topicId: topicId,
+        vote: vote,
+      };
+
+      // Atomically add a new vote to the 'votes' array
+      await updateDoc(userDocRef, {
+        votes: arrayUnion(newVote),
+      });
+
+      console.log("Vote added successfully");
+    } catch (error) {
+      console.error("Error adding vote: ", error);
+    }
+  }
+
+  /*   async function castVote(topicId, vote) {
     if (!user) return;
 
     // Cast user's own vote
@@ -64,11 +133,11 @@
       userDisplayName: user.displayName,
       shares: user.shares,
       topicId,
-      vote
-    })
+      vote,
+    });
 
     // Cast votes for any proxies
-    /* for (const proxy of proxies) {
+    for (const proxy of proxies) {
       if (proxy.topicId === topicId) {
         await addDoc(collection(db, "Votes"), {
           userId: proxy.proxyUserId,
@@ -76,9 +145,8 @@
           vote: '',//proxy.voteInstruction || vote // Use instruction if provided, else user's vote
         });
       }
-    } */
-  }
-
+    }
+  } */
 
   function countVotes(topicId) {
     const usersCollection = collection(db, "users");
@@ -89,13 +157,30 @@
         if (userVotes) {
           userVotes.forEach((vote) => {
             if (vote.topicId === topicId) {
-              console.log("counting votes for topic", topicId);
+              //console.log("counting votes for topic", topicId);
               calculateResult += vote.shares;
             }
-          })
+          });
         }
       });
       return calculateResult;
+    });
+  }
+
+  async function hasVoted(userId, topicId) {
+    //get user document by doc id
+    const userDocRef = doc(db, "users", userId);
+    let hasVoted = false;
+    return getDoc(userDocRef)
+    .then((doc) => {
+      //loop through user votes and check if user has voted
+      doc.data().votes.forEach((vote) => {
+        console.log(vote.topicId, topicId);
+        if (vote.topicId === topicId) {
+          hasVoted = true;
+        };
+      });
+      return hasVoted;
     })
   }
 
@@ -111,8 +196,6 @@
       await setDoc(docRef, { enabled: !currentValue });
     }
   }
-
-
 </script>
 
 <div>
@@ -147,9 +230,18 @@
                   </span>
                 </FormField>
               </div>
-              <button class="mdc-button" on:click={() => console.log("Not working")}>Edit</button>
-              <button class="mdc-button" on:click={() => console.log("Not working")}>Export</button>
-              <button class="mdc-button" on:click={() => console.log("Not working")}>Clear</button>
+              <button
+                class="mdc-button"
+                on:click={() => console.log("Not working")}>Edit</button
+              >
+              <button
+                class="mdc-button"
+                on:click={() => console.log("Not working")}>Export</button
+              >
+              <button
+                class="mdc-button"
+                on:click={() => console.log("Not working")}>Clear</button
+              >
             </div>
           </Content>
         </Panel>
@@ -168,18 +260,43 @@
             <p>
               {accordionItems[topicId] && accordionItems[topicId].description}
             </p>
+            {#await hasVoted(user.uid, topicId)}
+            <p>...checking</p>
+            {:then hasVoted}
+            {#if !hasVoted}
             <div class="voting_buttons">
-              <button class="mdc-button" on:click={() => castVote(topicId, "yes")}>Yes</button>
-              <button class="mdc-button" on:click={() => castVote(topicId, "no")}>No</button>
-              <button class="mdc-button" on:click={() => castVote(topicId, "abstain")}>Abstain</button>
+              <button
+                class="mdc-button"
+                on:click={() =>
+                  castVote(
+                    user.uid,
+                    topicId,
+                    "yes",
+                    console.log(authStore)
+                  )}>Yes</button
+              >
+              <button
+                class="mdc-button"
+                on:click={() => castVote(user.uid, topicId, "no")}
+                >No</button
+              >
+              <button
+                class="mdc-button"
+                on:click={() => castVote(user.uid, topicId, "abstain")}
+                >Abstain</button
+              >
             </div>
+            {/if}
+            {:catch error}
+              <p style="color: red">{error.message}</p>
+            {/await}
             {#await countVotes(topicId)}
-	          <p>...calculating</p>
+              <p>...calculating</p>
             {:then calculatedValue}
-	          <p>Result: {calculatedValue}</p>
-{:catch error}
-	<p style="color: red">{error.message}</p>
-{/await}
+              <p>Result: {calculatedValue}</p>
+            {:catch error}
+              <p style="color: red">{error.message}</p>
+            {/await}
           </Content>
         </Panel>
       {/each}
