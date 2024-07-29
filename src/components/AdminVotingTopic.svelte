@@ -124,30 +124,6 @@
     }
   }
 
-  /*   async function castVote(topicId, vote) {
-    if (!user) return;
-
-    // Cast user's own vote
-    await addDoc(collection(db, "Votes"), {
-      userId: user.uid,
-      userDisplayName: user.displayName,
-      shares: user.shares,
-      topicId,
-      vote,
-    });
-
-    // Cast votes for any proxies
-    for (const proxy of proxies) {
-      if (proxy.topicId === topicId) {
-        await addDoc(collection(db, "Votes"), {
-          userId: proxy.proxyUserId,
-          topicId,
-          vote: '',//proxy.voteInstruction || vote // Use instruction if provided, else user's vote
-        });
-      }
-    }
-  } */
-
   function countVotes(topicId) {
     const usersCollection = collection(db, "users");
     let calculateResult = 0;
@@ -243,6 +219,13 @@
                 on:click={() => console.log("Not working")}>Clear</button
               >
             </div>
+            {#await countVotes(topicId)}
+              <p>...calculating</p>
+            {:then calculatedValue}
+              <p>Result: {calculatedValue}</p>
+            {:catch error}
+              <p style="color: red">{error.message}</p>
+            {/await}
           </Content>
         </Panel>
       {/each}
