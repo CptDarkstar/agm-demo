@@ -124,7 +124,66 @@
     }
   }
 
-  function countVotes(topicId) {
+  
+
+  async function countVotes(topicId) {
+    const usersCollection = collection(db, "users");
+    let yesShares = 0;
+    let noShares = 0;
+    let abstainShares = 0;
+
+    return getDocs(usersCollection).then((usersSnapshot) => {
+      usersSnapshot.forEach((userDoc) => {
+        const userVotes = userDoc.data().votes;
+        if (userVotes) {
+          userVotes.forEach((vote) => {
+            if (vote.topicId === topicId) {
+              switch (vote.vote) {
+                case "yes":
+                  yesShares += vote.shares;
+                  break;
+                case "no":
+                  noShares += vote.shares;
+                  break;
+                case "abstain":
+                  abstainShares += vote.shares;
+                  break;
+              }
+            }
+          });
+        }
+      });
+
+      return {
+        yesShares,
+        noShares,
+        abstainShares,
+      };
+    });
+  }
+
+  async function countVotesPercentage(topicId) {
+    const { yesShares, noShares, abstainShares } = await countVotes(topicId);
+
+    // Get the total shares that voted
+    const totalSharesVoted = yesShares + noShares + abstainShares;
+
+    // Calculate percentages
+    const yesPercentage =
+      totalSharesVoted === 0 ? 0 : (yesShares / totalSharesVoted) * 100;
+    const noPercentage =
+      totalSharesVoted === 0 ? 0 : (noShares / totalSharesVoted) * 100;
+    const abstainPercentage =
+      totalSharesVoted === 0 ? 0 : (abstainShares / totalSharesVoted) * 100;
+
+    return {
+      yesPercentage: yesPercentage.toFixed(2),
+      noPercentage: noPercentage.toFixed(2),
+      abstainPercentage: abstainPercentage.toFixed(2),
+    };
+  }
+
+  /*   function countVotes(topicId) {
     const usersCollection = collection(db, "users");
     let calculateResult = 0;
     return getDocs(usersCollection).then((usersSnapshot) => {
@@ -141,23 +200,22 @@
       });
       return calculateResult;
     });
-  }
+  } */
 
   async function hasVoted(userId, topicId) {
     //get user document by doc id
     const userDocRef = doc(db, "users", userId);
     let hasVoted = false;
-    return getDoc(userDocRef)
-    .then((doc) => {
+    return getDoc(userDocRef).then((doc) => {
       //loop through user votes and check if user has voted
       doc.data().votes.forEach((vote) => {
-        console.log(vote.topicId, topicId);
+        //console.log(vote.topicId, topicId);
         if (vote.topicId === topicId) {
           hasVoted = true;
-        };
+        }
       });
       return hasVoted;
-    })
+    });
   }
 
   async function toggleUserButton(topicIndex) {
@@ -219,10 +277,12 @@
                 on:click={() => console.log("Not working")}>Clear</button
               >
             </div>
-            {#await countVotes(topicId)}
+            {#await countVotesPercentage(topicId)}
               <p>...calculating</p>
-            {:then calculatedValue}
-              <p>Result: {calculatedValue}</p>
+            {:then percentages}
+              <p>Yes: {percentages.yesPercentage}%</p>
+              <p>No: {percentages.noPercentage}%</p>
+              <p>Abstain: {percentages.abstainPercentage}%</p>
             {:catch error}
               <p style="color: red">{error.message}</p>
             {/await}
@@ -244,39 +304,41 @@
               {accordionItems[topicId] && accordionItems[topicId].description}
             </p>
             {#await hasVoted(user.uid, topicId)}
-            <p>...checking</p>
+              <p>...checking</p>
             {:then hasVoted}
-            {#if !hasVoted}
-            <div class="voting_buttons">
-              <button
-                class="mdc-button"
-                on:click={() =>
-                  castVote(
-                    user.uid,
-                    topicId,
-                    "yes",
-                    console.log(authStore)
-                  )}>Yes</button
-              >
-              <button
-                class="mdc-button"
-                on:click={() => castVote(user.uid, topicId, "no")}
-                >No</button
-              >
-              <button
-                class="mdc-button"
-                on:click={() => castVote(user.uid, topicId, "abstain")}
-                >Abstain</button
-              >
-            </div>
-            {/if}
+              {#if !hasVoted}
+                <div class="voting_buttons">
+                  <button
+                    class="mdc-button"
+                    on:click={() =>
+                      castVote(
+                        user.uid,
+                        topicId,
+                        "yes",
+                        console.log(authStore)
+                      )}>Yes</button
+                  >
+                  <button
+                    class="mdc-button"
+                    on:click={() => castVote(user.uid, topicId, "no")}
+                    >No</button
+                  >
+                  <button
+                    class="mdc-button"
+                    on:click={() => castVote(user.uid, topicId, "abstain")}
+                    >Abstain</button
+                  >
+                </div>
+              {/if}
             {:catch error}
               <p style="color: red">{error.message}</p>
             {/await}
-            {#await countVotes(topicId)}
+            {#await countVotesPercentage(topicId)}
               <p>...calculating</p>
-            {:then calculatedValue}
-              <p>Result: {calculatedValue}</p>
+            {:then percentages}
+              <p>Yes: {percentages.yesPercentage}%</p>
+              <p>No: {percentages.noPercentage}%</p>
+              <p>Abstain: {percentages.abstainPercentage}%</p>
             {:catch error}
               <p style="color: red">{error.message}</p>
             {/await}
