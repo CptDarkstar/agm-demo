@@ -26,9 +26,9 @@
   let panelOpen = false;
   let accordionItems = {};
   let topicStates = {};
-  let userButtonStatus = writable(true);
   let user = null;
   let proxies = [];
+  let votePercentages = writable({});
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -43,6 +43,7 @@
 
     return () => {
       unsubscribe();
+      stopListening();
     };
   });
 
@@ -56,9 +57,17 @@
         accordionItems[topicId] = data;
         const topicIndex = parseInt(topicId.split(" ")[1]) - 1;
         topicStates[topicIndex] = data.enabled;
+
+        // Update vote percentages
+        countVotesPercentage(topicId);
       });
-      userButtonStatus.set(!isAdmin);
     });
+  }
+
+  function stopListening() {
+    if (unsubscribe) {
+      unsubscribe();
+    }
   }
 
   async function fetchProxies() {
@@ -124,15 +133,14 @@
     }
   }
 
-  
-
-  async function countVotes(topicId) {
+  function countVotesPercentage(topicId) {
     const usersCollection = collection(db, "users");
-    let yesShares = 0;
-    let noShares = 0;
-    let abstainShares = 0;
 
-    return getDocs(usersCollection).then((usersSnapshot) => {
+    onSnapshot(usersCollection, (usersSnapshot) => {
+      let yesShares = 0;
+      let noShares = 0;
+      let abstainShares = 0;
+
       usersSnapshot.forEach((userDoc) => {
         const userVotes = userDoc.data().votes;
         if (userVotes) {
@@ -154,33 +162,27 @@
         }
       });
 
-      return {
-        yesShares,
-        noShares,
-        abstainShares,
-      };
+      // Get the total shares that voted
+      const totalSharesVoted = yesShares + noShares + abstainShares;
+
+      // Calculate percentages
+      const yesPercentage =
+        totalSharesVoted === 0 ? 0 : (yesShares / totalSharesVoted) * 100;
+      const noPercentage =
+        totalSharesVoted === 0 ? 0 : (noShares / totalSharesVoted) * 100;
+      const abstainPercentage =
+        totalSharesVoted === 0 ? 0 : (abstainShares / totalSharesVoted) * 100;
+
+      // Update the store with the new percentages
+      votePercentages.update((current) => ({
+        ...current,
+        [topicId]: {
+          yesPercentage: yesPercentage.toFixed(2),
+          noPercentage: noPercentage.toFixed(2),
+          abstainPercentage: abstainPercentage.toFixed(2),
+        },
+      }));
     });
-  }
-
-  async function countVotesPercentage(topicId) {
-    const { yesShares, noShares, abstainShares } = await countVotes(topicId);
-
-    // Get the total shares that voted
-    const totalSharesVoted = yesShares + noShares + abstainShares;
-
-    // Calculate percentages
-    const yesPercentage =
-      totalSharesVoted === 0 ? 0 : (yesShares / totalSharesVoted) * 100;
-    const noPercentage =
-      totalSharesVoted === 0 ? 0 : (noShares / totalSharesVoted) * 100;
-    const abstainPercentage =
-      totalSharesVoted === 0 ? 0 : (abstainShares / totalSharesVoted) * 100;
-
-    return {
-      yesPercentage: yesPercentage.toFixed(2),
-      noPercentage: noPercentage.toFixed(2),
-      abstainPercentage: abstainPercentage.toFixed(2),
-    };
   }
 
   /*   function countVotes(topicId) {
@@ -277,15 +279,15 @@
                 on:click={() => console.log("Not working")}>Clear</button
               >
             </div>
-            {#await countVotesPercentage(topicId)}
-              <p>...calculating</p>
-            {:then percentages}
-              <p>Yes: {percentages.yesPercentage}%</p>
-              <p>No: {percentages.noPercentage}%</p>
-              <p>Abstain: {percentages.abstainPercentage}%</p>
-            {:catch error}
-              <p style="color: red">{error.message}</p>
-            {/await}
+            <div>
+              {#if $votePercentages[topicId]}
+                <p>Yes: {$votePercentages[topicId].yesPercentage}%</p>
+                <p>No: {$votePercentages[topicId].noPercentage}%</p>
+                <p>Abstain: {$votePercentages[topicId].abstainPercentage}%</p>
+              {:else}
+                <p>...calculating</p>
+              {/if}
+            </div>
           </Content>
         </Panel>
       {/each}
@@ -333,15 +335,15 @@
             {:catch error}
               <p style="color: red">{error.message}</p>
             {/await}
-            {#await countVotesPercentage(topicId)}
-              <p>...calculating</p>
-            {:then percentages}
-              <p>Yes: {percentages.yesPercentage}%</p>
-              <p>No: {percentages.noPercentage}%</p>
-              <p>Abstain: {percentages.abstainPercentage}%</p>
-            {:catch error}
-              <p style="color: red">{error.message}</p>
-            {/await}
+            <div>
+              {#if $votePercentages[topicId]}
+                <p>Yes: {$votePercentages[topicId].yesPercentage}%</p>
+                <p>No: {$votePercentages[topicId].noPercentage}%</p>
+                <p>Abstain: {$votePercentages[topicId].abstainPercentage}%</p>
+              {:else}
+                <p>...calculating</p>
+              {/if}
+            </div>
           </Content>
         </Panel>
       {/each}
