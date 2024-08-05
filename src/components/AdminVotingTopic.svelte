@@ -28,7 +28,8 @@
   let topicStates = {};
   let user = null;
   let proxies = [];
-  let votePercentages = writable({});
+  let votePercentages = writable({}); // Store vote percentages
+  let votedTopics = writable({}); // Store which topics have been voted on
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -126,6 +127,12 @@
       await updateDoc(userDocRef, {
         votes: arrayUnion(newVote),
       });
+
+      // Update local state to reflect that the user has voted
+      votedTopics.update((current) => ({
+        ...current,
+        [topicId]: true,
+      }));
 
       console.log("Vote added successfully");
     } catch (error) {
@@ -308,17 +315,12 @@
             {#await hasVoted(user.uid, topicId)}
               <p>...checking</p>
             {:then hasVoted}
-              {#if !hasVoted}
+              {#if !hasVoted && !$votedTopics[topicId]}
                 <div class="voting_buttons">
                   <button
                     class="mdc-button"
-                    on:click={() =>
-                      castVote(
-                        user.uid,
-                        topicId,
-                        "yes",
-                        console.log(authStore)
-                      )}>Yes</button
+                    on:click={() => castVote(user.uid, topicId, "yes")}
+                    >Yes</button
                   >
                   <button
                     class="mdc-button"
@@ -331,11 +333,15 @@
                     >Abstain</button
                   >
                 </div>
+              {:else}
+                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">Yes: {$votePercentages[topicId].yesPercentage}%</p>
+                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">No: {$votePercentages[topicId].noPercentage}%</p>
+                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">Abstain: {$votePercentages[topicId].abstainPercentage}%</p>
               {/if}
             {:catch error}
               <p style="color: red">{error.message}</p>
             {/await}
-            <div>
+            <!-- <div>
               {#if $votePercentages[topicId]}
                 <p>Yes: {$votePercentages[topicId].yesPercentage}%</p>
                 <p>No: {$votePercentages[topicId].noPercentage}%</p>
@@ -343,7 +349,7 @@
               {:else}
                 <p>...calculating</p>
               {/if}
-            </div>
+            </div> -->
           </Content>
         </Panel>
       {/each}
@@ -365,5 +371,23 @@
     font-family: "Merriweather", sans-serif;
     color: white;
     width: 100%;
+  }
+
+  .yesPercentage {
+    background: #6ba3ab;
+    height: 100%;
+    border-radius: 10px;
+  }
+
+  .noPercentage {
+    background: #6ba3ab;
+    height: 100%;
+    border-radius: 10px;
+  }
+
+  .abstainPercentage {
+    background: #6ba3ab;
+    height: 100%;
+    border-radius: 10px;
   }
 </style>
