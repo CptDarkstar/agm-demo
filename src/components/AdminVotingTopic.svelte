@@ -30,6 +30,7 @@
   let proxies = [];
   let votePercentages = writable({}); // Store vote percentages
   let votedTopics = writable({}); // Store which topics have been voted on
+  let unsubscribe = onDestroy;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -288,9 +289,18 @@
             </div>
             <div>
               {#if $votePercentages[topicId]}
-                <p>Yes: {$votePercentages[topicId].yesPercentage}%</p>
-                <p>No: {$votePercentages[topicId].noPercentage}%</p>
-                <p>Abstain: {$votePercentages[topicId].abstainPercentage}%</p>
+              <span>
+                Yes:
+                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">{$votePercentages[topicId].yesPercentage}%</p>
+              </span>
+              <span>
+                No:
+                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">{$votePercentages[topicId].noPercentage}%</p>
+              </span>
+              <span>
+                Abstain:
+                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">{$votePercentages[topicId].abstainPercentage}%</p>
+              </span>
               {:else}
                 <p>...calculating</p>
               {/if}
@@ -334,9 +344,18 @@
                   >
                 </div>
               {:else}
-                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">Yes: {$votePercentages[topicId].yesPercentage}%</p>
-                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">No: {$votePercentages[topicId].noPercentage}%</p>
-                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">Abstain: {$votePercentages[topicId].abstainPercentage}%</p>
+              <span>
+                Yes:
+                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">{$votePercentages[topicId].yesPercentage}%</p>
+              </span>
+              <span>
+                No:
+                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">{$votePercentages[topicId].noPercentage}%</p>
+              </span>
+              <span>
+                Abstain:
+                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">{$votePercentages[topicId].abstainPercentage}%</p>
+              </span>
               {/if}
             {:catch error}
               <p style="color: red">{error.message}</p>
@@ -377,17 +396,20 @@
     background: #6ba3ab;
     height: 100%;
     border-radius: 10px;
+    text-align: end;
   }
 
   .noPercentage {
     background: #6ba3ab;
     height: 100%;
     border-radius: 10px;
+    text-align: end;
   }
 
   .abstainPercentage {
     background: #6ba3ab;
     height: 100%;
     border-radius: 10px;
+    text-align: end;
   }
 </style>
