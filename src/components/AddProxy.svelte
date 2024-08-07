@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import Select, { Option } from "@smui/select";
   import { db } from "$lib/firebase/firebase";
-  import { collection, getDocs, addDoc } from "firebase/firestore";
+  import { collection, getDocs, addDoc, doc, updateDoc,arrayUnion, getDoc} from "firebase/firestore";
 
   export let principalId;
   export let principalName;
@@ -45,21 +45,32 @@
       "proxyUserName =", proxyUserName,
       "proxyUserShares =", proxyUserShares,
       "topicId =", topicId,
-      "voteInstruction =", voteInstruction
+      "voteInstruction =", voteInstruction,
     );
+    const userDocRef = doc(db, "users", principalId);
+    const userDoc = await getDoc(userDocRef);
     try {
-      await addDoc(collection(db, "proxies"), {
-        principalId,
-        principalName,
-        proxyUserId,
-        proxyUserName,
-        proxyUserShares,
-        topicId,
-        voteInstruction
+
+      //Set the proxy data
+      const proxyData = {
+        principalId: principalId,
+        principalName: principalName,
+        proxyUserId: proxyUserId,
+        proxyUserName: proxyUserName,
+        proxyUserShares: proxyUserShares,
+        topicId: topicId,
+        voteInstruction: voteInstruction
+      }
+
+      await updateDoc(userDocRef, {
+        proxies: arrayUnion(
+          proxyData
+        ),
       });
       console.log("Document successfully written!");
     } catch (error) {
-      console.error("Error writing document: ", error);
+      console.error("Error writing document: ", error); 
+      console.log(userDocRef);
     }
   };
 </script>
