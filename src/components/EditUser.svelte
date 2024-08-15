@@ -25,7 +25,6 @@
     hideEditModal,
     updateUserInFirestore,
   } from "../store/editUserStore";
-  
 
   let users = [];
   let proxies = [];
@@ -67,25 +66,24 @@
     }
   };
 
-  // Get proxy colcetion
+  // Get proxies from the user's document
   const initProxies = async () => {
-    const proxyRef = collection(db, "proxies");
+    const userDocRef = doc(db, "users", selectedUser); // Reference to the specific user's document
 
-    const proxyCollection = query(
-      proxyRef,
-      where("principalId", "==", selectedUser)
-    );
     try {
-      onSnapshot(proxyCollection, (snapshot) => {
-        const proxyData = [];
-        snapshot.forEach((doc) => {
-          proxyData.push({ id: doc.id, ...doc.data() });
-        });
-        proxies = proxyData;
-        loading = false;
+      onSnapshot(userDocRef, (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          const proxyData = userData.proxies || []; // Get proxies array or default to an empty array
+          proxies = proxyData.map((proxy, index) => ({ id: index, ...proxy }));
+          loading = false;
+        } else {
+          console.error("User document not found");
+          loading = false;
+        }
       });
     } catch (error) {
-      console.error("Error getting proxies collection: ", error);
+      console.error("Error getting proxies from user document: ", error);
     }
   };
 
@@ -308,7 +306,7 @@
                 editedName = user.displayName;
                 editAgency = user.agency;
                 editedEmail = user.email;
-                editedShares =user.shares;
+                editedShares = user.shares;
                 open = true;
               }}
             >
