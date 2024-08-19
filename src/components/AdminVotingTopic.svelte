@@ -240,6 +240,27 @@
       await setDoc(docRef, { enabled: !currentValue });
     }
   }
+
+  async function clearVotesForTopic(topicId) {
+    // Step 1: Fetch all users
+    const usersSnapshot = await getDocs(collection(db, "users"));
+
+    // Step 2: Loop through each user
+    usersSnapshot.forEach(async (userDoc) => {
+      const userData = userDoc.data();
+      const userVotes = userData.votes || [];
+
+      // Step 3: Filter out votes matching the topicId
+      const updatedVotes = userVotes.filter((vote) => vote.topicId !== topicId);
+
+      // Step 4: Update the user's votes in Firestore
+      await updateDoc(doc(db, "users", userDoc.id), {
+        votes: updatedVotes,
+      });
+    });
+
+    console.log(`Votes with topicId: ${topicId} cleared for all users.`);
+  }
 </script>
 
 <div>
@@ -284,23 +305,39 @@
               >
               <button
                 class="mdc-button"
-                on:click={() => console.log("Not working")}>Clear</button
+                on:click={() => clearVotesForTopic(topicId)}>Clear</button
               >
             </div>
             <div>
               {#if $votePercentages[topicId]}
-              <span>
-                Yes:
-                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">{$votePercentages[topicId].yesPercentage}%</p>
-              </span>
-              <span>
-                No:
-                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">{$votePercentages[topicId].noPercentage}%</p>
-              </span>
-              <span>
-                Abstain:
-                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">{$votePercentages[topicId].abstainPercentage}%</p>
-              </span>
+                <span>
+                  Yes:
+                  <p
+                    class="yesPercentage"
+                    style="width: {$votePercentages[topicId].yesPercentage}%;"
+                  >
+                    {$votePercentages[topicId].yesPercentage}%
+                  </p>
+                </span>
+                <span>
+                  No:
+                  <p
+                    class="noPercentage"
+                    style="width: {$votePercentages[topicId].noPercentage}%;"
+                  >
+                    {$votePercentages[topicId].noPercentage}%
+                  </p>
+                </span>
+                <span>
+                  Abstain:
+                  <p
+                    class="abstainPercentage"
+                    style="width: {$votePercentages[topicId]
+                      .abstainPercentage}%;"
+                  >
+                    {$votePercentages[topicId].abstainPercentage}%
+                  </p>
+                </span>
               {:else}
                 <p>...calculating</p>
               {/if}
@@ -344,18 +381,34 @@
                   >
                 </div>
               {:else}
-              <span>
-                Yes:
-                <p class="yesPercentage" style="width: {$votePercentages[topicId].yesPercentage}%;">{$votePercentages[topicId].yesPercentage}%</p>
-              </span>
-              <span>
-                No:
-                <p class="noPercentage" style="width: {$votePercentages[topicId].noPercentage}%;">{$votePercentages[topicId].noPercentage}%</p>
-              </span>
-              <span>
-                Abstain:
-                <p class="abstainPercentage" style="width: {$votePercentages[topicId].abstainPercentage}%;">{$votePercentages[topicId].abstainPercentage}%</p>
-              </span>
+                <span>
+                  Yes:
+                  <p
+                    class="yesPercentage"
+                    style="width: {$votePercentages[topicId].yesPercentage}%;"
+                  >
+                    {$votePercentages[topicId].yesPercentage}%
+                  </p>
+                </span>
+                <span>
+                  No:
+                  <p
+                    class="noPercentage"
+                    style="width: {$votePercentages[topicId].noPercentage}%;"
+                  >
+                    {$votePercentages[topicId].noPercentage}%
+                  </p>
+                </span>
+                <span>
+                  Abstain:
+                  <p
+                    class="abstainPercentage"
+                    style="width: {$votePercentages[topicId]
+                      .abstainPercentage}%;"
+                  >
+                    {$votePercentages[topicId].abstainPercentage}%
+                  </p>
+                </span>
               {/if}
             {:catch error}
               <p style="color: red">{error.message}</p>

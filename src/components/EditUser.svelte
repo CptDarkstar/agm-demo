@@ -12,12 +12,14 @@
   import {
     collection,
     getDocs,
+    getDoc,
     onSnapshot,
     deleteDoc,
     doc,
     updateDoc,
     query,
     where,
+    arrayRemove,
   } from "firebase/firestore";
   import {
     editUserStore,
@@ -139,20 +141,38 @@
   }
   // Delete Proxy
   const deleteProxy = async (proxyId) => {
+    const userDocRef = doc(db, "users", selectedUser);
+
     try {
-      await deleteDoc(doc(db, "proxies", proxyId));
-      console.log("Proxy deleted successfully");
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const proxyToDelete = userData.proxies.find(
+          (proxy) => proxy.proxyID === proxyId
+        );
+
+        if (proxyToDelete) {
+          await updateDoc(userDocRef, {
+            proxies: arrayRemove(proxyToDelete),
+          });
+          console.log("Proxy deleted successfully");
+        } else {
+          console.error("Proxy not found");
+        }
+      } else {
+        console.error("User document not found");
+      }
     } catch (error) {
       console.error("Error deleting proxy: ", error);
     }
   };
 
+  // Handle delete confirmation
   function handleDeleteProxyConfirmation(proxyId) {
     if (confirm("Are you sure you want to delete this proxy?")) {
       deleteProxy(proxyId);
     }
   }
-  //
 </script>
 
 <!-- Edit User Dialog -->
@@ -219,7 +239,7 @@
               <Cell>
                 <button
                   class="mdc-button mdc-button--raised"
-                  on:click={() => handleDeleteProxyConfirmation(proxy.id)}
+                  on:click={() => handleDeleteProxyConfirmation(proxy.proxyID)}
                 >
                   <span class="mdc-button__ripple"></span>
                   <span class="mdc-button__focus-ring"></span>
