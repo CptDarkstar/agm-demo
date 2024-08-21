@@ -4,11 +4,11 @@
   import { goto } from "$app/navigation";
   import { MDCMenu } from "@material/menu";
   import AdminDropdown from "../../components/AdminDropdown.svelte";
+  import EditTopic from "../../components/EditTopic.svelte";
   import { onMount } from "svelte";
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
   import { collection, getDocs, addDoc } from "firebase/firestore";
-  import AdminVotingTopic from "../../components/AdminVotingTopic.svelte";
 
   let menu = false;
   let clicked = "nothing yet";
@@ -55,24 +55,6 @@
     topics = topicsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   });
 
-  // Function to handle vote submission
-  async function handleVote(event) {
-    const {
-      detail: { topicId, option },
-    } = event;
-    const topic = topics.find((t) => t.id === topicId);
-    if (!topic) return;
-
-    // Update local vote counts
-    topic[option]++;
-
-    // Write vote to Firebase
-    try {
-      await addDoc(collection(db, "Votes"), { topicId, option });
-    } catch (error) {
-      console.error("Error writing vote to Firebase", error);
-    }
-  }
 </script>
 
 <div class="maincontainer">
@@ -130,8 +112,8 @@
     <AdminDropdown />
   </div>
   <div class="Topics">
+    <EditTopic />
     <button class="mdc-button add_new" on:click={() => "no"}>Add New</button>
-    <AdminVotingTopic />
   </div>
 </div>
 
