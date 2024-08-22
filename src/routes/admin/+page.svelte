@@ -3,19 +3,25 @@
   import { authHandlers } from "../../store/store";
   import { goto } from "$app/navigation";
   import { MDCMenu } from "@material/menu";
+  import Dialog, { Title, Content, Actions } from "@smui/dialog";
+  import Button, { Label } from "@smui/button";
+  import Textfield from "@smui/textfield";
   import AdminDropdown from "../../components/AdminDropdown.svelte";
   import EditTopic from "../../components/EditTopic.svelte";
   import { onMount } from "svelte";
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
-  import { collection, getDocs, addDoc } from "firebase/firestore";
+  import { collection, getDocs, addDoc, setDoc, doc, query, orderBy, limit} from "firebase/firestore";
 
   let menu = false;
   let clicked = "nothing yet";
   let isAdmin;
   let topics = [];
   let panelOpen = false;
+  let open = false;
   let checked1 = false;
+  let topicTitle = "";
+  let topicDescription = "";
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -55,6 +61,38 @@
     topics = topicsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   });
 
+  async function addNewTopic() {
+    try {
+      // Step 1: Get the last Topic ID
+      const topicsRef = collection(db, "Topics");
+      const lastTopicQuery = query(topicsRef, orderBy("__name__", "desc"), limit(1));
+      const querySnapshot = await getDocs(lastTopicQuery);
+      
+      let lastTopicId = 0;
+
+      if (!querySnapshot.empty) {
+        const lastTopicDoc = querySnapshot.docs[0];
+        const lastTopicIdString = lastTopicDoc.id;
+        lastTopicId = parseInt(lastTopicIdString.split(" ")[1]);
+      }
+
+      // Step 2: Generate the new Topic ID
+      const newTopicId = `Topic ${lastTopicId + 1}`;
+
+      // Step 3: Add the new topic document with the new ID
+      const newTopicRef = doc(topicsRef, newTopicId);
+      await setDoc(newTopicRef, {
+        title : topicTitle,
+        description : topicDescription,
+        enabled: false // Set enabled to false by default
+      });
+
+      console.log("New topic added successfully with ID:", newTopicId);
+
+    } catch (error) {
+      console.error("Error adding new topic: ", error);
+    }
+  }
 </script>
 
 <div class="maincontainer">
@@ -113,8 +151,31 @@
   </div>
   <div class="Topics">
     <EditTopic />
-    <button class="mdc-button add_new" on:click={() => "no"}>Add New</button>
+    <button class="mdc-button add_new" on:click={() => (open = true)}
+      >Add New</button
+    >
   </div>
+
+  <Dialog
+    bind:open
+    aria-labelledby="simple-title"
+    aria-describedby="simple-content"
+  >
+    <!-- Title cannot contain leading whitespace due to mdc-typography-baseline-top() -->
+    <Title id="simple-title">Add New Topic</Title>
+    <Content id="simple-content">
+      <Textfield bind:value={topicTitle} label="Title" />
+      <Textfield bind:value={topicDescription} label="Discription" />
+    </Content>
+    <Actions>
+      <Button on:click={addNewTopic}>
+        <Label>Add</Label>
+      </Button>
+      <Button on:click={() => (open = false)}>
+        <Label>Cancel</Label>
+      </Button>
+    </Actions>
+  </Dialog>
 </div>
 
 <style>

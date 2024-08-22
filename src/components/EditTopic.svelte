@@ -14,11 +14,11 @@
     getDocs,
     arrayUnion,
     addDoc,
+    deleteDoc,
   } from "firebase/firestore";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
   import Button, { Label } from "@smui/button";
-  import Dialog, { Title, Actions } from "@smui/dialog";
   import Textfield from "@smui/textfield";
 
   let isAdmin = false;
@@ -29,6 +29,7 @@
   let unsubscribe = onDestroy;
   let newVoteTopic = "";
   let newVoteDiscription = "";
+
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -65,6 +66,37 @@
       unsubscribe();
     }
   }
+
+  async function updateTopic(topicId) {
+    const docRef = doc(db, "Topics", topicId);
+    try {
+      const docSnap = getDoc(docRef);
+      await updateDoc(docRef, {
+        title: newVoteTopic,
+        description: newVoteDiscription,
+      });
+    } catch (error) {
+      console.error("Error getting document:", error);
+    }
+  }
+
+  // Delete Topic
+  async function deleteTopic(topicId) {
+    const docRef = doc(db, "Topics", topicId);
+    try {
+      await deleteDoc(docRef);
+      console.log("Topic deleted successfully");
+    } catch (error) {
+      console.error("Error deleting topic: ", error);
+    }
+  }
+
+  // Handle delete confirmation
+  function handleDeleteTopicConfirmation(topicId) {
+    if (confirm("Are you sure you want to delete this topic?")) {
+      deleteTopic(topicId);
+    }
+  }
 </script>
 
 <div>
@@ -88,10 +120,17 @@
               <Textfield bind:value={newVoteDiscription} label="Discription" />
               <Button
                 on:click={() => {
-                  console.log("Topic ID =", topicId);
+                  updateTopic(topicId);
                 }}
               >
                 <Label>Save Changes</Label>
+              </Button>
+              <Button
+                on:click={() => {
+                  handleDeleteTopicConfirmation(topicId);
+                }}
+              >
+                <Label>Dellete Topic</Label>
               </Button>
             </div>
           </Content>
