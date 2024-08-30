@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Select, { Option } from "@smui/select";
+  import axios from "axios";
   import { db } from "$lib/firebase/firebase";
   import {
     collection,
@@ -20,8 +21,9 @@
   let proxyUserShares = 0;
   let topicId = "";
   let voteInstruction = "";
-  let options = ["None", "Yes", "No", "Abstain"];
+  let options = ["None", "yes", "no", "abstain"];
   let option = "None";
+  let none = "None"
 
   let users = [];
   let topics = [];
@@ -83,6 +85,10 @@
       };
 
       const userDocRef = doc(db, "users", principalId);
+
+      await axios.post(
+        `https://agm-node-cptdarkstar.onrender.com/disableUser/${proxyUserId}`
+      );
       await updateDoc(userDocRef, {
         proxies: arrayUnion(proxyData),
       });
@@ -111,13 +117,13 @@
   </Select>
 
   <Select bind:value={topicId} label="Topic" hiddenInput input$name="user">
-    <Option value="" />
+    <Option value="None">None</Option>
     {#each topics as topic}
       <Option value={topic.id}>{topic.title}</Option>
-    {/each}
+      {/each}
   </Select>
 
-  <Select bind:value={voteInstruction} label="Select Menu">
+  <Select bind:value={voteInstruction} label="Vote Instruction">
     {#each options as option}
       <Option value={option}>{option}</Option>
     {/each}

@@ -16,6 +16,7 @@
     getDocs,
     arrayUnion,
     addDoc,
+    writeBatch,
   } from "firebase/firestore";
   import Accordion, { Panel, Header, Content } from "@smui-extra/accordion";
   import IconButton, { Icon } from "@smui/icon-button";
@@ -108,69 +109,159 @@
 
       const userData = userDoc.data();
       const shares = userData?.shares || 0;
+      const proxies = userData.proxies || [];
 
-      console.log("Casting vote with data:", {
-        userId,
-        topicId,
-        vote,
-        shares,
+      // Start with user's own vote
+      const votesToCast = [
+        {
+          userId,
+          shares,
+          topicId,
+          vote,
+        },
+      ];
+
+      // Track used proxies by their `proxyUserId`
+      const usedProxyIds = new Set();
+
+      proxies.forEach((proxy) => {
+        if (usedProxyIds.has(proxy.proxyUserId)) return; // Skip if proxy user already processed
+
+        if (proxy.topicId === topicId && proxy.voteInstruction !== "None") {
+          // Use specific proxy and skip any 'None' proxies for this `proxyUserId`
+          votesToCast.push({
+            userId: proxy.proxyUserId,
+            userName: proxy.proxyUserName,
+            shares: proxy.proxyUserShares,
+            topicId,
+            vote: proxy.voteInstruction,
+          });
+          usedProxyIds.add(proxy.proxyUserId);
+        }
       });
 
-      const newVote = {
-        date: new Date().toISOString(),
-        meetingId: "test",
-        shares: shares,
-        topicId: topicId,
-        vote: vote,
-      };
-
-      // Atomically add a new vote to the 'votes' array
-      await updateDoc(userDocRef, {
-        votes: arrayUnion(newVote),
+      // Check for 'None' proxies only if no specific proxy has been used
+      proxies.forEach((proxy) => {
+        if (
+          !usedProxyIds.has(proxy.proxyUserId) &&
+          proxy.topicId === "None" &&
+          proxy.voteInstruction === "None"
+        ) {
+          votesToCast.push({
+            userId: proxy.proxyUserId,
+            userName: proxy.proxyUserName,
+            shares: proxy.proxyUserShares,
+            topicId,
+            vote,
+          });
+          usedProxyIds.add(proxy.proxyUserId);
+        }
       });
+
+      // Atomically add all votes
+      const batch = writeBatch(db);
+      votesToCast.forEach((vote) => {
+        batch.update(userDocRef, {
+          votes: arrayUnion(vote),
+        });
+      });
+      await batch.commit();
+
+      console.log("Vote(s) added successfully");
 
       // Update local state to reflect that the user has voted
       votedTopics.update((current) => ({
         ...current,
         [topicId]: true,
       }));
-
-      console.log("Vote added successfully");
     } catch (error) {
       console.error("Error adding vote: ", error);
     }
+  }
+
+  async function addVoteToUser(
+    userDocRef,
+    topicId,
+    vote,
+    shares,
+    proxy = null
+  ) {
+    const newVote = {
+      date: new Date().toISOString(),
+      meetingId: "test",
+      shares: shares,
+      topicId: topicId,
+      vote: vote,
+      proxy: proxy
+        ? {
+            proxyID: proxy.proxyID,
+            proxyUserId: proxy.proxyUserId,
+            proxyUserName: proxy.proxyUserName,
+          }
+        : null,
+    };
+
+    await updateDoc(userDocRef, {
+      votes: arrayUnion(newVote),
+    });
+
+    // Update local state to reflect that the user has voted
+    votedTopics.update((current) => ({
+      ...current,
+      [topicId]: true,
+    }));
   }
 
   function countVotesPercentage(topicId) {
     const usersCollection = collection(db, "users");
 
     onSnapshot(usersCollection, (usersSnapshot) => {
+      // Reset shares counters before each snapshot processing
       let yesShares = 0;
       let noShares = 0;
       let abstainShares = 0;
 
       usersSnapshot.forEach((userDoc) => {
         const userVotes = userDoc.data().votes;
+
         if (userVotes) {
           userVotes.forEach((vote) => {
+            console.log("Processing vote:", vote);
+
             if (vote.topicId === topicId) {
+              // Log the vote and shares for debugging
+              console.log(
+                `Matching vote found: ${vote.vote} with shares: ${vote.shares}`
+              );
+
               switch (vote.vote) {
                 case "yes":
                   yesShares += vote.shares;
+                  console.log(
+                    `Adding to yesShares: ${vote.shares}, total: ${yesShares}`
+                  );
                   break;
                 case "no":
                   noShares += vote.shares;
+                  console.log(
+                    `Adding to noShares: ${vote.shares}, total: ${noShares}`
+                  );
                   break;
                 case "abstain":
                   abstainShares += vote.shares;
+                  console.log(
+                    `Adding to abstainShares: ${vote.shares}, total: ${abstainShares}`
+                  );
                   break;
+                default:
+                  console.log(`Unexpected vote value: ${vote.vote}`);
               }
             }
           });
         }
       });
 
-      // Get the total shares that voted
+      // Calculate total shares that voted
       const totalSharesVoted = yesShares + noShares + abstainShares;
 
       // Calculate percentages
@@ -180,6 +271,13 @@
         totalSharesVoted === 0 ? 0 : (noShares / totalSharesVoted) * 100;
       const abstainPercentage =
         totalSharesVoted === 0 ? 0 : (abstainShares / totalSharesVoted) * 100;
+
+      // Log final calculated percentages
+      console.log("Final Percentages:", {
+        yesPercentage,
+        noPercentage,
+        abstainPercentage,
+      });
 
       // Update the store with the new percentages
       votePercentages.update((current) => ({
@@ -192,25 +290,6 @@
       }));
     });
   }
-
-  /*   function countVotes(topicId) {
-    const usersCollection = collection(db, "users");
-    let calculateResult = 0;
-    return getDocs(usersCollection).then((usersSnapshot) => {
-      usersSnapshot.forEach((userDoc) => {
-        const userVotes = userDoc.data().votes;
-        if (userVotes) {
-          userVotes.forEach((vote) => {
-            if (vote.topicId === topicId) {
-              //console.log("counting votes for topic", topicId);
-              calculateResult += vote.shares;
-            }
-          });
-        }
-      });
-      return calculateResult;
-    });
-  } */
 
   async function hasVoted(userId, topicId) {
     //get user document by doc id
@@ -366,16 +445,19 @@
                 <div class="voting_buttons">
                   <button
                     class="mdc-button"
+                    disabled={!topicStates[i]}
                     on:click={() => castVote(user.uid, topicId, "yes")}
                     >Yes</button
                   >
                   <button
                     class="mdc-button"
+                    disabled={!topicStates[i]}
                     on:click={() => castVote(user.uid, topicId, "no")}
                     >No</button
                   >
                   <button
                     class="mdc-button"
+                    disabled={!topicStates[i]}
                     on:click={() => castVote(user.uid, topicId, "abstain")}
                     >Abstain</button
                   >

@@ -140,7 +140,7 @@
     }
   }
   // Delete Proxy
-  const deleteProxy = async (proxyId) => {
+  const deleteProxy = async (proxyId, proxyUserId) => {
     const userDocRef = doc(db, "users", selectedUser);
 
     try {
@@ -150,12 +150,17 @@
         const proxyToDelete = userData.proxies.find(
           (proxy) => proxy.proxyID === proxyId
         );
+        console.log("Proxy User Id =", proxyUserId);
 
         if (proxyToDelete) {
+          await axios.post(
+            `https://agm-node-cptdarkstar.onrender.com/enableUser/${proxyUserId}`
+          );
           await updateDoc(userDocRef, {
             proxies: arrayRemove(proxyToDelete),
           });
           console.log("Proxy deleted successfully");
+          console.log('Proxy User enabled');
         } else {
           console.error("Proxy not found");
         }
@@ -168,9 +173,9 @@
   };
 
   // Handle delete confirmation
-  function handleDeleteProxyConfirmation(proxyId) {
+  function handleDeleteProxyConfirmation(proxyId, proxyUserId) {
     if (confirm("Are you sure you want to delete this proxy?")) {
-      deleteProxy(proxyId);
+      deleteProxy(proxyId, proxyUserId);
     }
   }
 </script>
@@ -239,7 +244,11 @@
               <Cell>
                 <button
                   class="mdc-button mdc-button--raised"
-                  on:click={() => handleDeleteProxyConfirmation(proxy.proxyID)}
+                  on:click={() =>
+                    handleDeleteProxyConfirmation(
+                      proxy.proxyID,
+                      proxy.proxyUserId
+                    )}
                 >
                   <span class="mdc-button__ripple"></span>
                   <span class="mdc-button__focus-ring"></span>
