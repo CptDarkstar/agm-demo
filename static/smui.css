@@ -8477,8 +8477,9 @@ a.mdc-list-item {
 }
 @media (max-width: 960px) {
   .mdc-dialog.mdc-dialog--fullscreen .mdc-dialog__surface {
-    max-height: 560px;
+    max-height: 100%;
     width: 560px;
+    height: 560px;
   }
   .mdc-dialog.mdc-dialog--fullscreen .mdc-dialog__surface .mdc-dialog__close {
     right: -12px;
@@ -8492,6 +8493,7 @@ a.mdc-list-item {
 @media (max-width: 720px) and (min-width: 672px) {
   .mdc-dialog.mdc-dialog--fullscreen .mdc-dialog__surface {
     width: 560px;
+    height: 560px;
   }
 }
 @media (max-width: 720px) and (max-height: 720px) {
@@ -8671,7 +8673,6 @@ a.mdc-list-item {
 }
 .mdc-dialog--fullscreen .mdc-dialog__title {
   margin-bottom: 0;
-  padding: 0;
   border-bottom: 0;
 }
 .mdc-dialog--fullscreen.mdc-dialog--scrollable .mdc-dialog__title {
