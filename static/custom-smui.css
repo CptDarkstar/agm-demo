@@ -1,0 +1,4 @@
+.mdc-dialog.mdc-dialog--fullscreen .mdc-dialog__surface {
+    max-width: none;
+    height: 560px;
+  }

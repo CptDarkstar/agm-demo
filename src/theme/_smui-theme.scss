@@ -1,11 +1,11 @@
-@use "sass:color";
+@use 'sass:color';
 
-@use "@material/theme/color-palette";
+@use '@material/theme/color-palette';
 
 // Svelte Colors!
-@use "@material/theme/index" as theme with (
+@use '@material/theme/index' as theme with (
   $primary: #6ba3ab,
-  $secondary: #595959,
+  $secondary: #676778,
   $surface: #fff,
   $background: #fff,
   $error: color-palette.$red-900
