@@ -30,7 +30,6 @@
   let newVoteTopic = "";
   let newVoteDiscription = "";
 
-
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {

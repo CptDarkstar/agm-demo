@@ -22,6 +22,10 @@
   import IconButton, { Icon } from "@smui/icon-button";
   import FormField from "@smui/form-field";
   import Switch from "@smui/switch";
+  import jsPDF from "jspdf";
+  import FileSaver from "file-saver";
+
+  const { saveAs } = FileSaver;
 
   let isAdmin = false;
   let panelOpen = false;
@@ -226,35 +230,17 @@
 
         if (userVotes) {
           userVotes.forEach((vote) => {
-            console.log("Processing vote:", vote);
-
             if (vote.topicId === topicId) {
-              // Log the vote and shares for debugging
-              console.log(
-                `Matching vote found: ${vote.vote} with shares: ${vote.shares}`
-              );
-
               switch (vote.vote) {
                 case "yes":
                   yesShares += vote.shares;
-                  console.log(
-                    `Adding to yesShares: ${vote.shares}, total: ${yesShares}`
-                  );
                   break;
                 case "no":
                   noShares += vote.shares;
-                  console.log(
-                    `Adding to noShares: ${vote.shares}, total: ${noShares}`
-                  );
                   break;
                 case "abstain":
                   abstainShares += vote.shares;
-                  console.log(
-                    `Adding to abstainShares: ${vote.shares}, total: ${abstainShares}`
-                  );
                   break;
-                default:
-                  console.log(`Unexpected vote value: ${vote.vote}`);
               }
             }
           });
@@ -272,13 +258,6 @@
       const abstainPercentage =
         totalSharesVoted === 0 ? 0 : (abstainShares / totalSharesVoted) * 100;
 
-      // Log final calculated percentages
-      console.log("Final Percentages:", {
-        yesPercentage,
-        noPercentage,
-        abstainPercentage,
-      });
-
       // Update the store with the new percentages
       votePercentages.update((current) => ({
         ...current,
@@ -288,6 +267,31 @@
           abstainPercentage: abstainPercentage.toFixed(2),
         },
       }));
+
+      // Function to save the results to Firebase
+      const saveResultsToFirebase = async () => {
+        const resultsData = {
+          topicId,
+          yesPercentage: yesPercentage.toFixed(2),
+          noPercentage: noPercentage.toFixed(2),
+          abstainPercentage: abstainPercentage.toFixed(2),
+          totalSharesVoted,
+          yesShares: yesShares,
+          noShares: noShares,
+          abstainShares: abstainShares,
+        };
+
+        const voteDocRef = doc(db, "Votes", topicId);
+
+        try {
+          await setDoc(voteDocRef, resultsData);
+        } catch (error) {
+          console.error("Error writing document to Firebase: ", error);
+        }
+      };
+
+      // Call the async function
+      saveResultsToFirebase();
     });
   }
 
@@ -340,6 +344,27 @@
 
     console.log(`Votes with topicId: ${topicId} cleared for all users.`);
   }
+
+  async function downloadCSV(topicId) {
+    try {
+      const docRef = doc(db, "Votes", topicId); // Fetch document by topicId
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        let csv =
+          "topicId,yesPercentage,yesShares,noPercentage,noShares,abstainPercentage,abstainShares,totalSharesVoted\n";
+        csv += `${data.topicId},${data.yesPercentage},${data.yesShares},${data.noPercentage},${data.noShares},${data.abstainPercentage},${data.abstainShares},${data.totalSharesVoted}\n`;
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        saveAs(blob, `${topicId}.csv`);
+      } else {
+        console.log("No document found for this topicId.");
+      }
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
+  }
 </script>
 
 <div>
@@ -374,13 +399,8 @@
                   </span>
                 </FormField>
               </div>
-              <button
-                class="mdc-button"
-                on:click={() => console.log("Not working")}>Edit</button
-              >
-              <button
-                class="mdc-button"
-                on:click={() => console.log("Not working")}>Export</button
+              <button class="mdc-button" on:click={() => downloadCSV(topicId)}
+                >Export Topic</button
               >
               <button
                 class="mdc-button"
@@ -516,7 +536,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 30%;
+    width: 100%;
     gap: 1px;
   }
 

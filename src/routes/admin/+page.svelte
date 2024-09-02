@@ -11,7 +11,19 @@
   import { onMount } from "svelte";
   import { onAuthStateChanged } from "firebase/auth";
   import { db } from "../../lib/firebase/firebase"; //Firebase configuration file
-  import { collection, getDocs, addDoc, setDoc, doc, query, orderBy, limit} from "firebase/firestore";
+  import {
+    collection,
+    getDocs,
+    addDoc,
+    setDoc,
+    doc,
+    query,
+    orderBy,
+    limit,
+  } from "firebase/firestore";
+  import FileSaver from "file-saver";
+
+  const { saveAs } = FileSaver;
 
   let menu = false;
   let clicked = "nothing yet";
@@ -65,9 +77,13 @@
     try {
       // Step 1: Get the last Topic ID
       const topicsRef = collection(db, "Topics");
-      const lastTopicQuery = query(topicsRef, orderBy("__name__", "desc"), limit(1));
+      const lastTopicQuery = query(
+        topicsRef,
+        orderBy("__name__", "desc"),
+        limit(1)
+      );
       const querySnapshot = await getDocs(lastTopicQuery);
-      
+
       let lastTopicId = 0;
 
       if (!querySnapshot.empty) {
@@ -82,15 +98,33 @@
       // Step 3: Add the new topic document with the new ID
       const newTopicRef = doc(topicsRef, newTopicId);
       await setDoc(newTopicRef, {
-        title : topicTitle,
-        description : topicDescription,
-        enabled: false // Set enabled to false by default
+        title: topicTitle,
+        description: topicDescription,
+        enabled: false, // Set enabled to false by default
       });
 
       console.log("New topic added successfully with ID:", newTopicId);
-
     } catch (error) {
       console.error("Error adding new topic: ", error);
+    }
+  }
+
+  // Function to download all documents as CSV
+  async function downloadAllCSV() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "Votes"));
+      let csv =
+        "topicId,yesPercentage,yesShares,noPercentage,noShares,abstainPercentage,abstainShares,totalSharesVoted\n";
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        csv += `${data.topicId},${data.yesPercentage},${data.yesShares},${data.noPercentage},${data.noShares},${data.abstainPercentage},${data.abstainShares},${data.totalSharesVoted}\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      saveAs(blob, "all_votes.csv");
+    } catch (error) {
+      console.error("Error downloading all CSV:", error);
     }
   }
 </script>
@@ -154,6 +188,7 @@
     <button class="mdc-button add_new" on:click={() => (open = true)}
       >Add New</button
     >
+    <button class="mdc-button add_new" on:click={downloadAllCSV}>Export All</button>
   </div>
 
   <Dialog
@@ -261,6 +296,7 @@
     border-radius: 4px;
     padding-right: 16px;
     padding-bottom: 30px;
+    min-width: 60%;
   }
   @media (max-width: 720px) {
     .agm-voting-header {
