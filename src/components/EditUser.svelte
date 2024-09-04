@@ -41,9 +41,10 @@
   let open = false;
   let openProxy = false;
   let openAddProxy = false;
-  let sortColumn = "";
-  let sortDirection = "asc";
   let loading = true;
+  let sortedUsers = [];
+  let currentSortKey = "";
+  let sortOrder = 1; // 1 for ascending, -1 for descending
 
   onMount(async () => {
     await usersCollection();
@@ -60,11 +61,10 @@
           userData.push({ id: doc.id, ...doc.data() });
         });
         users = userData;
-        loading = false;
+        sortedUsers = [...users]; // Initialize sortedUsers with the fetched data
       });
     } catch (error) {
       console.error("Error getting users collection: ", error);
-      loading = false;
     }
   };
 
@@ -160,7 +160,7 @@
             proxies: arrayRemove(proxyToDelete),
           });
           console.log("Proxy deleted successfully");
-          console.log('Proxy User enabled');
+          console.log("Proxy User enabled");
         } else {
           console.error("Proxy not found");
         }
@@ -177,6 +177,23 @@
     if (confirm("Are you sure you want to delete this proxy?")) {
       deleteProxy(proxyId, proxyUserId);
     }
+  }
+
+  // Sort datatable
+  function sortData(key) {
+    // Toggle sort order if the same key is clicked, otherwise reset to ascending
+    if (currentSortKey === key) {
+      sortOrder = -sortOrder;
+    } else {
+      currentSortKey = key;
+      sortOrder = 1;
+    }
+
+    sortedUsers = [...users].sort((a, b) => {
+      if (a[key] < b[key]) return -1 * sortOrder;
+      if (a[key] > b[key]) return 1 * sortOrder;
+      return 0;
+    });
   }
 </script>
 
@@ -313,15 +330,32 @@
   <DataTable table$aria-label="User list" style="width: auto;">
     <Head>
       <Row>
-        <Cell style="width: 100%; cursor: pointer;">Agency</Cell>
-        <Cell style="width: 100%; cursor: pointer;">Name</Cell>
-        <Cell style="cursor: pointer;">Email</Cell>
-        <Cell style="cursor: pointer;" numeric>Shares</Cell>
+        <Cell
+          style="width: 100%; cursor: pointer;"
+          sortable
+          on:click={sortData.bind(null, "agency")}>Agency</Cell
+        >
+        <Cell
+          style="width: 100%; cursor: pointer;"
+          sortable
+          on:click={sortData.bind(null, "displayName")}>Name</Cell
+        >
+        <Cell
+          style="cursor: pointer;"
+          sortable
+          on:click={sortData.bind(null, "email")}>Email</Cell
+        >
+        <Cell
+          style="cursor: pointer;"
+          numeric
+          sortable
+          on:click={sortData.bind(null, "shares")}>Shares</Cell
+        >
         <Cell>Edit User</Cell>
       </Row>
     </Head>
     <Body>
-      {#each users as user}
+      {#each sortedUsers as user}
         <Row>
           <Cell>{user.agency}</Cell>
           <Cell>{user.displayName}</Cell>
