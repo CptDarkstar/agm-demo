@@ -61,7 +61,8 @@
           userData.push({ id: doc.id, ...doc.data() });
         });
         users = userData;
-        sortedUsers = [...users]; // Initialize sortedUsers with the fetched data
+        sortData('agency');
+        //sortedUsers = [...users]; // Initialize sortedUsers with the fetched data
       });
     } catch (error) {
       console.error("Error getting users collection: ", error);
@@ -181,6 +182,7 @@
 
   // Sort datatable
   function sortData(key) {
+    if (!users.length) return; // Prevent sorting if no data is available
     // Toggle sort order if the same key is clicked, otherwise reset to ascending
     if (currentSortKey === key) {
       sortOrder = -sortOrder;
