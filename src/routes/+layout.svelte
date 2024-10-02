@@ -13,7 +13,7 @@
       const currentPath = window.location.pathname;
 
       if (!user && !nonAuthRoutes.includes(currentPath)) {
-        if (window.location.pathname !== "/") {
+        if (window.location.pathname !== "/", window.location.pathname !== "/download") {
           window.location.href = "/";
           return;
         }
