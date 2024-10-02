@@ -1,6 +1,6 @@
 [
     {
-      "origin": ["http://localhost:5173", "http://your-production-url.com"],
+      "origin": ["http://localhost:5173", "https://rns-agm-1.vercel.app/"],
       "method": ["GET"],
       "maxAgeSeconds": 3600
     }
