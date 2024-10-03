@@ -1,13 +1,24 @@
 .mdc-dialog.mdc-dialog--fullscreen .mdc-dialog__surface {
-    max-width: none;
-    height: 560px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  max-width: none;
+  height: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 /* .mdc-menu-surface {
     min-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
   } */
+
+  .smui-accordion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+.smui-accordion
+  .smui-accordion__panel.smui-paper.smui-accordion__panel--raised {
+  width: 60%;
+}
