@@ -26,6 +26,7 @@
   let none = "None"
 
   let users = [];
+  let sortedUsers = [];
   let topics = [];
 
   onMount(async () => {
@@ -33,6 +34,9 @@
       const usersCollection = collection(db, "users");
       const querySnapshot = await getDocs(usersCollection);
       users = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        // Sort users alphabetically by displayName
+        sortedUsers = users.slice().sort((a, b) => a.displayName.localeCompare(b.displayName));
 
       const topicsCollection = collection(db, "Topics");
       const topicsSnapshot = await getDocs(topicsCollection);
@@ -115,7 +119,7 @@
     input$name="user"
   >
     <Option value="" />
-    {#each users as user}
+    {#each sortedUsers as user}
       <Option value={user.id}>{user.displayName}</Option>
     {/each}
   </Select>

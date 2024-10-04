@@ -43,15 +43,15 @@
   let openAddProxy = false;
   let loading = true;
   let sortedUsers = [];
-  let currentSortKey = "";
-  let sortOrder = 1; // 1 for ascending, -1 for descending
+  let currentSortKey = "agency"; // Set default sort key to agency
+  let sortOrder = 1; // Always ascending order (1)
 
   onMount(async () => {
     await usersCollection();
     await initProxies();
   });
 
-  // Get User colcetion
+  // Get User collection
   const usersCollection = async () => {
     const usersRef = collection(db, "users");
     try {
@@ -61,8 +61,9 @@
           userData.push({ id: doc.id, ...doc.data() });
         });
         users = userData;
-        sortData('agency');
-        //sortedUsers = [...users]; // Initialize sortedUsers with the fetched data
+
+        // Sort the data by default key (displayName) after fetching the data
+        sortData(currentSortKey);
       });
     } catch (error) {
       console.error("Error getting users collection: ", error);
@@ -180,20 +181,13 @@
     }
   }
 
-  // Sort datatable
+  // Sort data by key and keep it always sorted
   function sortData(key) {
     if (!users.length) return; // Prevent sorting if no data is available
-    // Toggle sort order if the same key is clicked, otherwise reset to ascending
-    if (currentSortKey === key) {
-      sortOrder = -sortOrder;
-    } else {
-      currentSortKey = key;
-      sortOrder = 1;
-    }
 
     sortedUsers = [...users].sort((a, b) => {
-      if (a[key] < b[key]) return -1 * sortOrder;
-      if (a[key] > b[key]) return 1 * sortOrder;
+      if (a[key] < b[key]) return -1;
+      if (a[key] > b[key]) return 1;
       return 0;
     });
   }
@@ -332,27 +326,10 @@
   <DataTable table$aria-label="User list" style="width: auto;">
     <Head>
       <Row>
-        <Cell
-          style="width: 100%; cursor: pointer;"
-          sortable
-          on:click={sortData.bind(null, "agency")}>Agency</Cell
-        >
-        <Cell
-          style="width: 100%; cursor: pointer;"
-          sortable
-          on:click={sortData.bind(null, "displayName")}>Name</Cell
-        >
-        <Cell
-          style="cursor: pointer;"
-          sortable
-          on:click={sortData.bind(null, "email")}>Email</Cell
-        >
-        <Cell
-          style="cursor: pointer;"
-          numeric
-          sortable
-          on:click={sortData.bind(null, "shares")}>Shares</Cell
-        >
+        <Cell style="width: 100%;">Agency</Cell>
+        <Cell style="width: 100%;">Name</Cell>
+        <Cell>Email</Cell>
+        <Cell numeric>Shares</Cell>
         <Cell>Edit User</Cell>
         <Cell>Proxy To</Cell>
       </Row>
@@ -404,7 +381,7 @@
               <span class="mdc-button__label">Delete</span>
             </button>
           </Cell>
-          <Cell>{#if (user.proxyTo) === undefined}-{:else}{user.proxyTo}{/if}</Cell>
+          <Cell>{#if user.proxyTo === undefined}-{:else}{user.proxyTo}{/if}</Cell>
         </Row>
       {/each}
     </Body>
