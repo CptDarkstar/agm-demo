@@ -85,12 +85,16 @@
       };
 
       const userDocRef = doc(db, "users", principalId);
+      const proxyUser = doc(db, "users", proxyUserId);
 
       await axios.post(
         `https://agm-node-cptdarkstar.onrender.com/disableUser/${proxyUserId}`
       );
       await updateDoc(userDocRef, {
         proxies: arrayUnion(proxyData),
+      });
+      await updateDoc(proxyUser, {
+        proxyTo: principalName,
       });
 
       console.log("Document successfully written with Proxy ID:", proxyID);

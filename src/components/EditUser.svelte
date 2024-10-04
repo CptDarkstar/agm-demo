@@ -354,6 +354,7 @@
           on:click={sortData.bind(null, "shares")}>Shares</Cell
         >
         <Cell>Edit User</Cell>
+        <Cell>Proxy To</Cell>
       </Row>
     </Head>
     <Body>
@@ -403,6 +404,7 @@
               <span class="mdc-button__label">Delete</span>
             </button>
           </Cell>
+          <Cell>{#if (user.proxyTo) === undefined}-{:else}{user.proxyTo}{/if}</Cell>
         </Row>
       {/each}
     </Body>
