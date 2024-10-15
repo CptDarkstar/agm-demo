@@ -467,13 +467,13 @@
                     class="mdc-button"
                     disabled={!topicStates[i]}
                     on:click={() => castVote(user.uid, topicId, "yes")}
-                    >Yes</button
+                    >For</button
                   >
                   <button
                     class="mdc-button"
                     disabled={!topicStates[i]}
                     on:click={() => castVote(user.uid, topicId, "no")}
-                    >No</button
+                    >Against</button
                   >
                   <button
                     class="mdc-button"
