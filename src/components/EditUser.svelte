@@ -20,6 +20,7 @@
     query,
     where,
     arrayRemove,
+    deleteField,
   } from "firebase/firestore";
   import {
     editUserStore,
@@ -27,9 +28,11 @@
     hideEditModal,
     updateUserInFirestore,
   } from "../store/editUserStore";
+  //import Cell from "@smui/data-table/src/Cell.svelte";
 
   let users = [];
   let proxies = [];
+  let proxyTo = "";
   let editStore = editUserStore;
   let showModal;
   let selectedUser;
@@ -144,9 +147,11 @@
   // Delete Proxy
   const deleteProxy = async (proxyId, proxyUserId) => {
     const userDocRef = doc(db, "users", selectedUser);
+    const deleteProxyTo = doc(db, "users", proxyUserId);
 
     try {
       const userDoc = await getDoc(userDocRef);
+      const userProxyDoc = await getDoc(deleteProxyTo);
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const proxyToDelete = userData.proxies.find(
@@ -161,8 +166,12 @@
           await updateDoc(userDocRef, {
             proxies: arrayRemove(proxyToDelete),
           });
+          await updateDoc(deleteProxyTo, {
+            proxyTo: deleteField(deleteProxyTo),
+          });
           console.log("Proxy deleted successfully");
           console.log("Proxy User enabled");
+          console.log("Deleted =", deleteProxyTo);
         } else {
           console.error("Proxy not found");
         }
@@ -351,6 +360,7 @@
                 editedEmail = user.email;
                 editedShares = user.shares;
                 open = true;
+                
               }}
             >
               <span class="mdc-button__ripple"></span>
@@ -362,7 +372,9 @@
               class="mdc-button mdc-button--raised"
               on:click={async () => {
                 selectedUser = user.id;
-                selectedUserName = user.displayName;
+                selectedUserName = user.displayName;                
+                proxyTo = user.proxyTo;
+                console.log('Proxy To:', proxyTo)
                 await initProxies();
                 openProxy = true;
               }}

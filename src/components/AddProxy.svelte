@@ -36,7 +36,7 @@
       users = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         // Sort users alphabetically by displayName
-        sortedUsers = users.slice().sort((a, b) => a.displayName.localeCompare(b.displayName));
+        sortedUsers = users.slice().sort((a, b) => a.agency.localeCompare(b.agency));
 
       const topicsCollection = collection(db, "Topics");
       const topicsSnapshot = await getDocs(topicsCollection);
@@ -120,7 +120,7 @@
   >
     <Option value="" />
     {#each sortedUsers as user}
-      <Option value={user.id}>{user.displayName}</Option>
+      <Option value={user.id}>{user.agency}</Option>
     {/each}
   </Select>
 
