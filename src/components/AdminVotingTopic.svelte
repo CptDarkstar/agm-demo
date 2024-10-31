@@ -445,77 +445,78 @@
         </Panel>
       {/each}
     {:else}
-      {#each Object.keys(accordionItems) as topicId, i}
-        <Panel disabled={!topicStates[i]}>
-          <Header>
-            {accordionItems[topicId] && accordionItems[topicId].title}
-            <IconButton slot="icon" toggle pressed={panelOpen}>
-              <Icon class="material-icons" on>expand_less</Icon>
-              <Icon class="material-icons">expand_more</Icon>
-            </IconButton>
-          </Header>
-          <Content>
-            <p>
-              {accordionItems[topicId] && accordionItems[topicId].description}
-            </p>
-            {#await hasVoted(user.uid, topicId)}
-              <p>...checking</p>
-            {:then hasVoted}
-              {#if !hasVoted && !$votedTopics[topicId]}
-                <div class="voting_buttons">
-                  <button
-                    class="mdc-button"
-                    disabled={!topicStates[i]}
-                    on:click={() => castVote(user.uid, topicId, "yes")}
-                    >For</button
-                  >
-                  <button
-                    class="mdc-button"
-                    disabled={!topicStates[i]}
-                    on:click={() => castVote(user.uid, topicId, "no")}
-                    >Against</button
-                  >
-                  <button
-                    class="mdc-button"
-                    disabled={!topicStates[i]}
-                    on:click={() => castVote(user.uid, topicId, "abstain")}
-                    >Abstain</button
-                  >
-                </div>
-              {:else}
-                <span>
-                  Yes:
-                  <p
-                    class="yesPercentage"
-                    style="width: {$votePercentages[topicId].yesPercentage}%;"
-                  >
-                    {$votePercentages[topicId].yesPercentage}%
-                  </p>
-                </span>
-                <span>
-                  No:
-                  <p
-                    class="noPercentage"
-                    style="width: {$votePercentages[topicId].noPercentage}%;"
-                  >
-                    {$votePercentages[topicId].noPercentage}%
-                  </p>
-                </span>
-                <span>
-                  Abstain:
-                  <p
-                    class="abstainPercentage"
-                    style="width: {$votePercentages[topicId]
-                      .abstainPercentage}%;"
-                  >
-                    {$votePercentages[topicId].abstainPercentage}%
-                  </p>
-                </span>
-              {/if}
-            {:catch error}
-              <p style="color: red">{error.message}</p>
-            {/await}
-            <!-- <div>
+      {#each Object.entries(accordionItems) as [topicId, topicData], i}
+        {#if topicData.enabled}
+          <Panel disabled={!topicStates[i]}>
+            <Header>
+              {accordionItems[topicId] && accordionItems[topicId].title}
+              <IconButton slot="icon" toggle pressed={panelOpen}>
+                <Icon class="material-icons" on>expand_less</Icon>
+                <Icon class="material-icons">expand_more</Icon>
+              </IconButton>
+            </Header>
+            <Content>
+              <p>
+                {accordionItems[topicId] && accordionItems[topicId].description}
+              </p>
+              {#await hasVoted(user.uid, topicId)}
+                <p>...checking</p>
+              {:then hasVoted}
+                {#if !hasVoted && !$votedTopics[topicId]}
+                  <div class="voting_buttons">
+                    <button
+                      class="mdc-button"
+                      disabled={!topicStates[i]}
+                      on:click={() => castVote(user.uid, topicId, "yes")}
+                      >For</button
+                    >
+                    <button
+                      class="mdc-button"
+                      disabled={!topicStates[i]}
+                      on:click={() => castVote(user.uid, topicId, "no")}
+                      >Against</button
+                    >
+                    <button
+                      class="mdc-button"
+                      disabled={!topicStates[i]}
+                      on:click={() => castVote(user.uid, topicId, "abstain")}
+                      >Abstain</button
+                    >
+                  </div>
+                {:else}
+                  <span>
+                    Yes:
+                    <p
+                      class="yesPercentage"
+                      style="width: {$votePercentages[topicId].yesPercentage}%;"
+                    >
+                      {$votePercentages[topicId].yesPercentage}%
+                    </p>
+                  </span>
+                  <span>
+                    No:
+                    <p
+                      class="noPercentage"
+                      style="width: {$votePercentages[topicId].noPercentage}%;"
+                    >
+                      {$votePercentages[topicId].noPercentage}%
+                    </p>
+                  </span>
+                  <span>
+                    Abstain:
+                    <p
+                      class="abstainPercentage"
+                      style="width: {$votePercentages[topicId]
+                        .abstainPercentage}%;"
+                    >
+                      {$votePercentages[topicId].abstainPercentage}%
+                    </p>
+                  </span>
+                {/if}
+              {:catch error}
+                <p style="color: red">{error.message}</p>
+              {/await}
+              <!-- <div>
               {#if $votePercentages[topicId]}
                 <p>Yes: {$votePercentages[topicId].yesPercentage}%</p>
                 <p>No: {$votePercentages[topicId].noPercentage}%</p>
@@ -524,8 +525,9 @@
                 <p>...calculating</p>
               {/if}
             </div> -->
-          </Content>
-        </Panel>
+            </Content>
+          </Panel>
+        {/if}
       {/each}
     {/if}
   </Accordion>

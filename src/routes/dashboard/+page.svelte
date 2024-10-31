@@ -135,7 +135,7 @@
     align-items: center;
   }
   .agm-voting-header {
-    width: 100%;
+    width: 100vw;
     height: auto;
     display: flex;
     max-width: 1400px;
@@ -193,8 +193,8 @@
   }
   @media (max-width: 720px) {
     .agm-voting-header {
-      max-width: 100%;
-      min-width: 100%;
+      max-width: 100vw;
+      min-width: 100vw;
     }
     .logo {
       width: 100px;
@@ -202,8 +202,8 @@
   }
   @media (max-width: 430px) {
     .agm-voting-header {
-      max-width: 100%;
-      min-width: 100%;
+      max-width: 100vw;
+      min-width: 100vw;
     }
     .logo {
       width: 130px;
