@@ -35,7 +35,6 @@
   let topicTitle = "";
   let topicDescription = "";
   
-
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
