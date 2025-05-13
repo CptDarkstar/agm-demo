@@ -1,38 +1,20 @@
-# create-svelte
+Shareholder Voting App for AGMs
+A modern, secure web application designed specifically for businesses to manage shareholder voting during Annual General Meetings (AGMs). Unlike typical polling tools, this app uses weighted voting based on share ownership, ensuring accurate representation of shareholder influence.
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Built with Firebase, SvelteKit, SMUI, and Node.js, the app offers a streamlined experience with role-based user access, secure authentication, and robust admin tools for managing shareholder profiles, shares, and permissions.
 
-## Creating a project
+Key features include:
 
-If you're seeing this, you've probably already done this step. Congrats!
+✅ Weighted voting system based on shareholding
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+✅ Proxy voting support
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+✅ Role-based access for admins and shareholders
 
-## Developing
+✅ Data visualization of vote outcomes
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+✅ Easy data exporting for record-keeping
 
-```bash
-npm run dev
+✅ Admin dashboard for managing shareholders and shares
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Designed out of necessity, this app fills a gap in the market for tailored, share-weighted AGM voting solutions — perfect for businesses, yet flexible enough for broader voting use cases.
