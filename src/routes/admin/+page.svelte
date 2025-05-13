@@ -2,7 +2,7 @@
   import { auth } from "../../lib/firebase/firebase";
   import { authHandlers } from "../../store/store";
   import { goto } from "$app/navigation";
-  import { MDCMenu } from "@material/menu";
+  import Menu from '@smui/menu';
   import Dialog, { Title, Content, Actions } from "@smui/dialog";
   import Button, { Label } from "@smui/button";
   import Textfield from "@smui/textfield";
@@ -59,7 +59,7 @@
 
   function openMDCMenu(selector) {
     const menuElement = document.querySelector(selector);
-    const menu = new MDCMenu(menuElement);
+    const menu = new Menu(menuElement);
 
     const button = document.getElementById("menu-button");
     button.addEventListener("click", () => {
