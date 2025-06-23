@@ -51,7 +51,7 @@
     try {
       const response = await axios.post(
         //"https://agm-node-cptdarkstar.onrender.com/createUser",
-        "https://agm-node-cptdarkstar.onrender.com/createUser",
+        "https://agm-demo-node.onrender.com/createUser",
         userData
       );
       console.log(response.data); // Log the response from the backend

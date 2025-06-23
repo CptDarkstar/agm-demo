@@ -107,7 +107,7 @@
         shares: editedShares,
       };
       const response = await axios.put(
-        `https://agm-node-cptdarkstar.onrender.com/updateUser/${selectedUser}`,
+        `https://agm-demo-node.onrender.com/updateUser/${selectedUser}`,
         userData
       );
       console.log("User data updated successfully:", response.data);
@@ -130,7 +130,7 @@
   const deleteUser = async (userId) => {
     try {
       await axios.delete(
-        `https://agm-node-cptdarkstar.onrender.com/deleteUser/${userId}`
+        `https://agm-demo-node.onrender.com/deleteUser/${userId}`
       );
       users = users.filter((user) => user.id !== userId);
       console.log("User deleted successfully");
@@ -161,7 +161,7 @@
 
         if (proxyToDelete) {
           await axios.post(
-            `https://agm-node-cptdarkstar.onrender.com/enableUser/${proxyUserId}`
+            `https://agm-demo-node.onrender.com/enableUser/${proxyUserId}`
           );
           await updateDoc(userDocRef, {
             proxies: arrayRemove(proxyToDelete),
