@@ -3,6 +3,7 @@
   import { authHandlers } from "../../store/store";
   import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
   import AdminVotingTopic from "../../components/AdminVotingTopic.svelte";
+  import Header from "../../components/Header.svelte";
   import { authStore } from "../../store/store";
   import { onMount } from "svelte";
   import { collection, doc, getDoc } from "firebase/firestore";
@@ -41,7 +42,7 @@
       if (user) {
         user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
-          /* console.log(isAdmin); */
+          console.log(isAdmin);
         });
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
@@ -64,7 +65,8 @@
 </script>
 
 <div class="maincontainer">
-  <header data-role="Header" class="agm-voting-header">
+  <Header />
+  <!-- <header data-role="Header" class="agm-voting-header">
     <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     <div class="agm-voting-btn-group">
       {#if isAdmin}
@@ -114,7 +116,7 @@
         <span class="mdc-button__label">Log out</span>
       </button>
     </div>
-  </header>
+  </header> -->
   <h1 class="userText">
     {#if Object.keys(userData).length === 0}
       <i class="fa-solid fa-spinner fa-spin"></i>
@@ -134,104 +136,10 @@
     flex-direction: column;
     align-items: center;
   }
-  .agm-voting-header {
-    width: 100vw;
-    height: auto;
-    display: flex;
-    max-width: 1400px;
-    min-width: 1400px;
-    align-self: center;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .agm-voting-btn-group {
-    width: auto;
-    height: auto;
-    display: flex;
-    align-items: center;
-    border-radius: 4px;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 30px;
-  }
-  .mdc-button {
-    background: #6ba3ab;
-    font-family: "Merriweather", sans-serif;
-    font-size: 30px;
-    color: white;
-    padding-top: 30px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 30px;
-  }
   * :global(.mdc-button):hover {
     background: #595959;
   }
-  .mdc-menu-surface {
-    background: #6ba3ab;
-    font-family: "Merriweather", sans-serif;
-    top: 63px;
-  }
-  .mdc-deprecated-list-item:hover {
-    background: #595959;
-  }
-  .mdc-deprecated-list-item__text {
-    font-size: 30px;
-    color: white;
-    padding-top: 8px;
-    padding-left: 16px;
-    border-radius: 4px;
-    padding-right: 16px;
-    padding-bottom: 8px;
-  }
-  a {
-    text-decoration: none;
-  }
   .userText {
     text-align: center;
-  }
-  @media (max-width: 720px) {
-    .agm-voting-header {
-      max-width: 100vw;
-      min-width: 100vw;
-    }
-    .logo {
-      width: 100px;
-    }
-  }
-  @media (max-width: 430px) {
-    .agm-voting-header {
-      max-width: 100vw;
-      min-width: 100vw;
-    }
-    .logo {
-      width: 130px;
-    }
-    .agm-voting-btn-group {
-      width: 65%;
-      height: auto;
-      display: flex;
-      align-items: center;
-      border-radius: 4px;
-      flex-direction: row;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    * :global(.mdc-button) {
-      font-size: 10px;
-      padding-top: 2px;
-      padding-left: 2px;
-      padding-right: 2px;
-      padding-bottom: 2px;
-    }
-    * :global(.mdc-deprecated-list-item__text) {
-      font-size: 15px;
-      padding-top: 0px;
-      padding-left: 0px;
-      border-radius: 0px;
-      padding-right: 0px;
-      padding-bottom: 0px;
-    }
   }
 </style>
