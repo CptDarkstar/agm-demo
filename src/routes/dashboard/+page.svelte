@@ -15,7 +15,7 @@
   let menu = false;
   let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
-  let isAdmin = false;
+  let isAdmin;
 
   const handleShareHoldersAction = () => {
     clicked = "Share Holders";
@@ -40,10 +40,10 @@
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdTokenResult().then((idTokenResult) => {
+        /* user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
           console.log(isAdmin);
-        });
+        }); */
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
           const userSnapshot = await getDoc(userDocRef);

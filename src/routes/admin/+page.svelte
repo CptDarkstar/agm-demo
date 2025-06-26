@@ -36,16 +36,15 @@
   let topicTitle = "";
   let topicDescription = "";
   
-  onMount(() => {
+  /* onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
-          /* console.log("Admin Page"); */
         });
       }
     });
-  });
+  }); */
 
   //Menu
   const handleShareHoldersAction = () => {

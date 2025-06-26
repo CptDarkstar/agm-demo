@@ -9,6 +9,8 @@ import {
 import { writable } from "svelte/store";
 import { auth } from "../lib/firebase/firebase";
 
+export const isAdmin = writable(false); // default to user mode
+
 export const authStore = writable({
   user: null,
   loading: true,

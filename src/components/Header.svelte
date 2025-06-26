@@ -11,11 +11,12 @@
   import Switch from "@smui/switch";
   import FormField from "@smui/form-field";
   import Button from "@smui/button";
+  import { isAdmin } from "../store/store";
 
   let menu = false;
   let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
-  let isAdmin;
+  // let isAdmin = false;
 
   function openMDCMenu(selector) {
     const menuElement = document.querySelector(selector);
@@ -30,10 +31,10 @@
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdTokenResult().then((idTokenResult) => {
+        /* user.getIdTokenResult().then((idTokenResult) => {
           isAdmin = idTokenResult.claims.admin;
           console.log(isAdmin);
-        });
+        }); */
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
           const userSnapshot = await getDoc(userDocRef);
@@ -65,7 +66,7 @@
       <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     </a>
     <div class="agm-voting-btn-group">
-      {#if isAdmin}
+      {#if $isAdmin}
         <div id="demo-menu" class="admin mdc-menu-surface--anchor">
           <button
             id="menu-button"
@@ -111,13 +112,13 @@
         <span class="mdc-button__label">Log out</span>
       </button>
     </div>
-</header>
-<div style="margin-top: 1em;">
-  <FormField align="end">
-    <Switch bind:checked={isAdmin} />
-    Admin Mode
-  </FormField>
-</div>
+  </header>
+  <div style="margin-top: 1em;">
+    <FormField align="end">
+      <Switch bind:checked={$isAdmin} />
+      Admin Mode
+    </FormField>
+  </div>
 </div>
 
 <style>

@@ -35,7 +35,7 @@
   let editedShares = 0; // Define and initialize editedShares as a number
   let menu = false;
   let clicked = "nothing yet";
-  let isAdmin;
+  let isAdmin = true;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

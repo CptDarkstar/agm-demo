@@ -49,7 +49,10 @@
     <div class="log-in-group01">
       <span class="log-in-text">
         <span class="log-in-text01">Welcome to</span>
-        <span class="log-in-text02">RNS</span>
+        <span class="log-in-text02">RNS</span>,<br>
+        <span class="log-in-text01">Please use these login details.</span><br>
+        <span class="log-in-text01">Email: test@test.com</span><br>
+        <span class="log-in-text01">Password: 123456</span>
       </span>
     </div>
     <span class="log-in-text03">

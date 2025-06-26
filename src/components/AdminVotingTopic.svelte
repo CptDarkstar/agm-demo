@@ -24,10 +24,11 @@
   import Switch from "@smui/switch";
   import jsPDF from "jspdf";
   import FileSaver from "file-saver";
+  import { isAdmin } from "../store/store";
 
   const { saveAs } = FileSaver;
 
-  let isAdmin = false;
+  //let isAdmin;
   let panelOpen = false;
   let accordionItems = {};
   let topicStates = {};
@@ -41,8 +42,8 @@
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
         user = u;
-        const idTokenResult = await u.getIdTokenResult();
-        isAdmin = idTokenResult.claims.admin;
+        /* const idTokenResult = await u.getIdTokenResult();
+        isAdmin = idTokenResult.claims.admin; */
         setupRealtimeListener();
         await fetchProxies();
       }
@@ -369,7 +370,7 @@
 
 <div>
   <Accordion>
-    {#if isAdmin}
+    {#if $isAdmin}
       {#each Object.keys(accordionItems) as topicId, i}
         <Panel>
           <Header>
