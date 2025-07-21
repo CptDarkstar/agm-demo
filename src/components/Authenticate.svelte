@@ -49,10 +49,7 @@
     <div class="log-in-group01">
       <span class="log-in-text">
         <span class="log-in-text01">Welcome to</span>
-        <span class="log-in-text02">RNS</span>,<br>
-        <span class="log-in-text01">Please use these login details.</span><br>
-        <span class="log-in-text01">Email: test@test.com</span><br>
-        <span class="log-in-text01">Password: 123456</span>
+        <span class="log-in-text02">RNS</span>,<br />
       </span>
     </div>
     <span class="log-in-text03">
@@ -99,6 +96,11 @@
       </Button>
     </div>
   </form>
+  <div class="highlight-toggle">
+    <span class="log-in-text01">Please use these login details.</span>
+    <span class="log-in-text01">Email: test@test.com</span>
+    <span class="log-in-text01">Password: 123456</span>
+  </div>
 </div>
 
 <style>
@@ -136,14 +138,14 @@
   }
   .authContainer {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: nowrap;
     align-content: flex-end;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: flex-start;
     flex: 1;
-    /* padding: 20px; */
     padding-right: 100px;
+    gap: 1em;
   }
   .logo {
     align-self: flex-start;
@@ -241,6 +243,36 @@
     }
     form {
       top: 5%;
+    }
+  }
+
+  .highlight-toggle {
+    margin-top: 0%;
+    padding-right: 1em;
+    padding-left: 1em;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border: 2px solid #6ba3ab;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.537);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-weight: bold;
+    gap: 1em;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 #676778;
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
     }
   }
 </style>
