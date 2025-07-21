@@ -66,6 +66,12 @@
       <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     </a>
     <div class="agm-voting-btn-group">
+      <div class="highlight-toggle" style="margin-top: 1em;">
+        <FormField align="end">
+          <Switch bind:checked={$isAdmin} />
+        </FormField>
+        <span class="toggle-label">⚠️ Admin Mode (Demo)</span>
+      </div>
       {#if $isAdmin}
         <div id="demo-menu" class="admin mdc-menu-surface--anchor">
           <button
@@ -113,12 +119,6 @@
       </button>
     </div>
   </header>
-  <div style="margin-top: 1em;">
-    <FormField align="end">
-      <Switch bind:checked={$isAdmin} />
-      Admin Mode
-    </FormField>
-  </div>
 </div>
 
 <style>
@@ -223,5 +223,27 @@
       padding-right: 0px;
       padding-bottom: 0px;
     }
+  }
+
+    .highlight-toggle {
+    padding-right: 1em;
+    border: 2px solid #ff9800;
+    border-radius: 8px;
+    background-color: #fff3e0;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+  }
+
+  .toggle-label {
+    color: #e65100;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,152,0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255,152,0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,152,0, 0); }
   }
 </style>
