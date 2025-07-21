@@ -1,3 +1,7 @@
+To use this app use these login details:
+User Name:  test@test.com
+Password:   123456
+
 Shareholder Voting App for AGMs
 A modern, secure web application designed specifically for businesses to manage shareholder voting during Annual General Meetings (AGMs). Unlike typical polling tools, this app uses weighted voting based on share ownership, ensuring accurate representation of shareholder influence.
 
