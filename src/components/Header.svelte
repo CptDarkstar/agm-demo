@@ -66,7 +66,7 @@
       <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
     </a>
     <div class="agm-voting-btn-group">
-      <div class="highlight-toggle" style="margin-top: 1em;">
+      <div class="highlight-toggle" >
         <FormField align="end">
           <Switch bind:checked={$isAdmin} />
         </FormField>
@@ -226,10 +226,13 @@
   }
 
     .highlight-toggle {
+    margin-top: 0%;
     padding-right: 1em;
-    border: 2px solid #ff9800;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border: 2px solid #6ba3ab;
     border-radius: 8px;
-    background-color: #fff3e0;
+    background-color: #fff;
     display: flex;
     align-items: center;
     gap: 1em;
@@ -242,7 +245,7 @@
   }
 
   @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255,152,0, 0.7); }
+    0% { box-shadow: 0 0 0 0 #676778; }
     70% { box-shadow: 0 0 0 10px rgba(255,152,0, 0); }
     100% { box-shadow: 0 0 0 0 rgba(255,152,0, 0); }
   }
