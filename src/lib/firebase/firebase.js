@@ -1,7 +1,8 @@
 // Import the functions you need from the SDKs you need
-import { deleteApp, getApp, getApps, initializeApp } from "firebase/app";
-import {getFirestore, collection, addDoc} from 'firebase/firestore';
-import {getAuth} from 'firebase/auth';
+import { browser } from "$app/environment";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -16,16 +17,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID
 };
 
-// Initialize Firebase
-let firebaseApp;
-if (!getApps().length) {
-    firebaseApp = initializeApp(firebaseConfig)
-} else {
-  firebaseApp = getApp()
-  deleteApp(firebaseApp)
-  firebaseApp = initializeApp(firebaseConfig)
-}
+// Firebase's client SDK relies on browser-only APIs (indexedDB, window),
+// so it must not be initialized during SSR.
+export let db, auth, storage;
 
-export const db = getFirestore(firebaseApp)
-export const auth = getAuth(firebaseApp)
-export const storage = getStorage(firebaseApp)
+if (browser) {
+  const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+  db = getFirestore(firebaseApp)
+  auth = getAuth(firebaseApp)
+  storage = getStorage(firebaseApp)
+}

@@ -1,12 +1,10 @@
 import {
-  getAuth,
-  setPersistence,
   signInWithEmailAndPassword,
-  browserSessionPersistence,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
 import { writable } from "svelte/store";
+import { browser } from "$app/environment";
 import { auth } from "../lib/firebase/firebase";
 
 export const isAdmin = writable(false); // default to user mode
@@ -18,29 +16,30 @@ export const authStore = writable({
   admin: null,
 });
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    
-    // User is signed in, update the store
-    authStore.set({
-      user: {
-        uid: user.uid,
-        displayName: user.displayName,
-        admin: user.admin,
-        // ...other properties you want to store
-      },
-      loading: false,
-      data: {}, // any additional data you want to store
-    });
-  } else {
-    // User is signed out, reset the store
-    authStore.set({
-      user: null,
-      loading: false,
-      data: {},
-    });
-  }
-});
+if (browser) {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, update the store
+      authStore.set({
+        user: {
+          uid: user.uid,
+          displayName: user.displayName,
+          admin: user.admin,
+          // ...other properties you want to store
+        },
+        loading: false,
+        data: {}, // any additional data you want to store
+      });
+    } else {
+      // User is signed out, reset the store
+      authStore.set({
+        user: null,
+        loading: false,
+        data: {},
+      });
+    }
+  });
+}
 
 export const authHandlers = {
   login: async (email, pass) => {
@@ -53,14 +52,3 @@ export const authHandlers = {
     // The authStore will be updated by the onAuthStateChanged listener
   },
 };
-
-/* Session */
-setPersistence(auth, browserSessionPersistence)
-  .then(() => {
-    return signInWithEmailAndPassword(auth, email, password);
-  })
-  .catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });

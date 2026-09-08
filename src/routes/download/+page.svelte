@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from "svelte";
   import { ref, listAll, getDownloadURL } from "firebase/storage";
   import { storage, db } from "$lib/firebase/firebase"; // Firebase config
   import { collection, addDoc } from "firebase/firestore";
@@ -30,7 +31,9 @@
   }
 
   // Fetch documents on mount
-  fetchDocuments();
+  onMount(() => {
+    fetchDocuments();
+  });
 
   // Function to download all files as a ZIP
   async function handleDownload() {
