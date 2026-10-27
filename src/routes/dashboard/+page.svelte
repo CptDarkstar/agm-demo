@@ -1,62 +1,31 @@
 <script>
   import "@fortawesome/fontawesome-free/css/all.min.css";
-  import { authHandlers } from "../../store/store";
-  import { onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
+  import { onAuthStateChanged } from "firebase/auth";
   import AdminVotingTopic from "../../components/AdminVotingTopic.svelte";
-  import Header from "../../components/Header.svelte";
-  import { authStore } from "../../store/store";
+  import AppHeader from "../../components/AppHeader.svelte";
   import { onMount } from "svelte";
   import { collection, doc, getDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase";
-  import { goto } from "$app/navigation";
-  import { MDCMenu } from "@material/menu";
+  import bgPhoto from "../../public/background.png";
 
-  /* let menu = Menu; */
-  let menu = false;
-  let clicked = "nothing yet";
   let userData = {}; // Initialize userData with an empty object
-  let isAdmin;
 
-  const handleShareHoldersAction = () => {
-    clicked = "Share Holders";
-    goto("/shareholders");
-  };
-
-  const handleVotingAction = () => {
-    clicked = "Voting";
-    goto("/admin");
-  };
-
-  function openMDCMenu(selector) {
-    const menuElement = document.querySelector(selector);
-    const menu = new MDCMenu(menuElement);
-
-    const button = document.getElementById("menu-button");
-    button.addEventListener("click", () => {
-      menu.open = !menu.open;
-    });
-  }
+  $: shareCount = Number(userData.shares) || 0;
 
   onMount(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        /* user.getIdTokenResult().then((idTokenResult) => {
-          isAdmin = idTokenResult.claims.admin;
-          console.log(isAdmin);
-        }); */
         const userDocRef = doc(collection(db, "users"), user.uid);
         try {
           const userSnapshot = await getDoc(userDocRef);
           if (userSnapshot.exists()) {
             userData = userSnapshot.data(); // Store the entire user data in the userData object
           } else {
-            console.log("No such document for the user!");
+            console.error("No such document for the user!");
           }
         } catch (error) {
           console.error("Error getting user document: ", error);
         }
-      } else {
-        console.log("User is signed out!");
       }
     });
 
@@ -64,82 +33,84 @@
   });
 </script>
 
-<div class="maincontainer">
-  <Header />
-  <!-- <header data-role="Header" class="agm-voting-header">
-    <img alt="logo" src="rnslogo.png" class="agm-voting-image logo" />
-    <div class="agm-voting-btn-group">
-      {#if isAdmin}
-        <div
-          id="demo-menu"
-          class="admin mdc-menu-surface--anchor">
-          <button
-            id="menu-button"
-            class="mdc-button mdc-button--raised admin"
-            on:action={openMDCMenu(".mdc-menu")}>Menu</button>
-          <div class="mdc-menu mdc-menu-surface">
-          <ul
-            class="mdc-deprecated-list"
-            role="menu"
-            aria-hidden="true"
-            aria-orientation="vertical"
-            tabindex="-1"
-            bind:this={menu}
-          >
-            <a href="/shareholders">
-              <li
-                class="mdc-deprecated-list-item"
-                role="menuitem"
-                on:SMUI:action={handleShareHoldersAction}
-              >
-                <span class="mdc-deprecated-list-item__ripple"></span>
-                <span class="mdc-deprecated-list-item__text">Share Holders</span
-                >
-              </li>
-            </a>
-            <a href="/admin">
-              <li class="mdc-deprecated-list-item" role="menuitem">
-                <span class="mdc-deprecated-list-item__ripple"></span>
-                <span class="mdc-deprecated-list-item__text">Voting</span>
-              </li>
-            </a>
-          </ul>
-          </div>
-        </div>
+<div class="dashboard">
+  <img class="bgPhoto" src={bgPhoto} alt="" />
+  <div class="overlay"></div>
+
+  <AppHeader logoLink={false} />
+
+  <main class="content">
+    <div class="greeting">
+      {#if Object.keys(userData).length === 0}
+        <i class="fa-solid fa-spinner fa-spin" aria-label="Loading"></i>
+      {:else}
+        <h1>Hi {userData.displayName}.</h1>
+        <p>
+          You will be voting with
+          <b>{shareCount.toLocaleString()} {shareCount === 1 ? "share" : "shares"}</b>.
+        </p>
       {/if}
-      <button
-        class="mdc-button mdc-button--raised"
-        on:click={authHandlers.logOut}
-      >
-        <span class="mdc-button__ripple"></span>
-        <span class="mdc-button__focus-ring"></span>
-        <span class="mdc-button__label">Log out</span>
-      </button>
     </div>
-  </header> -->
-  <h1 class="userText">
-    {#if Object.keys(userData).length === 0}
-      <i class="fa-solid fa-spinner fa-spin"></i>
-    {:else}
-      <p>Hi {userData.displayName}.</p>
-      <br />
-      <p>You will be voting with {userData.shares} shares.</p>
-    {/if}
-  </h1>
-  <br />
-  <AdminVotingTopic /> 
+
+    <AdminVotingTopic />
+  </main>
 </div>
 
 <style>
-  .maincontainer {
+  .dashboard {
+    position: relative;
+    min-height: 100vh;
+    background: #0f3a40;
+    box-sizing: border-box;
+    padding: clamp(12px, 3vw, 40px);
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+  }
+  /* Fixed so the photo stays put while a long resolution list scrolls. */
+  .bgPhoto {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 18% 100%;
+    filter: saturate(0.7);
+  }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 58, 64, 0.55) 0%,
+      rgba(10, 35, 39, 0.9) 55%
+    );
+  }
+  .content {
+    position: relative;
+    max-width: 900px;
+    margin: 48px auto 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 28px;
   }
-  * :global(.mdc-button):hover {
-    background: #595959;
-  }
-  .userText {
+  .greeting {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     text-align: center;
+    font-size: 28px;
+  }
+  .greeting h1 {
+    margin: 0;
+    font: 600 clamp(32px, 4vw, 48px) / 1.05 "Roboto", sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .greeting p {
+    margin: 0;
+    font-size: 17px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .greeting b {
+    color: #fff;
   }
 </style>

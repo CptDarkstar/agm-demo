@@ -1,275 +1,295 @@
 <script>
   import "@fortawesome/fontawesome-free/css/all.min.css";
-  import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+  import { sendPasswordResetEmail } from "firebase/auth";
   import Textfield from "@smui/textfield";
-  import Icon from "@smui/textfield/icon";
-  import HelperText from "@smui/textfield/helper-text";
   import Button, { Label } from "@smui/button";
+  import { auth } from "$lib/firebase/firebase";
+  import AuthShell from "../../components/AuthShell.svelte";
+  import "$lib/styles/glass-field.css";
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   let email = "";
+  let emailError = "";
+  let formError = "";
+  let sending = false;
+  let sent = false;
+  let sentTo = "";
 
-  function forgotPassword() {
-    const auth = getAuth();
-    sendPasswordResetEmail(auth, email)
-      .then(() => console.log("Password reset email sent"))
-      .catch((error) => console.error(error));
-    // Function to handle forgotten password
+  function clearErrors() {
+    emailError = "";
+    formError = "";
+  }
+
+  async function sendResetLink() {
+    if (sending) return;
+    const address = email.trim();
+    emailError = emailPattern.test(address)
+      ? ""
+      : address
+        ? "That doesn't look like a valid email."
+        : "Enter the email on your shareholder record.";
+    formError = "";
+    if (emailError) return;
+
+    sending = true;
+    try {
+      await sendPasswordResetEmail(auth, address);
+      showSent(address);
+    } catch (error) {
+      switch (error?.code) {
+        // Same screen as success, so the page never reveals which emails are registered.
+        case "auth/user-not-found":
+          showSent(address);
+          break;
+        case "auth/invalid-email":
+          emailError = "That doesn't look like a valid email.";
+          break;
+        case "auth/too-many-requests":
+          formError = "Too many attempts. Please wait a few minutes and try again.";
+          break;
+        case "auth/network-request-failed":
+          formError =
+            "Couldn't connect. Check your internet connection and try again.";
+          break;
+        default:
+          console.error("Error sending password reset email:", error);
+          formError =
+            "Something went wrong sending the reset email. Please try again.";
+      }
+    } finally {
+      sending = false;
+    }
+  }
+
+  function showSent(address) {
+    sentTo = address;
+    sent = true;
+  }
+
+  function useDifferentEmail() {
+    email = "";
+    sentTo = "";
+    clearErrors();
+    sent = false;
   }
 </script>
 
-<div class="main">
-  <div class="content">
-    <img class="logo" src="rnslogo.png" alt="RNS logo" />
-    <!-- <form on:submit|preventDefault={forgotPassword}>
-            <p>Please enter your email to reset your password</p>
-            <input type="email" bind:value={email} placeholder="Enter your email" required />
-            <div class="button-group">
-                <button onclick="history.back()">Go Back</button>
-                <button type="submit">Reset Password</button>
-            </div>
-        </form> -->
-    <div class="div-5">
-      <div class="column">
-        <i
-          class="fa-solid fa-unlock fa-shake fa-10x"
-          style="color: #6ba3ab; --fa-animation-duration: 10s;"
-        ></i>
-      </div>
-      <div class="column-2">
-        <div class="div-6">
-          <div class="div-7">
-            Forgot
-            <br />
-            Your
-            <span style="color: #ad2227">Password?</span>
-          </div>
-          <form on:submit|preventDefault={forgotPassword}>
-            <div class="div-8">Provide us with your email for varication</div>
-            <Textfield
-              class="shaped-outlined"
-              type="email"
-              required
-              variant="outlined"
-              bind:value={email}
-              label="Email"
-            ></Textfield>
-            <!-- <button class="div-10">Reset</button> -->
-            <Button variant="raised">
-              <Label>Reset</Label>
-            </Button>
-          </form>
-          <div
-            class="div-11"
-            style="cursor: pointer;font-weight:bold;"
-            onclick="history.back()"
-          >
-            Go back to
-            <span style="text-decoration: underline; color: #ad2227;">
-              Login
-            </span>
-          </div>
-        </div>
-      </div>
+<AuthShell>
+  <a class="backPill" href="/">← Back to sign in</a>
+
+  {#if !sent}
+    <div class="cardHeading">
+      <h1>Reset your password.</h1>
+      <p class="subtitle">
+        Enter the email on your shareholder record and we'll send you a link to
+        set a new password.
+      </p>
     </div>
+
+    {#if formError}
+      <div class="alert" role="alert">
+        <span class="alertIcon">!</span>
+        <span>{formError}</span>
+      </div>
+    {/if}
+
+    <form on:submit|preventDefault={sendResetLink} novalidate>
+      <div class="field">
+        <Textfield
+          class="glassField"
+          type="email"
+          variant="outlined"
+          bind:value={email}
+          label="Email address"
+          input$autocomplete="email"
+          disabled={sending}
+          on:input={clearErrors}
+        ></Textfield>
+        {#if emailError}
+          <span class="fieldError">{emailError}</span>
+        {/if}
+      </div>
+
+      <Button type="submit" disabled={sending} variant="raised">
+        <Label
+          >{#if sending}
+            <i class="fa-solid fa-spinner fa-spin"></i> Sending…
+          {:else}
+            Send reset link
+          {/if}</Label
+        >
+      </Button>
+    </form>
+  {:else}
+    <div class="sent" role="status">
+      <span class="tick" aria-hidden="true">✓</span>
+      <h1>Check your inbox.</h1>
+      <p class="subtitle">
+        If <b>{sentTo}</b> is on our records, we've sent a reset link. It may take
+        a few minutes, so check your spam folder too.
+      </p>
+      <a class="whiteLink" href="/">Back to sign in</a>
+      <button type="button" class="textBtn" on:click={useDifferentEmail}>
+        Use a different email
+      </button>
+    </div>
+  {/if}
+
+  <div class="help">
+    Still can't get in? Call RNS on
+    <a href="tel:+27118946920">011 894 6920</a>.
   </div>
-</div>
+</AuthShell>
 
 <style>
-  *
-    :global(
-      .shaped-outlined .mdc-notched-outline .mdc-notched-outline__leading
-    ) {
-    border-radius: 28px 0 0 28px;
-    width: 28px;
-  }
-  *:global(
-      .shaped-outlined .mdc-notched-outline .mdc-notched-outline__trailing
-    ) {
-    border-radius: 0 28px 28px 0;
-  }
-  * :global(.shaped-outlined .mdc-notched-outline .mdc-notched-outline__notch) {
-    max-width: calc(100% - 28px * 2);
-  }
-  *:global(
-      .shaped-outlined.mdc-text-field--with-leading-icon:not(
-          .mdc-text-field--label-floating
-        ).mdc-floating-label
-    ) {
-    left: 16px;
-  }
-  * :global(.shaped-outlined + .mdc-text-field-helper-line) {
-    padding-left: 32px;
-    padding-right: 28px;
-  }
-    :global(.shaped-outlined){
-    width: 100%;
-  }
-
-  .main {
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
+  .backPill {
+    align-self: flex-start;
+    display: inline-flex;
     align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font: 500 12px "Roboto", sans-serif;
+    text-decoration: none;
   }
-  .div-5 {
-    position: relative;
-    border-radius: 10px;
-    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(6.5px);
-    background-color: rgba(255, 255, 255, 0.53);
-    display: flex;
-    align-content: center;
-    width: 700px;
-    max-width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    /* margin: 194px 107px 145px 0; */
-    padding: 50px 60px;
+  .backPill:hover {
+    background: rgba(255, 255, 255, 0.22);
   }
-  i {
-    text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
-  }
-  @media (max-width: 991px) {
-    .div-5 {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0px;
-      padding: 50px 15px;
-    }
-    .fa-10x {
-      font-size: 4em;
-    }
-  }
-  .column {
+  .cardHeading {
     display: flex;
     flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    line-height: normal;
-    width: 30%;
-    margin-left: 0px;
+    gap: 10px;
   }
-  @media (max-width: 991px) {
-    .column {
-      width: 100%;
-    }
+  h1 {
+    margin: 0;
+    font: 600 clamp(28px, 4vw, 38px) / 1.05 "Roboto", sans-serif;
+    letter-spacing: -0.03em;
   }
-  /* .img-2 {
-    aspect-ratio: 0.91;
-    object-fit: auto;
-    object-position: center;
-    width: 200px;
-    fill: #000;
-    filter: drop-shadow(6px 8px 9.4px rgba(0, 0, 0, 0.25));
-    margin-top: 13px;
-    max-width: 100%;
-    flex-grow: 1;
-  } */
-  @media (max-width: 991px) {
-    .logo {
-      max-width: 41%;
-    }
+  .subtitle {
+    margin: 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.5;
   }
-  .column-2 {
+  .subtitle b {
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+  .alert {
     display: flex;
-    flex-direction: column;
-    line-height: normal;
-    width: 70%;
-    text-align: center;
-    /* margin-left: 20px; */
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(192, 40, 47, 0.9);
+    font-size: 14px;
+    line-height: 1.4;
   }
-  @media (max-width: 991px) {
-    .column-2 {
-      width: 100%;
-    }
-  }
-  .div-6 {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-    color: #ad2227;
-    font-weight: 400;
-  }
-  @media (max-width: 991px) {
-    .div-6 {
-      max-width: 100%;
-      margin-top: 40px;
-    }
-  }
-  .div-7 {
-    font:
-      40px Merriweather,
-      sans-serif;
-    font-weight: bold;
-    color: #ad2227;
-    /* text-shadow: 3px 1px 3px rgba(0, 0, 0, 0.73);
-    text-shadow:
-      -1px -1px 0 #000,  
-      1px -1px 0 #000,
-      -1px 1px 0 #000,
-      1px 1px 0 #000; */
-  }
-  @media (max-width: 991px) {
-    .div-7 {
-      max-width: 100%;
-      font-size: 27px;
-    }
-  }
-  .div-8 {
-    color: #868686;
-    text-transform: capitalize;
-    margin-top: 14px;
-    font:
-      16px Merriweather,
-      sans-serif;
-  }
-  @media (max-width: 991px) {
-    .div-8 {
-      max-width: 100%;
-      font-size: 13px;
-    }
-  }
-  .div-11 {
-    font-weight: bold;
-    text-align: center;
-    text-decoration-line: underline;
-    align-self: center;
-    margin-top: 8px;
-    font:
-      18px Merriweather,
-      sans-serif;
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: "Merriweather", sans-serif;
-    font-size: large;
-    max-width: 100%;
+  .alertIcon {
+    font-weight: 700;
   }
   form {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 10px;
+    gap: 16px;
   }
-  /* p{
-    font-family: 'Merriweather', sans-serif;
-    font-size: larger;
-  } */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .fieldError {
+    font-size: 13px;
+    color: #ffd4d6;
+  }
 
-  * :global(.mdc-button) {
-    color: white;
-    box-shadow: 6px 6px 10px 0px rgba(0, 0, 0, 0.25);
-    font-family: "Merriweather", sans-serif;
-    font-size: large;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 20px;
+  /* Submit button: full-width white pill, same as the login page */
+  form :global(.mdc-button) {
     width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    background: #fff;
+    color: #0f3a40;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform 100ms ease-out;
+  }
+  form :global(.mdc-button:hover) {
+    background: #e7f1f2;
+  }
+  form :global(.mdc-button:active) {
+    transform: scale(0.97);
+  }
+  form :global(.mdc-button .fa-spinner) {
+    color: #0f3a40;
+    margin-right: 8px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    form :global(.mdc-button) {
+      transition: none;
+    }
+  }
+
+  .sent {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .tick {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0f3a40;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .whiteLink {
+    margin-top: 10px;
+    height: 52px;
+    border-radius: 12px;
+    background: #fff;
+    color: #0f3a40;
+    font: 600 15px "Roboto", sans-serif;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .whiteLink:hover {
+    background: #e7f1f2;
+  }
+  .textBtn {
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font: 500 13px "Roboto", sans-serif;
+    cursor: pointer;
+  }
+  .textBtn:hover {
+    color: #fff;
+  }
+  .help {
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.5;
+  }
+  .help a {
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .help a:hover {
+    color: #cfe6e9;
   }
 </style>

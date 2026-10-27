@@ -1,278 +1,339 @@
 <script>
-  import { registerVersion } from "firebase/app";
   import { authHandlers } from "../store/store";
-  import { auth } from "../lib/firebase/firebase";
   import Textfield from "@smui/textfield";
-  import Icon from "@smui/textfield/icon";
-  import HelperText from "@smui/textfield/helper-text";
   import Button, { Label } from "@smui/button";
+  import AuthShell from "./AuthShell.svelte";
+  import "$lib/styles/glass-field.css";
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   let email = "";
   let password = "";
-  let error = false;
-  let logIn = false;
-  let register = false;
+  let emailError = "";
+  let passwordError = "";
+  let formError = "";
   let authenticating = false;
+  let remember = true;
+  let showPassword = false;
+  let capsLockOn = false;
+
+  function clearEmailError() {
+    emailError = "";
+  }
+
+  function clearPasswordError() {
+    passwordError = "";
+  }
+
+  function handlePasswordKeyUp(event) {
+    capsLockOn = !!(event.getModifierState && event.getModifierState("CapsLock"));
+  }
+
+  function toggleRemember() {
+    remember = !remember;
+  }
+
+  function handleRememberKeydown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleRemember();
+    }
+  }
 
   async function handleAuthenticate() {
     if (authenticating) {
       return;
     }
-    if (!email || !password) {
-      error = true;
+
+    emailError = emailPattern.test(email)
+      ? ""
+      : email
+        ? "That doesn't look like a valid email."
+        : "Enter the email on your shareholder record.";
+    passwordError = password ? "" : "Enter your password.";
+    formError = "";
+
+    if (emailError || passwordError) {
       return;
     }
+
     authenticating = true;
     try {
-      if (!register) {
-        await authHandlers.login(email, password);
-        /* alert('Logged in!') */
-      } else {
-        await authHandlers.singup(email, password);
-      }
+      await authHandlers.login(email, password, remember);
+      // On success the root layout's onAuthStateChanged listener redirects to /dashboard.
     } catch (err) {
-      console.log("There was an error", err);
-      error = true;
+      console.error("There was an error signing in", err);
+      formError =
+        "Email or password is incorrect. Check your notice of meeting for your login details.";
       authenticating = false;
     }
   }
 </script>
 
-<div class="authContainer">
-  <img class="logo" src="rnslogo.png" alt="" />
-  <form>
-    {#if error}
-      <p class="error">
-        The information you have enterd is not valid. Please contact RNS.
-      </p>
-    {/if}
-    <div class="log-in-group01">
-      <span class="log-in-text">
-        <span class="log-in-text01">Welcome to</span>
-        <span class="log-in-text02">RNS</span>,<br />
-      </span>
-    </div>
-    <span class="log-in-text03">
-      <span>Sign in</span>
-    </span>
-    <div class="log-in-group02">
-      <span class="log-in-text05">
-        <span>Enter your Email</span>
-      </span>
-      <Textfield
-        class="shaped-outlined"
-        type="email"
-        required
-        variant="outlined"
-        bind:value={email}
-        label="Email"
-      ></Textfield>
-    </div>
-    <div class="log-in-group03">
-      <span class="log-in-text07">
-        <span>Enter your Password</span>
-      </span>
-      <Textfield
-        class="shaped-outlined"
-        type="password"
-        required
-        variant="outlined"
-        bind:value={password}
-        label="Password"
-      ></Textfield>
-    </div>
-    <a href="/forgot_password" rel="noreferrer noopener" class="log-in-text09">
-      <span>Forgot Password</span>
-    </a>
-    <div class="log-in-group04">
-      <Button on:click={handleAuthenticate} variant="raised">
-        <Label
-          >{#if authenticating}
-            <i class="fa-solid fa-spinner fa-spin" style="color: #ffffff;"></i>
-          {:else}
-            Log In
-          {/if}</Label
-        >
-      </Button>
-    </div>
-  </form>
-  <div class="highlight-toggle">
-    <span class="log-in-text01">Please use these login details.</span>
-    <span class="log-in-text01">Email: test@test.com</span>
-    <span class="log-in-text01">Password: 123456</span>
-  </div>
-</div>
+<AuthShell>
+      <div class="cardHeading">
+        <h1>Welcome, shareholder.</h1>
+        <p class="subtitle">
+          Sign in to view your voting topics and cast your votes.
+        </p>
+      </div>
+
+      <!-- Demo only: shared test account for visitors. -->
+      <div class="demoHint">
+        <span class="demoHintTitle">Please use these login details.</span>
+        <span>Email: <strong>test@test.com</strong></span>
+        <span>Password: <strong>123456</strong></span>
+      </div>
+
+      {#if formError}
+        <div class="alert" role="alert">
+          <span class="alertIcon">!</span>
+          <span>{formError}</span>
+        </div>
+      {/if}
+
+      <form on:submit|preventDefault={handleAuthenticate} novalidate>
+        <div class="field">
+          <Textfield
+            class="glassField"
+            type="email"
+            variant="outlined"
+            bind:value={email}
+            label="Email address"
+            input$autocomplete="email"
+            disabled={authenticating}
+            on:input={clearEmailError}
+          ></Textfield>
+          {#if emailError}
+            <span class="fieldError">{emailError}</span>
+          {/if}
+        </div>
+
+        <div class="field">
+          <div class="pwWrap">
+            <Textfield
+              class="glassField"
+              type={showPassword ? "text" : "password"}
+              variant="outlined"
+              bind:value={password}
+              label="Password"
+              input$autocomplete="current-password"
+              disabled={authenticating}
+              on:input={clearPasswordError}
+              on:keyup={handlePasswordKeyUp}
+            ></Textfield>
+            <button
+              type="button"
+              class="pwToggle"
+              on:click={() => (showPassword = !showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+          {#if passwordError}
+            <span class="fieldError">{passwordError}</span>
+          {/if}
+          {#if capsLockOn}
+            <span class="capsHint">Caps Lock is on</span>
+          {/if}
+        </div>
+
+        <div class="rowBetween">
+          <span
+            class="rememberToggle"
+            role="checkbox"
+            aria-checked={remember}
+            tabindex="0"
+            on:click={toggleRemember}
+            on:keydown={handleRememberKeydown}
+          >
+            <span class="checkbox" class:checked={remember}>
+              {#if remember}✓{/if}
+            </span>
+            Remember me
+          </span>
+          <a href="/forgot_password" rel="noreferrer noopener">Forgot password?</a
+          >
+        </div>
+
+        <Button type="submit" disabled={authenticating} variant="raised">
+          <Label
+            >{#if authenticating}
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            {:else}
+              Sign in
+            {/if}</Label
+          >
+        </Button>
+      </form>
+</AuthShell>
 
 <style>
-  *
-    :global(
-      .shaped-outlined .mdc-notched-outline .mdc-notched-outline__leading
-    ) {
-    border-radius: 28px 0 0 28px;
-    width: 28px;
-  }
-  *
-    :global(
-      .shaped-outlined .mdc-notched-outline .mdc-notched-outline__trailing
-    ) {
-    border-radius: 0 28px 28px 0;
-  }
-  * :global(.shaped-outlined .mdc-notched-outline .mdc-notched-outline__notch) {
-    max-width: calc(100% - 28px * 2);
-  }
-  *
-    :global(
-      .shaped-outlined.mdc-text-field--with-leading-icon:not(
-          .mdc-text-field--label-floating
-        )
-        .mdc-floating-label
-    ) {
-    left: 16px;
-  }
-  * :global(.shaped-outlined + .mdc-text-field-helper-line) {
-    padding-left: 32px;
-    padding-right: 28px;
-  }
-  :global(.shaped-outlined) {
-    width: 100%;
-  }
-  .authContainer {
+  .cardHeading {
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
-    align-content: flex-end;
-    align-items: flex-end;
-    justify-content: flex-start;
-    flex: 1;
-    padding-right: 100px;
-    gap: 1em;
+    gap: 10px;
   }
-  .logo {
-    align-self: flex-start;
+  .cardHeading h1 {
+    margin: 0;
+    font: 600 clamp(28px, 4vw, 38px) / 1.05 "Roboto", sans-serif;
+    letter-spacing: -0.03em;
+  }
+  .subtitle {
+    margin: 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.5;
+  }
+  .demoHint {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 14px;
+    line-height: 1.4;
+    animation: pulse 2s infinite;
+  }
+  .demoHintTitle {
+    font-weight: 600;
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+  .alert {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(192, 40, 47, 0.9);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .alertIcon {
+    font-weight: 700;
   }
   form {
     display: flex;
-    position: sticky;
-    left: 100%;
     flex-direction: column;
-    gap: 15px;
-    width: 400px;
-    max-width: 100%;
-    margin: 0 auto;
-    align-items: flex-start;
-    border: none;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.415);
-    backdrop-filter: blur(20px);
-    padding: 15px;
-    padding-left: 25px;
-    padding-top: 25px;
-    padding-bottom: 25px;
+    gap: 16px;
   }
-  /* form input {
-    width: 95%;
-    font-size: large;
-    height: 50px;
-  } */
-  /* .log-in-textinput1{
-        width: 97%;
-        min-width: 97%;
-    } */
-  .log-in-text {
-    font-size: 21px;
-  }
-  .log-in-text02 {
-    color: #6ba3ab;
-    font-weight: bold;
-  }
-  .log-in-text03 {
-    font-size: 55px;
-  }
-  .log-in-group02 {
+  .field {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    gap: 10px;
+    gap: 6px;
   }
-  .log-in-group03 {
+  .fieldError {
+    font-size: 13px;
+    color: #ffd4d6;
+  }
+  .capsHint {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .pwWrap {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 10px;
   }
-  .log-in-group04 {
-    width: 100%;
-    /* border: none;
-    border-radius: 10px;
-    background: #6ba3ab;
+  .pwToggle {
+    position: absolute;
+    right: 6px;
+    top: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    font: 500 13px "Roboto", sans-serif;
+    color: #2f7f8b;
     cursor: pointer;
-    padding: 10px 0;
-    color: white;
-    font-size: large; */
-  }
-  * :global(.mdc-button) {
-    width: 100%;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: "Merriweather", sans-serif;
-    font-size: large;
-    color: white;
-  }
-  @media (max-width: 720px) {
-    .authContainer {
-      padding: 10px;
-      padding-top: 0%;
-      align-content: center;
-    }
-    .logo {
-      width: 150px;
-    }
-  }
-  @media (max-width: 430px) {
-    .authContainer {
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-      padding: 10px;
-      justify-content: flex-start;
-      align-items: flex-start;
-    }
-    .logo {
-      width: 165px;
-      align-self: center;
-    }
-    form {
-      top: 5%;
-    }
-  }
-
-  .highlight-toggle {
-    margin-top: 0%;
-    padding-right: 1em;
-    padding-left: 1em;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    border: 2px solid #6ba3ab;
     border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.537);
+    z-index: 1;
+  }
+  .pwToggle:hover {
+    background: #e7f1f2;
+  }
+  .rowBetween {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    font-weight: bold;
-    gap: 1em;
-    animation: pulse 2s infinite;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    min-height: 24px;
+  }
+  .rowBetween a {
+    color: #fff;
+    font-size: 13px;
+  }
+  .rowBetween a:hover {
+    color: #cfe6e9;
+  }
+  .rememberToggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .checkbox.checked {
+    background: #fff;
+    color: #0f3a40;
+    border-color: #fff;
   }
 
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 #676778;
+  /* Field styles (.glassField) live in $lib/styles/glass-field.css. */
+
+  /* Submit button: full-width white pill, matching the design */
+  form :global(.mdc-button) {
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    background: #fff;
+    color: #0f3a40;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform 100ms ease-out;
+  }
+  form :global(.mdc-button:hover) {
+    background: #e7f1f2;
+  }
+  form :global(.mdc-button:active) {
+    transform: scale(0.97);
+  }
+  form :global(.mdc-button .fa-spinner) {
+    color: #0f3a40;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    form :global(.mdc-button) {
+      transition: none;
     }
-    70% {
-      box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+    .demoHint {
+      animation: none;
     }
   }
+
 </style>

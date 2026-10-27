@@ -1,116 +1,125 @@
 <script>
-  import { createUserWithEmailAndPassword } from "firebase/auth";
-  import { auth, db } from "../lib/firebase/firebase"; // Assuming you have a db export in your firebase.js
-  import { collection, doc, setDoc } from "firebase/firestore";
-  import MenuSurface from "@smui/menu-surface";
-  import Textfield from "@smui/textfield";
-  import Button from "@smui/button";
+  import { createEventDispatcher } from "svelte";
   import axios from "axios";
+  import "$lib/styles/glass-dialog.css";
 
-  let surface = MenuSurface;
-  let name = "";
-  let email = "";
+  export let open = false;
+
+  const dispatch = createEventDispatcher();
+
   let displayName = "";
   let agency = "";
-  let password = ""; // Variable for password
+  let email = "";
+  let password = "";
   let shares = 0;
-  let error = false;
+  let saving = false;
+  let error = "";
 
-  async function register() {
-    try {
-      // Create the user without signing them in
-      /* const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      ); */
+  $: invalid = !displayName.trim() || !email.trim() || !password.trim();
 
-      // Save user details including shares to Firestore
-      const userRef = doc(db, "users", userCredential.user.uid);
-      await setDoc(userRef, {
-        email,
-        agency,
-        displayName,
-        shares,
-      });
-
-      // Optionally, you can sign out the user immediately after creating the account
-      // auth.signOut(); // Uncomment this line if you want to force sign out
-
-      // Redirect to a success page or home page
-      // goto('/success'); // Comment out or remove this line if you don't want to redirect
-    } catch (err) {
-      console.error("Error registering user: ", err);
-      error = true;
-      // Handle error, e.g., display a message to the user
-    }
+  // Clear the form whenever the dialog closes, so the next open starts blank.
+  function reset() {
+    displayName = "";
+    agency = "";
+    email = "";
+    password = "";
+    shares = 0;
+    error = "";
   }
 
-  async function createUser(userData) {
-    console.log(userData);
+  function close() {
+    if (saving) return;
+    reset();
+    dispatch("close");
+  }
+
+  async function createUser() {
+    if (invalid || saving) return;
+    saving = true;
+    error = "";
+    const userData = {
+      email: email.trim(),
+      agency: agency.trim(),
+      displayName: displayName.trim(),
+      password,
+      shares: Math.max(0, parseInt(shares, 10) || 0),
+    };
     try {
-      const response = await axios.post(
-        //"https://agm-node-cptdarkstar.onrender.com/createUser",
+      await axios.post(
         "https://agm-demo-node.onrender.com/createUser",
         userData
       );
-      console.log(response.data); // Log the response from the backend
-    } catch (error) {
-      console.error("Error creating user:", error);
+      reset();
+      dispatch("created", { name: userData.displayName, email: userData.email });
+    } catch (err) {
+      console.error("Error creating user:", err);
+      error =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Couldn't create this shareholder. Check the details and try again.";
+    } finally {
+      saving = false;
     }
   }
 
-  // Call createUser function with user data
-  // createUser({
-  //   email,
-  //   displayName,
-  //   password,
-  //   shares,
-  // });
+  function handleKeydown(event) {
+    if (open && event.key === "Escape") close();
+  }
 </script>
 
-{#if error}
-  <p class="error">
-    The information you have entered is not valid. Please contact RNS.
-  </p>
-{/if}
+<svelte:window on:keydown={handleKeydown} />
 
-<div style="min-width: 100px;">
-  <Button on:click={() => surface.setOpen(true)}>Add Share Holder</Button>
-  <MenuSurface bind:this={surface} anchorCorner="BOTTOM_LEFT">
+{#if open}
+  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+  <div class="gd-scrim" on:click|self={close}>
     <form
-      on:submit|preventDefault={() =>
-        createUser({ email, agency, displayName, password, shares })}
+      class="gd-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-shareholder-title"
+      on:submit|preventDefault={createUser}
+      novalidate
     >
-      <div
-        style="margin: 1em; display: flex; flex-direction: column; align-items: flex-end;"
-      >
-        <Textfield bind:value={displayName} label="Name" required />
-        <Textfield bind:value={agency} label="Agency" />
-        <Textfield bind:value={email} label="Email" required />
-        <Textfield
-          type="password"
-          bind:value={password}
-          label="Password"
-          required
-        />
-        <Textfield type="number" bind:value={shares} label="Shares" />
-        <Button style="margin-top: 1em;" type="submit">Register</Button>
-        <Button
-          style="margin-top: 1em;"
-          on:click={() => surface.setOpen(false)}
-        >
-          Close
-        </Button>
+      <div class="gd-head">
+        <span id="add-shareholder-title" class="gd-title">Add shareholder</span>
+        <span class="gd-sub">They sign in with this email and password.</span>
+      </div>
+
+      <div class="gd-fields">
+        <label class="gd-field">
+          <span class="gd-label">Name *</span>
+          <input class="gd-input" type="text" bind:value={displayName} autocomplete="off" />
+        </label>
+        <label class="gd-field">
+          <span class="gd-label">Agency</span>
+          <input class="gd-input" type="text" bind:value={agency} autocomplete="off" />
+        </label>
+        <label class="gd-field">
+          <span class="gd-label">Email *</span>
+          <input class="gd-input" type="email" bind:value={email} autocomplete="off" />
+        </label>
+        <label class="gd-field">
+          <span class="gd-label">Password *</span>
+          <input class="gd-input" type="password" bind:value={password} autocomplete="new-password" />
+        </label>
+        <label class="gd-field">
+          <span class="gd-label">Shares</span>
+          <input class="gd-input" type="number" min="0" step="1" bind:value={shares} />
+        </label>
+      </div>
+
+      {#if error}
+        <p class="gd-error" role="alert">{error}</p>
+      {/if}
+
+      <div class="gd-actions">
+        <button type="button" class="gd-btn gd-btn-ghost" disabled={saving} on:click={close}>
+          Cancel
+        </button>
+        <button type="submit" class="gd-btn gd-btn-primary" disabled={invalid || saving}>
+          {saving ? "Registering…" : "Register"}
+        </button>
       </div>
     </form>
-  </MenuSurface>
-</div>
-
-<style>
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-</style>
+  </div>
+{/if}

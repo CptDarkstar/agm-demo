@@ -1,11 +1,22 @@
 <script>
   import { onMount } from "svelte";
-  import { auth, db } from "../lib/firebase/firebase";
+  import { browser } from "$app/environment";
+  import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { auth, db } from "$lib/firebase/firebase";
   import { getDoc, doc, setDoc } from "firebase/firestore";
-  import { authStore } from "../store/store";
+  import { authStore, isAdmin } from "../store/store";
   import "@fortawesome/fontawesome-free/css/all.min.css";
 
   const nonAuthRoutes = ["/", "/forgot_password"];
+  const adminRoutes = ["/admin", "/shareholders"];
+
+  // Demo: the Admin mode toggle replaces the admin-claim check, so send
+  // visitors away from the admin pages whenever it's off (including when
+  // they switch it off while on one of those pages).
+  $: if (browser && !$isAdmin && adminRoutes.includes($page.url.pathname)) {
+    goto("/dashboard");
+  }
 
   onMount(() => {
     /* console.log("Mounting!"); */
@@ -25,17 +36,6 @@
       }
 
       if (!user) {
-        return;
-      }
-
-      // Check if user has admin claim
-      const idTokenResult = await user.getIdTokenResult();
-      if (
-        !idTokenResult.claims.admin &&
-        (currentPath === "/admin" || currentPath === "/shareholders")
-      ) {
-        // Redirect non-admin users from admin and shareholders pages
-        window.location.href = "/dashboard";
         return;
       }
 

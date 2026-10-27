@@ -1,0 +1,53 @@
+/* SMUI outlined Textfield restyled as a white pill on the glass sign-in card.
+   Shared by the login page (Authenticate.svelte) and /forgot_password — a
+   component's own <style> only loads with that component's page, so these
+   rules live here instead.
+
+   The fill lives on the field root, not the notched-outline fragments: the
+   outline is position:absolute so it paints ON TOP of the input's text —
+   giving it a background would hide whatever you type underneath it. */
+.glassField {
+  width: 100%;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 12px;
+}
+
+.glassField .mdc-notched-outline .mdc-notched-outline__leading {
+  border-radius: 12px 0 0 12px;
+  width: 16px;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glassField .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-radius: 0 12px 12px 0;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glassField .mdc-notched-outline .mdc-notched-outline__notch {
+  max-width: calc(100% - 16px * 2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glassField .mdc-text-field__input {
+  color: #0e1f23;
+  font: 15px "Roboto", sans-serif;
+}
+
+.glassField .mdc-floating-label {
+  color: #5c686b;
+}
+
+.glassField.mdc-text-field--focused .mdc-floating-label {
+  color: #2f7f8b;
+}
+
+/* Chrome/Edge show autofilled text but hide it from JS until the user
+   interacts with the page, so MDC thinks the field is empty and leaves the
+   label sitting on top of the text. CSS *can* see autofill, so float the
+   label ourselves. Values copied from MDC's own floated-label rule for an
+   outlined field (@smui/textfield/bare.css, "notched-outline--upgraded"). */
+.glassField:has(.mdc-text-field__input:-webkit-autofill) .mdc-floating-label {
+  transform: translateY(-34.75px) scale(0.75);
+  font-size: 1rem;
+}

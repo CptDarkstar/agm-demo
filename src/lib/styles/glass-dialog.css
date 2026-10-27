@@ -1,0 +1,163 @@
+/* Shared dark-glass dialog + form styles used by the shareholder dialogs
+   (EditUser, Register, AddProxy). Plain global classes, prefixed `gd-`. */
+
+.gd-scrim {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  background: rgba(5, 20, 23, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.gd-dialog {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: rgba(14, 50, 56, 0.72);
+  -webkit-backdrop-filter: blur(30px) saturate(1.4);
+  backdrop-filter: blur(30px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+}
+
+.gd-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gd-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.gd-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.45;
+}
+
+.gd-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.gd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gd-label {
+  font: 500 11px "Roboto Mono", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.gd-input {
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: 400 15px "Roboto", sans-serif;
+  outline: none;
+  color-scheme: dark;
+}
+
+.gd-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.gd-input:focus {
+  border-color: #9fd6dc;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.gd-textarea {
+  height: auto;
+  padding: 12px 14px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.gd-input option {
+  background: #0f3a40;
+  color: #fff;
+}
+
+.gd-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(192, 40, 47, 0.85);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.gd-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gd-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font: 600 14px "Roboto", sans-serif;
+  cursor: pointer;
+}
+
+.gd-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.gd-btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+}
+
+.gd-btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.gd-btn-primary {
+  border: 0;
+  background: #fff;
+  color: #0f3a40;
+}
+
+.gd-btn-primary:hover:not(:disabled) {
+  background: #e7f1f2;
+}
+
+.gd-btn-danger {
+  border: 0;
+  background: #c0282f;
+  color: #fff;
+}
+
+.gd-btn-danger:hover:not(:disabled) {
+  background: #a61f26;
+}
